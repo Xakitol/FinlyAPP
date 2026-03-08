@@ -101,6 +101,18 @@ function renderUI(data) {
     updateChart(catTotals);
 }
 
+// --- מצב לילה ---
+const darkModeBtn = document.getElementById('dark-mode-btn');
+if (localStorage.getItem('darkMode') === 'on') {
+    document.body.classList.add('dark-mode');
+    darkModeBtn.textContent = '☀️';
+}
+darkModeBtn.addEventListener('click', () => {
+    const isDark = document.body.classList.toggle('dark-mode');
+    darkModeBtn.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('darkMode', isDark ? 'on' : 'off');
+});
+
 // פונקציית מחיקה גלובלית
 window.deleteTransaction = async (id) => {
     if(confirm("למחוק תנועה זו?")) {
