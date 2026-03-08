@@ -5,6 +5,7 @@
 
 const STORAGE_KEY  = 'mymoneyapp_transactions';
 const CATEGORY_KEY = 'mymoneyapp_categories';
+const BUDGET_KEY   = 'mymoneyapp_budget';
 
 const DEFAULT_CATEGORIES = [
   'משכורת', 'שכר דירה', 'מזון וקניות', 'חשבונות', 'בריאות',
@@ -71,12 +72,15 @@ if (!categories) {
   categories = [...DEFAULT_CATEGORIES];
   saveCategories();
 }
+let budget = loadFromStorage(BUDGET_KEY, 0);
 
 // ── DOM ───────────────────────────────────────────────────────────────────
 const form             = document.getElementById('transaction-form');
 const nameInput        = document.getElementById('transaction-name');
 const amountInput      = document.getElementById('transaction-amount');
-const typeSelect       = document.getElementById('transaction-type');
+const typeBtnExpense   = document.getElementById('type-btn-expense');
+const typeBtnIncome    = document.getElementById('type-btn-income');
+let currentType        = 'expense';
 const categorySelect   = document.getElementById('transaction-category');
 const addCategoryBtn   = document.getElementById('add-category-btn');
 const tbody            = document.getElementById('transactions-body');
@@ -85,6 +89,12 @@ const clearAllBtn      = document.getElementById('clear-all-btn');
 const totalIncomeEl    = document.getElementById('total-income');
 const totalExpensesEl  = document.getElementById('total-expenses');
 const balanceEl        = document.getElementById('balance');
+const budgetInputEl    = document.getElementById('budget-input');
+const budgetBarWrap    = document.getElementById('budget-bar-wrap');
+const budgetFill       = document.getElementById('budget-fill');
+const budgetSpentLabel = document.getElementById('budget-spent-label');
+const budgetPctLabel   = document.getElementById('budget-pct-label');
+const budgetStatusMsg  = document.getElementById('budget-status-msg');
 
 // Modal
 const modal            = document.getElementById('category-modal');
@@ -168,6 +178,112 @@ addCategoryBtn.addEventListener('click', () => {
 modalClose.addEventListener('click', () => modal.classList.remove('open'));
 modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
 
+// ── Type Toggle ───────────────────────────────────────────────────
+[typeBtnExpense, typeBtnIncome].forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentType = btn.dataset.type;
+    typeBtnExpense.classList.toggle('active', currentType === 'expense');
+    typeBtnIncome.classList.toggle('active', currentType === 'income');
+  });
+});
+
+// ── Budget Save ─────────────────────────────────────────────────
+document.getElementById('save-budget-btn').addEventListener('click', () => {
+  const val = parseFloat(budgetInputEl.value);
+  if (!val || val <= 0) { showToast('⚠️ הזן יעד תקציב תקין.'); return; }
+  budget = val;
+  localStorage.setItem(BUDGET_KEY, JSON.stringify(budget));
+  updateBudgetBar();
+  showToast('✅ יעד התקציב נשמר!');
+});
+
+// ── Budget Bar ─────────────────────────────────────────────────
+function updateBudgetBar() {
+  if (!budget || budget <= 0) { budgetBarWrap.classList.remove('visible'); return; }
+  const totalExp = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const pct      = Math.min((totalExp / budget) * 100, 100);
+  budgetBarWrap.classList.add('visible');
+  budgetFill.style.width = pct + '%';
+  budgetSpentLabel.textContent = formatCurrency(totalExp) + ' הוצאו';
+  budgetPctLabel.textContent   = Math.round(pct) + '%';
+  const isWarn = pct >= 80;
+  budgetFill.classList.toggle('warn', isWarn);
+  document.body.classList.toggle('budget-warn', isWarn);
+  if (pct >= 100)       budgetStatusMsg.textContent = '⚠️ חרגת מהתקציב!';
+  else if (isWarn)      budgetStatusMsg.textContent = '⚠️ קרוב לגבול';
+  else                  budgetStatusMsg.textContent = '✓ בתוך התקציב';
+}
+
+// ── Pie Chart ──────────────────────────────────────────────────
+let pieChart = null;
+const PASTEL_COLORS = [
+  'rgba(255,179,186,0.88)', 'rgba(255,223,186,0.88)', 'rgba(178,236,200,0.88)',
+  'rgba(186,225,255,0.88)', 'rgba(220,190,255,0.88)', 'rgba(255,243,176,0.88)',
+  'rgba(200,240,220,0.88)', 'rgba(255,210,190,0.88)', 'rgba(190,220,255,0.88)',
+  'rgba(240,200,230,0.88)',
+];
+const PASTEL_BORDERS = PASTEL_COLORS.map(c => c.replace('0.88', '1').replace('rgba','rgba').replace(/,\d+\)$/,',1)'));
+
+function updatePieChart() {
+  const byCategory = {};
+  transactions.filter(t => t.type === 'expense').forEach(t => {
+    const cat = t.category || 'אחר';
+    byCategory[cat] = (byCategory[cat] || 0) + t.amount;
+  });
+  const labels = Object.keys(byCategory);
+  const data   = Object.values(byCategory);
+  const canvas = document.getElementById('pie-chart');
+  const emptyMsg = document.getElementById('chart-empty-msg');
+  if (!labels.length) {
+    canvas.style.display = 'none';
+    emptyMsg.style.display = 'block';
+    if (pieChart) { pieChart.destroy(); pieChart = null; }
+    return;
+  }
+  canvas.style.display = 'block';
+  emptyMsg.style.display = 'none';
+  const colors  = labels.map((_, i) => PASTEL_COLORS[i % PASTEL_COLORS.length]);
+  const borders = labels.map((_, i) => PASTEL_BORDERS[i % PASTEL_BORDERS.length]);
+  if (pieChart) {
+    pieChart.data.labels = labels;
+    pieChart.data.datasets[0].data = data;
+    pieChart.data.datasets[0].backgroundColor = colors;
+    pieChart.data.datasets[0].borderColor = borders;
+    pieChart.update();
+  } else {
+    pieChart = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{ data, backgroundColor: colors, borderColor: borders,
+          borderWidth: 2.5, hoverOffset: 10 }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { family: "'Segoe UI', Tahoma, Arial, sans-serif", size: 12 },
+              color: document.body.classList.contains('dark-mode') ? '#c0a880' : '#4a3825',
+              padding: 14, boxWidth: 14, borderRadius: 4,
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                const pct   = ((ctx.parsed / total) * 100).toFixed(1);
+                return ` ${ctx.label}: ${formatCurrency(ctx.parsed)} (${pct}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
 // Save new category
 saveCategoryBtn.addEventListener('click', addNewCategory);
 newCategoryInput.addEventListener('keydown', e => {
@@ -227,6 +343,8 @@ function updateSummary() {
   totalExpensesEl.textContent = formatCurrency(totalExpenses);
   balanceEl.textContent       = formatCurrency(balance);
   balanceEl.style.color = balance >= 0 ? 'var(--income-color)' : 'var(--expense-color)';
+  updatePieChart();
+  updateBudgetBar();
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────
@@ -267,7 +385,7 @@ form.addEventListener('submit', e => {
   e.preventDefault();
   const name     = nameInput.value.trim();
   const amount   = parseFloat(amountInput.value);
-  const type     = typeSelect.value;
+  const type     = currentType;
   const category = categorySelect.value;
 
   if (!name || isNaN(amount) || amount <= 0) {
@@ -277,7 +395,7 @@ form.addEventListener('submit', e => {
   transactions.push({ id: Date.now(), name, amount, type, category, date: new Date().toISOString() });
   saveTransactions();
   renderTable(true);
-  nameInput.value = ''; amountInput.value = ''; typeSelect.value = 'income';
+  nameInput.value = ''; amountInput.value = '';
   nameInput.focus();
   showToast(type === 'income' ? '\u2705 הכנסה נוספה בהצלחה!' : '\u2705 הוצאה נוספה בהצלחה!');
 });
@@ -700,6 +818,8 @@ function applyDarkMode(enabled) {
   document.body.classList.toggle('dark-mode', enabled);
   darkModeBtn.textContent = enabled ? '☀️' : '🌙';
   darkModeBtn.title       = enabled ? 'מצב יום' : 'מצב לילה';
+  // Refresh chart legend color
+  if (pieChart) { pieChart.destroy(); pieChart = null; updatePieChart(); }
 }
 
 darkModeBtn.addEventListener('click', () => {
@@ -714,3 +834,4 @@ applyDarkMode(localStorage.getItem(DARK_MODE_KEY) === '1');
 // ── Init ──────────────────────────────────────────────────────────────────
 renderCategorySelect();
 renderTable();
+if (budget > 0) budgetInputEl.value = budget;
