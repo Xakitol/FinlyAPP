@@ -2,6 +2,7 @@
   "name": "toledano-money-manager",
   "productName": "ניהול כלכלי משפחת טולדנו",
   "version": "1.0.0",
+  "author": "Toledano Family",
   "description": "Money Management for Toledano Family",
   "main": "main.js",
   "scripts": {
