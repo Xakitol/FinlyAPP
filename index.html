@@ -24,20 +24,20 @@
 
   <button id="dark-mode-btn" class="dark-mode-btn" title="מצב לילה / יום">🌙</button>
 
- <header>
-  <div class="header-inner">
-    <div class="header-icon">👨‍👩‍👧‍👦</div>
-    <div>
-      <h1>ניהול כלכלי משפחת טולדנו</h1>
-      <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
-        <p class="subtitle" style="margin:0;">צפייה בחודש:</p>
-        <select id="month-filter" class="month-select">
-          <option value="all">הכל מהתחלה</option>
+  <header>
+    <div class="header-inner">
+      <div class="header-icon">👨‍👩‍👧‍👦</div>
+      <div>
+        <h1>ניהול כלכלי משפחת טולדנו</h1>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+          <p class="subtitle" style="margin:0;">צפייה בחודש:</p>
+          <select id="month-filter" class="month-select">
+            <option value="all">הכל מהתחלה</option>
           </select>
+        </div>
       </div>
     </div>
-  </div>
-</header>
+  </header>
 
   <main>
     <section class="summary-grid">
@@ -116,11 +116,12 @@
     </section>
 
     <section class="table-section wood-panel">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <div class="table-header-row">
         <h2>📋 היסטוריית תנועות</h2>
-        <div style="display:flex;gap:0.5rem;">
-          <button id="export-pdf-btn" class="btn-add-sm" style="background: #c04828; border-color: #a03018;">📄 ייצוא ל-PDF</button>
-          <button id="export-excel-btn" class="btn-add-sm" style="background: #1D6F42; border-color: #155231;">📊 ייצוא לאקסל</button>
+        <div class="table-controls">
+          <input type="text" id="search-input" placeholder="🔍 חפש תנועה..." class="search-field">
+          <button id="export-pdf-btn" class="btn-add-sm btn-pdf">📄 PDF</button>
+          <button id="export-excel-btn" class="btn-add-sm btn-excel">📊 Excel</button>
         </div>
       </div>
       <div class="table-wrapper">
@@ -138,7 +139,7 @@
           <tbody id="transactions-body"></tbody>
         </table>
         <div id="empty-state" class="empty-state">
-          <p>אין תנועות כרגע</p>
+          <p>אין תנועות תואמות לחיפוש</p>
         </div>
       </div>
     </section>
