@@ -17,12 +17,9 @@
 
   <div id="app-loader" class="app-loader">
     <div class="loader-box">
-      <div class="loader-spinner"></div>
       <p>מתחבר לענן…</p>
     </div>
   </div>
-
-  <button id="dark-mode-btn" class="dark-mode-btn">🌙</button>
 
   <header>
     <div class="header-inner">
@@ -37,22 +34,16 @@
   <main>
     <section class="summary-grid">
       <div class="card income-card">
-        <div class="card-content">
-          <h3>סך הכנסות ▲</h3>
-          <p id="total-income">₪0</p>
-        </div>
+        <h3>סך הכנסות ▲</h3>
+        <p id="total-income">₪0</p>
       </div>
       <div class="card expense-card">
-        <div class="card-content">
-          <h3>סך הוצאות ▼</h3>
-          <p id="total-expenses">₪0</p>
-        </div>
+        <h3>סך הוצאות ▼</h3>
+        <p id="total-expenses">₪0</p>
       </div>
       <div class="card balance-card">
-        <div class="card-content">
-          <h3>יתרה ₪</h3>
-          <p id="balance">₪0</p>
-        </div>
+        <h3>יתרה ₪</h3>
+        <p id="balance">₪0</p>
       </div>
     </section>
 
@@ -66,7 +57,7 @@
         <div class="progress-bar-bg">
           <div id="target-progress-fill" class="progress-bar-fill"></div>
         </div>
-        <p id="target-message" class="target-message">אין יתרה לחיסכון החודש.</p>
+        <p id="target-message" class="target-message">מחשב נתונים...</p>
       </div>
     </section>
 
@@ -126,7 +117,6 @@
           </thead>
           <tbody id="transactions-body"></tbody>
         </table>
-        <div id="empty-state" class="empty-state" style="display:none;">לא נמצאו תנועות</div>
       </div>
     </section>
   </main>

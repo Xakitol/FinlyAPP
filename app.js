@@ -16,21 +16,20 @@ const db = getFirestore(app);
 const transactionsCol = collection(db, "transactions");
 
 let currentType = 'expense';
-let myChart = null;
 let allData = [];
+let myChart = null;
 
-// פונקציה ליצירת רשימת חודשים
 function populateMonths() {
     const months = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     const filter = document.getElementById('month-filter');
     const current = new Date().getMonth();
     
-    const allOpt = document.createElement('option');
-    allOpt.value = "all"; allOpt.innerText = "הכל מהתחלה";
-    filter.appendChild(allOpt);
+    let optAll = document.createElement('option');
+    optAll.value = "all"; optAll.innerText = "הכל מהתחלה";
+    filter.appendChild(optAll);
 
     months.forEach((m, i) => {
-        const opt = document.createElement('option');
+        let opt = document.createElement('option');
         opt.value = i; opt.innerText = m;
         if (i === current) opt.selected = true;
         filter.appendChild(opt);
@@ -38,11 +37,9 @@ function populateMonths() {
 }
 populateMonths();
 
-// האזנות לסינון וחיפוש
 document.getElementById('month-filter').onchange = () => renderUI(allData);
 document.getElementById('search-input').oninput = () => renderUI(allData);
 
-// כפתורי סוג תנועה
 document.getElementById('type-btn-expense').onclick = function() {
     currentType = 'expense'; this.classList.add('active');
     document.getElementById('type-btn-income').classList.remove('active');
@@ -52,7 +49,6 @@ document.getElementById('type-btn-income').onclick = function() {
     document.getElementById('type-btn-expense').classList.remove('active');
 };
 
-// הוספה לענן
 document.getElementById('transaction-form').onsubmit = async (e) => {
     e.preventDefault();
     await addDoc(transactionsCol, {
@@ -65,7 +61,6 @@ document.getElementById('transaction-form').onsubmit = async (e) => {
     e.target.reset();
 };
 
-// האזנה לשינויים
 onSnapshot(query(transactionsCol, orderBy("date", "desc")), (snapshot) => {
     allData = [];
     snapshot.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
@@ -100,7 +95,7 @@ function renderUI(data) {
         tr.innerHTML = `
             <td>${t.description}</td>
             <td>${t.category}</td>
-            <td style="color:${t.type === 'income' ? 'green' : 'red'}">${t.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
+            <td style="color:${t.type === 'income' ? 'green' : 'red'}">${t.type === 'income' ? '↑' : '↓'}</td>
             <td style="font-weight:bold">₪${t.amount.toLocaleString()}</td>
             <td>${new Date(t.date).toLocaleDateString('he-IL')}</td>
             <td><button onclick="deleteTransaction('${t.id}')">🗑️</button></td>
@@ -122,6 +117,7 @@ function updateSavingTarget(balance) {
     const pct = Math.min(Math.max((balance / target) * 100, 0), 100);
     document.getElementById('target-progress-fill').style.width = pct + "%";
     document.getElementById('target-percentage').innerText = Math.round(pct) + "%";
+    document.getElementById('target-message').innerText = balance >= target ? "הגעתם ליעד! 🏆" : "ממשיכים לחסוך...";
 }
 
 window.deleteTransaction = async (id) => {
@@ -141,10 +137,9 @@ function updateChart(totals) {
     });
 }
 
-// קטגוריות
 const cats = ["מזון", "בית", "חינוך", "פנאי", "רכב", "בריאות", "משכורת", "אחר"];
 cats.forEach(c => {
-    const o = document.createElement('option');
+    let o = document.createElement('option');
     o.value = c; o.innerText = c;
     document.getElementById('transaction-category').appendChild(o);
 });

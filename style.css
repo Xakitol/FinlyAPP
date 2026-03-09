@@ -2,10 +2,8 @@
     --primary-brown: #5d4037;
     --bg-creme: #f2e8d8;
     --panel-bg: #fdf5e6;
-    --text-dark: #3e2723; /* טקסט כהה וקריא */
+    --text-dark: #3e2723;
     --accent: #d2b48c;
-    --income-bg: #e8f5e9;
-    --expense-bg: #ffebee;
 }
 
 body {
@@ -24,20 +22,7 @@ header {
     border-bottom: 4px solid var(--accent);
 }
 
-h1 { 
-    font-family: 'Rubik Scribble', cursive; 
-    font-size: 2.8rem; 
-    margin: 0 0 10px 0;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-}
-
-.panel-title {
-    font-family: 'Rubik', sans-serif;
-    color: var(--primary-brown);
-    border-bottom: 1px dashed var(--accent);
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-}
+h1 { font-family: 'Rubik Scribble', cursive; font-size: 2.8rem; margin: 0; }
 
 .wood-panel {
     background: var(--panel-bg);
@@ -45,69 +30,36 @@ h1 {
     border-radius: 20px;
     padding: 25px;
     margin-bottom: 25px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-/* כרטיסי סיכום כמו בתמונה */
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin: -20px auto 30px;
-}
+.panel-title { color: var(--primary-brown); border-bottom: 1px dashed var(--accent); padding-bottom: 10px; }
 
-.card {
-    background: var(--panel-bg);
-    border: 2px solid var(--accent);
-    border-radius: 15px;
-    padding: 15px;
-    text-align: center;
-}
+.summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: -20px auto 30px; max-width: 900px; }
+.card { background: var(--panel-bg); border: 2px solid var(--accent); border-radius: 15px; padding: 15px; text-align: center; }
+.income-card p { color: #2e7d32; font-size: 1.8rem; font-weight: bold; }
+.expense-card p { color: #c62828; font-size: 1.8rem; font-weight: bold; }
+.balance-card p { color: var(--primary-brown); font-size: 1.8rem; font-weight: bold; }
 
-.card h3 { font-size: 1rem; margin: 0; color: var(--primary-brown); }
-.card p { font-size: 1.8rem; font-weight: bold; margin: 10px 0 0; }
+.progress-bar-bg { background: #e0d5c1; border-radius: 20px; height: 25px; border: 1px solid var(--accent); overflow: hidden; }
+.progress-bar-fill { background: #a68966; height: 100%; width: 0%; transition: width 1s ease; }
 
-.income-card p { color: #2e7d32; }
-.expense-card p { color: #c62828; }
-
-/* יעד חיסכון */
-.progress-bar-bg { background: #e0d5c1; border-radius: 20px; height: 30px; border: 1px solid var(--accent); overflow: hidden; }
-.progress-bar-fill { background: #c5b398; width: 0%; height: 100%; transition: width 1s ease; }
-.target-message { color: #8d6e63; font-style: italic; margin-top: 15px; text-align: center; }
-
-/* טופס */
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-input, select { 
-    padding: 12px; 
-    border-radius: 15px; 
-    border: 1px solid var(--accent); 
-    background: white; 
-    color: var(--text-dark);
-    font-weight: bold;
-}
+input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: white; color: var(--text-dark); font-weight: bold; }
 
-.type-btn { 
-    flex: 1; padding: 12px; border-radius: 15px; border: 2px solid var(--accent); 
-    background: white; cursor: pointer; font-weight: bold; color: var(--text-dark);
-}
+.type-toggle-row { display: flex; gap: 10px; margin: 15px 0; }
+.type-btn { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid var(--accent); cursor: pointer; font-weight: bold; background: white; }
 .expense-btn.active { background: #f5a08d; color: white; }
 .income-btn.active { background: #a5d6a7; color: white; }
-.btn-add { background: #a68966; color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-size: 1.2rem; cursor: pointer; }
+.btn-add { background: #8d6e63; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 1.2rem; cursor: pointer; }
 
-/* טבלה */
-table { width: 100%; border-collapse: collapse; }
-th { padding: 15px; color: var(--primary-brown); border-bottom: 2px solid var(--accent); }
-td { padding: 12px; border-bottom: 1px solid #eee; font-weight: 500; }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th { padding: 12px; border-bottom: 2px solid var(--accent); color: var(--primary-brown); }
+td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
 
-.search-field { padding: 10px; border-radius: 20px; border: 1px solid var(--accent); width: 200px; }
-.btn-tool { padding: 8px 15px; border-radius: 8px; border: none; color: white; cursor: pointer; font-weight: bold; margin-right: 5px; }
+.search-field { padding: 8px 15px; border-radius: 20px; border: 1px solid var(--accent); width: 180px; }
+.btn-tool { padding: 8px 12px; border-radius: 8px; border: none; color: white; cursor: pointer; font-weight: bold; }
 .btn-pdf { background: #d32f2f; }
 .btn-excel { background: #2e7d32; }
 
-/* Loader & Dark Mode */
-.app-loader { position: fixed; inset: 0; background: var(--bg-creme); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.dark-mode-btn { position: fixed; top: 15px; left: 15px; background: white; border: 1px solid var(--accent); border-radius: 50%; padding: 8px; cursor: pointer; }
-
-@media (max-width: 768px) {
-    .summary-grid, .form-grid { grid-template-columns: 1fr; }
-}
+.app-loader { position: fixed; inset: 0; background: var(--bg-creme); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+.app-loader.hidden { display: none; }
