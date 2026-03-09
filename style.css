@@ -20,9 +20,27 @@ header {
     padding: 1.5rem;
     text-align: center;
     border-bottom: 4px solid var(--accent);
+    font-family: 'Rubik Scribble', cursive;
 }
 
-h1 { font-family: 'Rubik Scribble', cursive; font-size: 2.8rem; margin: 0; }
+h1 { font-size: 2.8rem; margin: 0; }
+
+.month-select {
+    padding: 8px;
+    border-radius: 10px;
+    border: 2px solid var(--accent);
+    background: var(--panel-bg);
+    color: var(--text-dark);
+    font-family: 'Rubik Scribble', cursive;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.month-selector-wrap span {
+    font-family: 'Rubik Scribble', cursive;
+    font-size: 1.2rem;
+    margin-left: 10px;
+}
 
 main {
     max-width: 1000px;
@@ -74,17 +92,31 @@ main {
 input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: white; color: var(--text-dark); font-weight: bold; }
 
 .type-toggle-row { display: flex; gap: 10px; margin: 15px 0; }
-.type-btn { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid var(--accent); cursor: pointer; font-weight: bold; background: white; }
+.type-btn { 
+    flex: 1; padding: 10px; border-radius: 12px; border: 2px solid var(--accent); 
+    cursor: pointer; font-weight: bold; background: white; 
+    font-family: 'Rubik Scribble', cursive; font-size: 1.1rem;
+}
 .expense-btn.active { background: #f5a08d; color: white; }
 .income-btn.active { background: #a5d6a7; color: white; }
-.btn-add { background: #8d6e63; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 1.2rem; cursor: pointer; }
+
+.btn-add { 
+    background: #8d6e63; color: white; border: none; padding: 15px; border-radius: 12px; 
+    width: 100%; font-size: 1.4rem; cursor: pointer; 
+    font-family: 'Rubik Scribble', cursive; 
+}
 
 table { width: 100%; border-collapse: collapse; margin-top: 15px; }
 th { padding: 12px; border-bottom: 2px solid var(--accent); color: var(--primary-brown); }
 td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
 
 .search-field { padding: 8px 15px; border-radius: 20px; border: 1px solid var(--accent); width: 180px; }
-.btn-tool { padding: 8px 12px; border-radius: 8px; border: none; color: white; cursor: pointer; font-weight: bold; }
+
+.btn-tool { 
+    padding: 8px 12px; border-radius: 8px; border: none; color: white; 
+    cursor: pointer; font-weight: bold; 
+    font-family: 'Rubik Scribble', cursive; font-size: 1rem;
+}
 .btn-pdf { background: #d32f2f; }
 .btn-excel { background: #2e7d32; }
 
