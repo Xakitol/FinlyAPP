@@ -15,7 +15,7 @@ body {
 }
 
 header {
-    background: #8d6e63;
+    background: #917d76;
     color: white;
     padding: 1.5rem;
     text-align: center;
@@ -86,7 +86,7 @@ main {
 .balance-card p { color: var(--primary-brown); font-size: 1.8rem; font-weight: bold; }
 
 .progress-bar-bg { background: #e0d5c1; border-radius: 20px; height: 25px; border: 1px solid var(--accent); overflow: hidden; }
-.progress-bar-fill { background: #a68966; height: 100%; width: 0%; transition: width 1s ease; }
+.progress-bar-fill { background: #7ab87c; height: 100%; width: 0%; transition: width 1s ease; }
 
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
 input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: white; color: var(--text-dark); font-weight: bold; }
@@ -126,7 +126,7 @@ input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--acce
     accent-color: var(--primary-brown); /* צבע ה-V בתוך התיבה */
 }
 .btn-add { 
-    background: #8d6e63; color: white; border: none; padding: 15px; border-radius: 12px; 
+    background: #8c7462; color: white; border: none; padding: 15px; border-radius: 12px; 
     width: 100%; font-size: 1.4rem; cursor: pointer; 
     font-family: 'Rubik Scribble', cursive; 
 }
