@@ -96,7 +96,28 @@ if (incBtn) {
         if (expBtn) expBtn.classList.remove('active');
     };
 }
+// --- לוגיקה לכפתור צף ופתיחת טופס ---
+const toggleBtn = document.getElementById('toggle-form-btn');
+const formContainer = document.getElementById('form-container');
 
+if (toggleBtn && formContainer) {
+    toggleBtn.onclick = () => {
+        // הצגה או הסתרה של הטופס
+        formContainer.classList.toggle('hidden');
+        
+        // שינוי האייקון מ-+ ל-X וחזרה
+        if (formContainer.classList.contains('hidden')) {
+            toggleBtn.innerText = '+';
+            toggleBtn.style.background = 'var(--more-teal)'; // צבע טורקיז כשהוא סגור
+        } else {
+            toggleBtn.innerText = '×';
+            toggleBtn.style.background = 'var(--more-navy)'; // צבע כחול כשהוא פתוח
+            
+            // גלילה אוטומטית לטופס כדי שיהיה מול העיניים
+            formContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+}
 const form = document.getElementById('transaction-form');
 if (form) {
     form.onsubmit = async (e) => {
@@ -119,6 +140,9 @@ if (form) {
         }
         
         e.target.reset();
+        // סגירת הטופס אחרי הצלחה
+if (formContainer) formContainer.classList.add('hidden');
+if (toggleBtn) toggleBtn.innerText = '+';
         currentType = 'expense';
         if (expBtn) expBtn.classList.add('active');
         if (incBtn) incBtn.classList.remove('active');

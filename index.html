@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Rubik+Scribble&family=Rubik:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -16,23 +16,23 @@
 <body>
 
   <div id="auth-screen" class="app-loader hidden">
-    <div class="wood-panel login-box" style="max-width: 400px; text-align: center; z-index: 3000;">
-      <h2 class="panel-title">🔑 כניסה למשפחת טולדנו</h2>
-      <button id="google-login-btn" class="btn-add">כניסה למערכת</button>
+    <div class="login-box" style="max-width: 400px; text-align: center; z-index: 3000;">
+      <h2 class="panel-title">כניסה למערכת</h2>
+      <button id="google-login-btn" class="btn-add">התחברות</button>
     </div>
   </div>
 
   <div id="app-loader" class="app-loader">
     <div class="loader-box">
-      <p>מתחבר לענן של משפחת טולדנו…</p>
+      <p>מתחבר למערכת הפיננסית…</p>
     </div>
   </div>
 
   <header>
     <div class="header-inner">
-      <h1>ניהול כלכלי משפחת טולדנו</h1>
+      <h1>משפחת טולדנו | ניהול הון</h1>
       <div class="month-selector-wrap">
-        <span>צפייה בחודש:</span>
+        <span>חודש צפייה:</span>
         <select id="month-filter" class="month-select"></select>
       </div>
     </div>
@@ -41,9 +41,9 @@
   <main>
     <div id="recurring-alert" class="wood-panel recurring-alert hidden">
         <div class="alert-content">
-            <span id="alert-text">מצאתי הוראות קבע מהחודש שעבר. להוסיף אותן?</span>
+            <span id="alert-text">נמצאו תנועות קבועות מחודש קודם. לשבץ אותן?</span>
             <div class="alert-btns">
-                <button id="confirm-recurring" class="btn-confirm">כן, הוסף הכל</button>
+                <button id="confirm-recurring" class="btn-confirm">כן, אשר הכל</button>
                 <button id="dismiss-recurring" class="btn-dismiss">לא עכשיו</button>
             </div>
         </div>
@@ -51,43 +51,30 @@
 
     <section class="summary-grid">
       <div class="card income-card">
-        <h3>סך הכנסות ▲</h3>
+        <h3>סה"כ הכנסות</h3>
         <p id="total-income">₪0</p>
       </div>
       <div class="card expense-card">
-        <h3>סך הוצאות ▼</h3>
+        <h3>סה"כ הוצאות</h3>
         <p id="total-expenses">₪0</p>
       </div>
       <div class="card balance-card">
-        <h3>יתרה ₪</h3>
+        <h3>יתרה שוטפת</h3>
         <p id="balance">₪0</p>
       </div>
     </section>
 
-    <section class="wood-panel budget-targets">
-      <h2 class="panel-title">🎯 יעד חיסכון והשקעה חודשי</h2>
-      <div class="target-container">
-        <div class="target-info">
-          <span>התקדמות ליעד (2,500 ₪)</span>
-          <span id="target-percentage">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div id="target-progress-fill" class="progress-bar-fill"></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="wood-panel form-section">
-      <h2 class="panel-title">✏️ הוסף תנועה חדשה</h2>
+    <section id="form-container" class="wood-panel form-section hidden">
+      <h2 class="panel-title">תיעוד תנועה חדשה</h2>
       <form id="transaction-form">
         <div class="form-grid">
           <div class="form-group">
-            <label>תיאור</label>
-            <input type="text" id="transaction-name" placeholder="לדוגמה: משכורת" list="descriptions-list" required />
+            <label>תיאור פעולה</label>
+            <input type="text" id="transaction-name" placeholder="הקלד תיאור..." list="descriptions-list" required />
             <datalist id="descriptions-list"></datalist>
           </div>
           <div class="form-group">
-            <label>סכום (₪)</label>
+            <label>סכום</label>
             <input type="number" id="transaction-amount" placeholder="0.00" step="0.01" required />
           </div>
           <div class="form-group">
@@ -102,15 +89,28 @@
         <div class="recurring-row">
           <label class="checkbox-container">
             <input type="checkbox" id="transaction-recurring">
-            תנועה קבועה (תתווסף בכל חודש)
+            סמן כתנועה קבועה מדי חודש
           </label>
         </div>
-        <button type="submit" class="btn-add">הוסף תנועה</button>
+        <button type="submit" class="btn-add">שמור נתונים</button>
       </form>
     </section>
 
+    <section class="wood-panel budget-targets">
+      <h2 class="panel-title">יעד חיסכון והשקעה</h2>
+      <div class="target-container">
+        <div class="target-info">
+          <span>התקדמות ליעד (2,500 ₪)</span>
+          <span id="target-percentage">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="target-progress-fill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+    </section>
+
     <section class="wood-panel chart-section">
-      <h2 class="panel-title">📊 פילוח הוצאות</h2>
+      <h2 class="panel-title">פילוח הוצאות לפי קטגוריה</h2>
       <div class="chart-wrap">
         <canvas id="pie-chart"></canvas>
       </div>
@@ -118,9 +118,9 @@
 
     <section class="wood-panel table-section">
       <div class="table-header-row">
-        <h2 class="panel-title">📋 היסטוריית תנועות</h2>
+        <h2 class="panel-title">פירוט תנועות</h2>
         <div class="table-controls">
-          <input type="text" id="search-input" placeholder="🔍 חפש תנועה..." class="search-field">
+          <input type="text" id="search-input" placeholder="🔍 חיפוש..." class="search-field">
           <button id="export-pdf-btn" class="btn-tool btn-pdf">PDF</button>
           <button id="export-excel-btn" class="btn-tool btn-excel">Excel</button>
         </div>
@@ -128,20 +128,22 @@
       <div class="table-wrapper">
         <table>
           <thead>
-  <tr>
-    <th onclick="sortTable('description')" style="cursor:pointer">תיאור ↕</th>
-    <th onclick="sortTable('category')" style="cursor:pointer">קטגוריה ↕</th>
-    <th onclick="sortTable('type')" style="cursor:pointer">סוג ↕</th>
-    <th onclick="sortTable('amount')" style="cursor:pointer">סכום ↕</th>
-    <th onclick="sortTable('date')" style="cursor:pointer">תאריך ↕</th>
-    <th>פעולה</th>
-  </tr>
-</thead>
+            <tr>
+              <th onclick="sortTable('description')" style="cursor:pointer">תיאור ↕</th>
+              <th onclick="sortTable('category')" style="cursor:pointer">קטגוריה ↕</th>
+              <th onclick="sortTable('type')" style="cursor:pointer">סוג ↕</th>
+              <th onclick="sortTable('amount')" style="cursor:pointer">סכום ↕</th>
+              <th onclick="sortTable('date')" style="cursor:pointer">תאריך ↕</th>
+              <th>פעולה</th>
+            </tr>
+          </thead>
           <tbody id="transactions-body"></tbody>
         </table>
       </div>
     </section>
   </main>
+
+  <button class="floating-add-btn" id="toggle-form-btn" title="הוספת תנועה חדשה">+</button>
 
   <script type="module" src="app.js"></script>
 </body>
