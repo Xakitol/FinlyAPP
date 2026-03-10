@@ -1,16 +1,16 @@
 {
-  "name": "toledano-money-manager",
-  "productName": "ניהול כלכלי משפחת טולדנו",
+  "name": "finly-app",
+  "productName": "Finly Smart Finance",
   "version": "1.0.0",
-  "author": "Toledano Family",
-  "description": "Money Management for Toledano Family",
+  "author": "Finly Team",
+  "description": "Smart Financial Management System",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "com.toledano.finance",
+    "appId": "com.finly.finance",
     "win": {
       "target": "portable",
       "icon": "icon.ico"
