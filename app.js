@@ -19,18 +19,24 @@ let allData = [];
 let myChart = null;
 let currentType = 'expense';
 let editId = null;
-let chartType = 'doughnut'; // סוג גרף ברירת מחדל
+let chartType = 'doughnut'; 
 
-// --- פונקציות שליטה במודלים ---
+// --- שליטה במודלים ---
 window.openModal = (id) => {
-    document.getElementById(id).classList.add('active');
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.add('active');
 };
 
 window.closeModal = (id) => {
-    document.getElementById(id).classList.remove('active');
-    if (id === 'modal-form') {
-        document.getElementById('transaction-form').reset();
-        editId = null;
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.remove('active');
+        if (id === 'modal-form') {
+            document.getElementById('transaction-form').reset();
+            editId = null;
+            // החזרת כפתור הוצאה לברירת מחדל
+            if (expBtn) expBtn.click();
+        }
     }
 };
 
@@ -45,8 +51,20 @@ const expBtn = document.getElementById('type-btn-expense');
 const incBtn = document.getElementById('type-btn-income');
 
 if (expBtn && incBtn) {
-    expBtn.onclick = () => { currentType = 'expense'; expBtn.style.opacity = '1'; incBtn.style.opacity = '0.5'; };
-    incBtn.onclick = () => { currentType = 'income'; incBtn.style.opacity = '1'; expBtn.style.opacity = '0.5'; };
+    expBtn.onclick = () => { 
+        currentType = 'expense'; 
+        expBtn.classList.add('active'); 
+        incBtn.classList.remove('active');
+        expBtn.style.opacity = '1'; 
+        incBtn.style.opacity = '0.5'; 
+    };
+    incBtn.onclick = () => { 
+        currentType = 'income'; 
+        incBtn.classList.add('active'); 
+        expBtn.classList.remove('active');
+        incBtn.style.opacity = '1'; 
+        expBtn.style.opacity = '0.5'; 
+    };
 }
 
 // --- טעינת נתונים ---
@@ -83,13 +101,13 @@ function populateMonths() {
 // --- רינדור ממשק ---
 function renderUI(data) {
     const filterEl = document.getElementById('month-filter');
-    const selMonth = filterEl.value;
+    const selMonth = filterEl ? filterEl.value : "all";
     const tbody = document.getElementById('transactions-body');
     
-    tbody.innerHTML = '';
+    if (tbody) tbody.innerHTML = '';
     let inc = 0, exp = 0;
     const catTotals = {};
-    const detailedList = {}; // לאיסוף הפירוט לגרף
+    const detailedList = {}; 
 
     const filtered = data.filter(t => {
         const d = new Date(t.date);
@@ -103,32 +121,36 @@ function renderUI(data) {
             exp += t.amount;
             catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
             
-            // איסוף נתונים ל-Tooltip
             if (!detailedList[t.category]) detailedList[t.category] = [];
             detailedList[t.category].push(`${t.description}: ₪${t.amount.toLocaleString()}`);
         }
 
-        const dateStr = new Date(t.date).toLocaleDateString('he-IL');
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${t.description} ${t.recurring ? '🔄' : ''}</td>
-            <td>${t.category}</td>
-            <td style="color: ${t.type === 'income' ? 'var(--more-teal)' : '#ff5a5f'}">
-                ${t.type === 'income' ? '↑' : '↓'}
-            </td>
-            <td style="font-weight:bold">₪${t.amount.toLocaleString()}</td>
-            <td>${dateStr}</td>
-            <td>
-                <button onclick="editTransaction('${t.id}')" style="background:none; border:none; cursor:pointer;">📝</button>
-                <button onclick="deleteTransaction('${t.id}')" style="background:none; border:none; cursor:pointer;">🗑️</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
+        if (tbody) {
+            const dateStr = new Date(t.date).toLocaleDateString('he-IL');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${t.description} ${t.recurring ? '🔄' : ''}</td>
+                <td>${t.category}</td>
+                <td style="color: ${t.type === 'income' ? 'var(--more-teal)' : '#ff5a5f'}">
+                    ${t.type === 'income' ? '↑' : '↓'}
+                </td>
+                <td style="font-weight:bold">₪${t.amount.toLocaleString()}</td>
+                <td>${dateStr}</td>
+                <td>
+                    <button onclick="editTransaction('${t.id}')" style="background:none; border:none; cursor:pointer;">📝</button>
+                    <button onclick="deleteTransaction('${t.id}')" style="background:none; border:none; cursor:pointer;">🗑️</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
     });
 
     document.getElementById('total-income').innerText = `₪${inc.toLocaleString()}`;
     document.getElementById('total-expenses').innerText = `₪${exp.toLocaleString()}`;
-    document.getElementById('balance').innerText = `₪${(inc - exp).toLocaleString()}`;
+    const balanceEl = document.getElementById('balance');
+    const balance = inc - exp;
+    balanceEl.innerText = `₪${balance.toLocaleString()}`;
+    balanceEl.style.color = balance >= 0 ? 'var(--more-navy)' : '#ff5a5f';
 
     renderChart(catTotals, detailedList);
 }
@@ -148,9 +170,9 @@ function renderChart(totals, details) {
             labels: Object.keys(totals),
             datasets: [{
                 data: Object.values(totals),
-                backgroundColor: ['#002d4b', '#00c2cb', '#7d77b1', '#c5a059', '#a5b4fc'],
+                backgroundColor: ['#002d4b', '#00c2cb', '#7d77b1', '#c5a059', '#a5b4fc', '#4ade80', '#fb923c'],
                 borderWidth: 2,
-                borderColor: '#f0f7ff'
+                borderColor: '#f8fbff'
             }]
         },
         options: {
@@ -158,16 +180,20 @@ function renderChart(totals, details) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { color: '#002d4b', font: { family: 'Rubik', size: 11 } } },
+                legend: { 
+                    position: 'bottom', 
+                    rtl: true,
+                    labels: { color: '#002d4b', font: { family: 'Rubik', size: 12 } } 
+                },
                 tooltip: {
+                    rtl: true,
                     backgroundColor: 'rgba(0, 45, 75, 0.9)',
                     titleFont: { size: 14, family: 'Rubik' },
                     bodyFont: { size: 12, family: 'Rubik' },
                     padding: 12,
-                    displayColors: false,
                     callbacks: {
                         label: function(context) {
-                            return `סה"כ: ₪${context.raw.toLocaleString()}`;
+                            return ` סה"כ: ₪${context.raw.toLocaleString()}`;
                         },
                         afterBody: function(context) {
                             const category = context[0].label;
@@ -175,11 +201,7 @@ function renderChart(totals, details) {
                         }
                     }
                 }
-            },
-            scales: chartType !== 'doughnut' ? {
-                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-                x: { grid: { display: false } }
-            } : {}
+            }
         }
     });
 }
@@ -196,18 +218,24 @@ document.getElementById('transaction-form').onsubmit = async (e) => {
         date: editId ? allData.find(t => t.id === editId).date : Date.now()
     };
 
-    if (editId) {
-        await updateDoc(doc(db, "transactions", editId), transactionData);
-        editId = null;
-    } else {
-        await addDoc(transactionsCol, transactionData);
+    try {
+        if (editId) {
+            await updateDoc(doc(db, "transactions", editId), transactionData);
+            editId = null;
+        } else {
+            await addDoc(transactionsCol, transactionData);
+        }
+        closeModal('modal-form');
+    } catch (error) {
+        console.error("Error saving transaction: ", error);
+        alert("שגיאה בשמירת הנתונים");
     }
-    closeModal('modal-form');
-    e.target.reset();
 };
 
 window.deleteTransaction = async (id) => {
-    if (confirm("למחוק את התנועה?")) await deleteDoc(doc(db, "transactions", id));
+    if (confirm("האם למחוק את התנועה לצמיתות?")) {
+        await deleteDoc(doc(db, "transactions", id));
+    }
 };
 
 window.editTransaction = (id) => {
@@ -219,14 +247,15 @@ window.editTransaction = (id) => {
     document.getElementById('transaction-amount').value = t.amount;
     document.getElementById('transaction-category').value = t.category;
     document.getElementById('transaction-recurring').checked = t.recurring || false;
-    currentType = t.type;
-    if (currentType === 'income') incBtn.click(); else expBtn.click();
+    
+    if (t.type === 'income') incBtn.click(); else expBtn.click();
     editId = id;
 };
 
+// אתחול קטגוריות
 const cats = ["מזון", "בית", "חינוך", "פנאי", "רכב", "בריאות", "אשראי", "משכורת", "אחר"];
 const catSelect = document.getElementById('transaction-category');
-if (catSelect) {
+if (catSelect && catSelect.options.length === 0) {
     cats.forEach(c => {
         let o = document.createElement('option');
         o.value = c; o.innerText = c;

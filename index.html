@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול הון | משפחת טולדנו</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
 <body>
     <header>
         <div class="header-right">
@@ -57,8 +67,50 @@
         </section>
     </main>
 
-    <div id="modal-form" class="modal">...</div>
-    <div id="modal-table" class="modal">...</div>
+    <div id="modal-form" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modal-form')">&times;</span>
+            <h2>הוספת תנועה חדשה</h2>
+            <form id="transaction-form">
+                <div class="type-selector">
+                    <button type="button" id="type-btn-expense" class="active">הוצאה</button>
+                    <button type="button" id="type-btn-income">הכנסה</button>
+                </div>
+                <input type="text" id="transaction-name" placeholder="תיאור (למשל: סופר פארם)" required>
+                <input type="number" id="transaction-amount" placeholder="סכום ב-₪" required>
+                <select id="transaction-category" required></select>
+                <label class="checkbox-container">
+                    תנועה קבועה?
+                    <input type="checkbox" id="transaction-recurring">
+                    <span class="checkmark"></span>
+                </label>
+                <button type="submit" class="submit-btn">שמירה</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-table" class="modal">
+        <div class="modal-content full-width">
+            <span class="close" onclick="closeModal('modal-table')">&times;</span>
+            <h2>היסטוריית תנועות</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>תיאור</th>
+                            <th>קטגוריה</th>
+                            <th>סוג</th>
+                            <th>סכום</th>
+                            <th>תאריך</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="app.js"></script>
 </body>
+</html>
