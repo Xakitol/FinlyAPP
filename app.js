@@ -20,7 +20,6 @@ const transactionsCol = collection(db, "transactions");
 
 const allowedUsers = ["matantoledano18@gmail.com"]; 
 
-// שימוש ב-Local Persistence כדי שה-Redirect לא יאבד את המשתמש בדרך
 setPersistence(auth, browserLocalPersistence);
 
 let currentType = 'expense';
@@ -29,28 +28,31 @@ let myChart = null;
 let editId = null;
 let pendingRecurring = [];
 
-// פונקציית ניהול טיימר - 2 דקות
+// פונקציית ניהול טיימר - הגדלנו ל-5 דקות לבדיקה
 function isSessionExpired() {
     const lastActive = localStorage.getItem('lastActiveTime');
     if (!lastActive) return false; 
 
     const now = Date.now();
-    const twoMinutes = 2 * 60 * 1000;
-    return (now - lastActive > twoMinutes);
+    const timeoutLimit = 5 * 60 * 1000; // 5 דקות
+    const diff = now - lastActive;
+    
+    console.log("זמן שעבר מאז פעילות אחרונה (בשניות):", diff / 1000);
+    
+    return (diff > timeoutLimit);
 }
 
 // לוגיקת התחברות
 document.getElementById('google-login-btn').onclick = () => {
-    // מאפסים טיימר רגע לפני היציאה לגוגל
     localStorage.setItem('lastActiveTime', Date.now());
     signInWithRedirect(auth, provider);
 };
 
-// טיפול בחזרה מהתחברות (המפתח לשבירת הלופ)
+// טיפול בחזרה מהתחברות
 getRedirectResult(auth).then(async (result) => {
     if (result && result.user) {
+        console.log("חזרנו מגוגל בהצלחה עם המשתמש:", result.user.email);
         if (allowedUsers.includes(result.user.email)) {
-            // התחברנו בהצלחה! קובעים טיימר חדש ומרעננים
             localStorage.setItem('lastActiveTime', Date.now());
         } else {
             await signOut(auth);
@@ -68,25 +70,30 @@ onAuthStateChanged(auth, async (user) => {
     
     const expired = isSessionExpired();
 
-    if (user && allowedUsers.includes(user.email) && !expired) {
-        // מחובר ותקין
-        authScreen.classList.add('hidden');
-        appLoader.classList.remove('hidden'); // מציג "מתחבר לענן" בזמן טעינת הנתונים
-        localStorage.setItem('lastActiveTime', Date.now());
-        startApp(); 
-    } else {
-        // ניתוק אם פקע הזמן או לא מחובר
-        if (user && expired) {
+    if (user && allowedUsers.includes(user.email)) {
+        if (!expired) {
+            console.log("הכל תקין, נכנסים לאפליקציה");
+            authScreen.classList.add('hidden');
+            appLoader.classList.remove('hidden');
+            startApp(); 
+        } else {
+            console.log("הזמן פקע - מוציאים את המשתמש");
             await signOut(auth);
+            authScreen.classList.remove('hidden');
+            appLoader.classList.add('hidden');
         }
+    } else {
+        console.log("אין משתמש מחובר או מייל לא מורשה");
         authScreen.classList.remove('hidden');
         appLoader.classList.add('hidden');
     }
 });
 
-// עדכון טיימר בפעילות
+// עדכון טיימר
 const resetTimer = () => {
-    if (auth.currentUser) localStorage.setItem('lastActiveTime', Date.now());
+    if (auth.currentUser) {
+        localStorage.setItem('lastActiveTime', Date.now());
+    }
 };
 window.addEventListener('mousedown', resetTimer);
 window.addEventListener('keydown', resetTimer);
@@ -105,8 +112,7 @@ function startApp() {
     });
 }
 
-// --- כל שאר הפונקציות שלך ללא שינוי ---
-
+// שאר הפונקציות (populateMonths, renderUI וכו') נשארות אותו דבר...
 function populateMonths() {
     const filter = document.getElementById('month-filter');
     if (!filter || filter.options.length > 0) return;
