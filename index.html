@@ -15,23 +15,16 @@
 </head>
 <body>
 
-  <div id="auth-screen" class="app-loader">
+  <div id="auth-screen" class="app-loader hidden">
     <div class="wood-panel login-box" style="max-width: 400px; text-align: center; z-index: 3000;">
       <h2 class="panel-title">🔑 כניסה למשפחת טולדנו</h2>
-      <p style="margin-bottom: 20px; color: var(--primary-brown); font-weight: bold;">רק מורשי גישה יכולים לצפות בנתונים</p>
-      
-      <button id="google-login-btn" class="btn-add" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: white; color: #757575; border: 2px solid var(--accent); cursor: pointer; padding: 10px; width: 100%; border-radius: 12px; font-family: 'Rubik', sans-serif;">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
-        התחברות עם חשבון Google
-      </button>
-
-      <p id="login-error" style="color: #c75a56; margin-top: 15px; font-weight: bold; display: none;">המייל שלך לא מורשה גישה. ❌</p>
+      <button id="google-login-btn" class="btn-add">כניסה למערכת</button>
     </div>
   </div>
 
-  <div id="app-loader" class="app-loader hidden">
+  <div id="app-loader" class="app-loader">
     <div class="loader-box">
-      <p>מתחבר לענן…</p>
+      <p>מתחבר לענן של משפחת טולדנו…</p>
     </div>
   </div>
 
@@ -81,7 +74,6 @@
         <div class="progress-bar-bg">
           <div id="target-progress-fill" class="progress-bar-fill"></div>
         </div>
-        <p id="target-message" class="target-message"></p>
       </div>
     </section>
 
@@ -107,15 +99,12 @@
           <button type="button" class="type-btn expense-btn active" id="type-btn-expense">↓ הוצאה</button>
           <button type="button" class="type-btn income-btn" id="type-btn-income">↑ הכנסה</button>
         </div>
-
         <div class="recurring-row">
           <label class="checkbox-container">
             <input type="checkbox" id="transaction-recurring">
-            <span class="checkmark"></span>
             תנועה קבועה (תתווסף בכל חודש)
           </label>
         </div>
-
         <button type="submit" class="btn-add">הוסף תנועה</button>
       </form>
     </section>
@@ -125,7 +114,6 @@
       <div class="chart-wrap">
         <canvas id="pie-chart"></canvas>
       </div>
-      <p id="chart-empty-msg" class="chart-empty">אין נתונים להצגה</p>
     </section>
 
     <section class="wood-panel table-section">

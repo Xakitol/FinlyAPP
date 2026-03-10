@@ -26,6 +26,16 @@ header {
 
 h1 { font-size: 2.8rem; margin: 0; }
 
+.header-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
 .month-select {
     padding: 8px;
     border-radius: 10px;
@@ -35,12 +45,6 @@ h1 { font-size: 2.8rem; margin: 0; }
     font-family: 'Rubik Scribble', cursive;
     font-size: 1.1rem;
     cursor: pointer;
-}
-
-.month-selector-wrap span {
-    font-family: 'Rubik Scribble', cursive;
-    font-size: 1.2rem;
-    margin-left: 10px;
 }
 
 main {
@@ -76,34 +80,12 @@ main {
     align-items: center;
 }
 
-.alert-content { text-align: center; }
-#alert-text { 
-    font-family: 'Rubik Scribble', cursive;
-    font-size: 1.4rem;
-    font-weight: bold; 
-    display: block; 
-    margin-bottom: 15px; 
-    color: var(--primary-brown);
-}
-
-.alert-btns { display: flex; gap: 10px; justify-content: center; }
-
-.btn-confirm { 
-    background: var(--success-green); color: white; border: none; padding: 10px 20px; 
-    border-radius: 12px; cursor: pointer; font-family: 'Rubik Scribble', cursive; font-size: 1.1rem;
-}
-
-.btn-dismiss { 
-    background: #c75a56; color: white; border: none; padding: 10px 20px; 
-    border-radius: 12px; cursor: pointer; font-family: 'Rubik Scribble', cursive; font-size: 1.1rem;
-}
-
-/* כרטיסי סיכום */
+/* כרטיסי סיכום - תיקון פריסה */
 .summary-grid { 
     display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
     gap: 15px; 
-    margin: -40px auto 30px; 
+    margin: 20px auto; 
 }
 
 .card { 
@@ -123,8 +105,8 @@ main {
 .progress-bar-fill { background: var(--success-green); height: 100%; width: 0%; transition: width 1s ease; border-radius: 20px; }
 
 /* טפסים */
-.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: white; color: var(--text-dark); font-weight: bold; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: white; color: var(--text-dark); font-weight: bold; width: 100%; }
 
 .type-toggle-row { display: flex; gap: 10px; margin: 15px 0; }
 .type-btn { 
@@ -135,16 +117,6 @@ input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--acce
 .expense-btn.active { background: #c75a56; color: white; }
 .income-btn.active { background: var(--success-green); color: white; }
 
-.recurring-row { margin: 0 0 20px 0; display: flex; align-items: center; }
-.checkbox-container {
-    display: flex; align-items: center; cursor: pointer;
-    font-family: 'Rubik Scribble', cursive; font-size: 1.3rem;
-    color: var(--primary-brown); font-weight: bold;
-    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
-}
-
-.checkbox-container input { margin-left: 12px; cursor: pointer; width: 20px; height: 20px; accent-color: var(--primary-brown); }
-
 .btn-add { 
     background: #8c7462; color: white; border: none; padding: 15px; border-radius: 12px; 
     width: 100%; font-size: 1.4rem; cursor: pointer; 
@@ -152,19 +124,16 @@ input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--acce
 }
 
 /* טבלה */
+.table-wrapper { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; margin-top: 15px; }
 th { padding: 12px; border-bottom: 2px solid var(--accent); color: var(--primary-brown); }
 td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
 
-.search-field { padding: 8px 15px; border-radius: 20px; border: 1px solid var(--accent); width: 180px; }
-
-.btn-tool { 
-    padding: 8px 12px; border-radius: 8px; border: none; color: white; 
-    cursor: pointer; font-weight: bold; 
-    font-family: 'Rubik Scribble', cursive; font-size: 1rem;
+/* גרף */
+.chart-wrap {
+    max-width: 400px;
+    margin: 0 auto;
 }
-.btn-pdf { background: #c75a56; }
-.btn-excel { background: var(--success-green); }
 
 /* מסכי טעינה והתחברות */
 .app-loader { 
@@ -177,11 +146,6 @@ td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
     z-index: 2000; 
 }
 
-#auth-screen {
-    z-index: 3000; /* מסך ההתחברות תמיד מעל הכל */
-}
-
-/* הפקודה שמסתירה את האלמנטים */
 .hidden { 
     display: none !important; 
 }
