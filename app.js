@@ -47,7 +47,8 @@ function startApp() {
         
         updateAutocomplete(allData); 
         checkAndRepeatTransactions(allData);
-        renderUI(allData);
+        // השורה שמתחת היא הקריטית - היא זו שמציגה את הנתונים ומעלימה את הטעינה
+        renderUI(allData); 
     }, (error) => {
         console.error("Firebase Error:", error);
     });
