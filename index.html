@@ -30,7 +30,19 @@
       </div>
     </div>
   </header>
+<main>
+    <div id="recurring-alert" class="wood-panel recurring-alert hidden">
+        <div class="alert-content">
+            <span id="alert-text">מצאתי הוראות קבע מהחודש שעבר. להוסיף אותן?</span>
+            <div class="alert-btns">
+                <button id="confirm-recurring" class="btn-confirm">כן, הוסף הכל</button>
+                <button id="dismiss-recurring" class="btn-dismiss">לא עכשיו</button>
+            </div>
+        </div>
+    </div>
 
+    <section class="summary-grid">
+    ...
   <main>
     <section class="summary-grid">
       <div class="card income-card">
@@ -67,7 +79,8 @@
         <div class="form-grid">
           <div class="form-group">
             <label>תיאור</label>
-            <input type="text" id="transaction-name" placeholder="לדוגמה: משכורת" required />
+            <input type="text" id="transaction-name" placeholder="לדוגמה: משכורת" list="descriptions-list" required />
+            <datalist id="descriptions-list"></datalist>
           </div>
           <div class="form-group">
             <label>סכום (₪)</label>

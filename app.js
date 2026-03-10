@@ -18,7 +18,7 @@ const transactionsCol = collection(db, "transactions");
 let currentType = 'expense';
 let allData = [];
 let myChart = null;
-let editId = null; // משתנה למצב עריכה
+let editId = null;
 
 function populateMonths() {
     const months = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
@@ -63,12 +63,10 @@ document.getElementById('transaction-form').onsubmit = async (e) => {
     };
 
     if (editId) {
-        // עדכון תנועה קיימת
         await updateDoc(doc(db, "transactions", editId), transactionData);
         editId = null;
         document.querySelector('.btn-add').innerText = "הוסף תנועה";
     } else {
-        // הוספה חדשה
         await addDoc(transactionsCol, transactionData);
     }
 
@@ -82,6 +80,9 @@ onSnapshot(query(transactionsCol, orderBy("date", "desc")), (snapshot) => {
     allData = [];
     snapshot.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
     document.getElementById('app-loader').classList.add('hidden');
+    
+    // כאן הוספתי את הקריאה לעדכון הרשימה החכמה
+    updateAutocomplete(allData); 
     renderUI(allData);
 });
 
@@ -185,4 +186,31 @@ cats.forEach(c => {
     let o = document.createElement('option');
     o.value = c; o.innerText = c;
     document.getElementById('transaction-category').appendChild(o);
+});
+
+// --- פונקציות השלמה אוטומטית חכמה (סוף הקובץ) ---
+
+function updateAutocomplete(data) {
+    const list = document.getElementById('descriptions-list');
+    if (!list) return;
+    const uniqueNames = [...new Set(data.map(t => t.description))];
+    list.innerHTML = uniqueNames.map(name => `<option value="${name}">`).join('');
+}
+
+document.getElementById('transaction-name').addEventListener('input', (e) => {
+    const val = e.target.value;
+    const match = allData.find(t => t.description === val);
+    
+    if (match) {
+        document.getElementById('transaction-category').value = match.category;
+        currentType = match.type;
+        
+        if (currentType === 'income') {
+            document.getElementById('type-btn-income').classList.add('active');
+            document.getElementById('type-btn-expense').classList.remove('active');
+        } else {
+            document.getElementById('type-btn-expense').classList.add('active');
+            document.getElementById('type-btn-income').classList.remove('active');
+        }
+    }
 });

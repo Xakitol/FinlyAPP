@@ -4,6 +4,7 @@
     --panel-bg: #fdf5e6;
     --text-dark: #74625f;
     --accent: #d2b48c;
+    --success-green: #7ab87c;
 }
 
 body {
@@ -48,6 +49,7 @@ main {
     padding: 20px;
 }
 
+/* פאנלים */
 .wood-panel {
     background: var(--panel-bg);
     border: 2px solid var(--accent);
@@ -66,6 +68,39 @@ main {
     margin-bottom: 20px;
 }
 
+/* באנר התראה על הוראות קבע - שולב כאן */
+.recurring-alert {
+    border: 2px solid var(--success-green);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.recurring-alert.hidden { display: none; }
+
+.alert-content { text-align: center; }
+#alert-text { 
+    font-family: 'Rubik Scribble', cursive;
+    font-size: 1.4rem;
+    font-weight: bold; 
+    display: block; 
+    margin-bottom: 15px; 
+    color: var(--primary-brown);
+}
+
+.alert-btns { display: flex; gap: 10px; justify-content: center; }
+
+.btn-confirm { 
+    background: var(--success-green); color: white; border: none; padding: 10px 20px; 
+    border-radius: 12px; cursor: pointer; font-family: 'Rubik Scribble', cursive; font-size: 1.1rem;
+}
+
+.btn-dismiss { 
+    background: #c75a56; color: white; border: none; padding: 10px 20px; 
+    border-radius: 12px; cursor: pointer; font-family: 'Rubik Scribble', cursive; font-size: 1.1rem;
+}
+
+/* כרטיסי סיכום */
 .summary-grid { 
     display: grid; 
     grid-template-columns: repeat(3, 1fr); 
@@ -81,13 +116,15 @@ main {
     text-align: center; 
 }
 
-.income-card p { color: #7ab87c; font-size: 1.8rem; font-weight: bold; }
+.income-card p { color: var(--success-green); font-size: 1.8rem; font-weight: bold; }
 .expense-card p { color: #c75a56; font-size: 1.8rem; font-weight: bold; }
 .balance-card p { color: var(--primary-brown); font-size: 1.8rem; font-weight: bold; }
 
-.progress-bar-bg { background: #e0d5c1; border-radius: 20px; height: 25px; border: 1px solid var(--accent); overflow: hidden; }
-.progress-bar-fill { background: #7ab87c; height: 100%; width: 0%; transition: width 1s ease; }
+/* פסי התקדמות */
+.progress-bar-bg { background: #ffffff; border-radius: 20px; height: 25px; border: 1px solid var(--accent); overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+.progress-bar-fill { background: var(--success-green); height: 100%; width: 0%; transition: width 1s ease; border-radius: 20px; }
 
+/* טפסים */
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
 input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--accent); background: white; color: var(--text-dark); font-weight: bold; }
 
@@ -98,39 +135,25 @@ input, select { padding: 12px; border-radius: 12px; border: 1px solid var(--acce
     font-family: 'Rubik Scribble', cursive; font-size: 1.1rem;
 }
 .expense-btn.active { background: #c75a56; color: white; }
-.income-btn.active { background: #7ab87c; color: white; }
+.income-btn.active { background: var(--success-green); color: white; }
 
-/* עיצוב רכיב ההוראה הקבועה */
-.recurring-row {
-    margin: 0 0 20px 0;
-    display: flex;
-    align-items: center;
-}
-
+.recurring-row { margin: 0 0 20px 0; display: flex; align-items: center; }
 .checkbox-container {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-family: 'Rubik Scribble', cursive;
-    font-size: 1.3rem; /* הגדלתי מעט את הפונט */
-    color: var(--primary-brown); /* שימוש בחום הכהה והבולט */
-    font-weight: bold; /* הוספת עובי לכתב המצויר */
-    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5); /* צל לבן עדין מאחור להבלטה */
+    display: flex; align-items: center; cursor: pointer;
+    font-family: 'Rubik Scribble', cursive; font-size: 1.3rem;
+    color: var(--primary-brown); font-weight: bold;
+    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
 }
 
-.checkbox-container input {
-    margin-left: 12px;
-    cursor: pointer;
-    width: 20px; /* תיבה מעט גדולה יותר */
-    height: 20px;
-    accent-color: var(--primary-brown); /* צבע ה-V בתוך התיבה */
-}
+.checkbox-container input { margin-left: 12px; cursor: pointer; width: 20px; height: 20px; accent-color: var(--primary-brown); }
+
 .btn-add { 
     background: #8c7462; color: white; border: none; padding: 15px; border-radius: 12px; 
     width: 100%; font-size: 1.4rem; cursor: pointer; 
     font-family: 'Rubik Scribble', cursive; 
 }
 
+/* טבלה */
 table { width: 100%; border-collapse: collapse; margin-top: 15px; }
 th { padding: 12px; border-bottom: 2px solid var(--accent); color: var(--primary-brown); }
 td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
@@ -143,7 +166,7 @@ td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
     font-family: 'Rubik Scribble', cursive; font-size: 1rem;
 }
 .btn-pdf { background: #c75a56; }
-.btn-excel { background: #7ab87c; }
+.btn-excel { background: var(--success-green); }
 
 .app-loader { position: fixed; inset: 0; background: var(--bg-creme); display: flex; align-items: center; justify-content: center; z-index: 2000; }
 .app-loader.hidden { display: none; }
