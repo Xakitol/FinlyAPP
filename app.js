@@ -1,5 +1,6 @@
 ﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDK3oq5I-MHnjYGXkRBfUeYs3vw7zwB0gE",
@@ -13,16 +14,63 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 const transactionsCol = collection(db, "transactions");
+
+// --- רשימת מיילים מורשים (תחליף כאן למייל שלך!) ---
+const allowedUsers = ["your-email@gmail.com"]; 
 
 let currentType = 'expense';
 let allData = [];
 let myChart = null;
 let editId = null;
+let pendingRecurring = [];
+
+// לוגיקת התחברות עם גוגל
+document.getElementById('google-login-btn').onclick = async () => {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        if (!allowedUsers.includes(result.user.email)) {
+            await signOut(auth);
+            document.getElementById('login-error').style.display = 'block';
+        }
+    } catch (error) {
+        console.error("שגיאה בהתחברות:", error);
+    }
+};
+
+// ניהול מצב משתמש (מחובר/מנותק)
+onAuthStateChanged(auth, (user) => {
+    const authScreen = document.getElementById('auth-screen');
+    if (user && allowedUsers.includes(user.email)) {
+        authScreen.classList.add('hidden');
+        startApp(); // מפעיל את האפליקציה רק אם המשתמש מורשה
+    } else {
+        authScreen.classList.remove('hidden');
+    }
+});
+
+function startApp() {
+    populateMonths();
+    
+    // האזנה לשינויים בנתונים רק אחרי חיבור
+    onSnapshot(query(transactionsCol, orderBy("date", "desc")), (snapshot) => {
+        allData = [];
+        snapshot.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
+        document.getElementById('app-loader').classList.add('hidden');
+        
+        updateAutocomplete(allData); 
+        checkAndRepeatTransactions(allData);
+        renderUI(allData);
+    });
+}
 
 function populateMonths() {
-    const months = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     const filter = document.getElementById('month-filter');
+    if (filter.options.length > 0) return; // מונע כפילויות במעבר בין משתמשים
+
+    const months = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     const current = new Date().getMonth();
     
     let optAll = document.createElement('option');
@@ -36,7 +84,6 @@ function populateMonths() {
         filter.appendChild(opt);
     });
 }
-populateMonths();
 
 document.getElementById('month-filter').onchange = () => renderUI(allData);
 document.getElementById('search-input').oninput = () => renderUI(allData);
@@ -52,7 +99,6 @@ document.getElementById('type-btn-income').onclick = function() {
 
 document.getElementById('transaction-form').onsubmit = async (e) => {
     e.preventDefault();
-    
     const transactionData = {
         description: document.getElementById('transaction-name').value,
         amount: parseFloat(document.getElementById('transaction-amount').value),
@@ -69,22 +115,9 @@ document.getElementById('transaction-form').onsubmit = async (e) => {
     } else {
         await addDoc(transactionsCol, transactionData);
     }
-
     e.target.reset();
     currentType = 'expense';
-    document.getElementById('type-btn-expense').classList.add('active');
-    document.getElementById('type-btn-income').classList.remove('active');
 };
-
-onSnapshot(query(transactionsCol, orderBy("date", "desc")), (snapshot) => {
-    allData = [];
-    snapshot.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
-    document.getElementById('app-loader').classList.add('hidden');
-    
-    // כאן הוספתי את הקריאה לעדכון הרשימה החכמה
-    updateAutocomplete(allData); 
-    renderUI(allData);
-});
 
 function renderUI(data) {
     const selMonth = document.getElementById('month-filter').value;
@@ -133,24 +166,52 @@ function renderUI(data) {
     updateSavingTarget(balance);
 }
 
+async function checkAndRepeatTransactions(data) {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    pendingRecurring = data.filter(t => t.recurring === true).filter(t => {
+        const tDate = new Date(t.date);
+        const isPast = (tDate.getMonth() !== currentMonth || tDate.getFullYear() !== currentYear);
+        const alreadyExists = data.some(item => 
+            item.description === t.description && 
+            new Date(item.date).getMonth() === currentMonth &&
+            new Date(item.date).getFullYear() === currentYear
+        );
+        return isPast && !alreadyExists;
+    });
+
+    const alertBox = document.getElementById('recurring-alert');
+    if (pendingRecurring.length > 0) {
+        document.getElementById('alert-text').innerText = `נמצאו ${pendingRecurring.length} תנועות קבועות מהחודש שעבר. להוסיף אותן?`;
+        alertBox.classList.remove('hidden');
+    } else {
+        alertBox.classList.add('hidden');
+    }
+}
+
+document.getElementById('confirm-recurring').onclick = async () => {
+    for (const t of pendingRecurring) {
+        const newData = { ...t, date: Date.now() };
+        delete newData.id;
+        await addDoc(transactionsCol, newData);
+    }
+    document.getElementById('recurring-alert').classList.add('hidden');
+};
+
+document.getElementById('dismiss-recurring').onclick = () => {
+    document.getElementById('recurring-alert').classList.add('hidden');
+};
+
 window.editTransaction = (id) => {
     const t = allData.find(item => item.id === id);
     if (!t) return;
-
     document.getElementById('transaction-name').value = t.description;
     document.getElementById('transaction-amount').value = t.amount;
     document.getElementById('transaction-category').value = t.category;
     document.getElementById('transaction-recurring').checked = t.recurring || false;
-    
     currentType = t.type;
-    if (currentType === 'income') {
-        document.getElementById('type-btn-income').classList.add('active');
-        document.getElementById('type-btn-expense').classList.remove('active');
-    } else {
-        document.getElementById('type-btn-expense').classList.add('active');
-        document.getElementById('type-btn-income').classList.remove('active');
-    }
-
     editId = id;
     document.querySelector('.btn-add').innerText = "עדכן תנועה";
     window.scrollTo({ top: 150, behavior: 'smooth' }); 
@@ -165,7 +226,6 @@ function updateSavingTarget(balance) {
     const pct = Math.min(Math.max((balance / target) * 100, 0), 100);
     document.getElementById('target-progress-fill').style.width = pct + "%";
     document.getElementById('target-percentage').innerText = Math.round(pct) + "%";
-    document.getElementById('target-message').innerText = balance >= target ? "הגעתם ליעד! 🏆" : "ממשיכים לחסוך...";
 }
 
 function updateChart(totals) {
@@ -176,19 +236,20 @@ function updateChart(totals) {
         type: 'doughnut',
         data: {
             labels: Object.keys(totals),
-            datasets: [{ data: Object.values(totals), backgroundColor: ['#FFB7B2', '#B2E2F2', '#B2F2BB', '#F2E2B2'] }]
+            datasets: [{ data: Object.values(totals), backgroundColor: ['#FFB7B2', '#B2E2F2', '#B2F2BB', '#F2E2B2', '#D1B2F2'] }]
         }
     });
 }
 
 const cats = ["מזון", "בית", "חינוך", "פנאי", "רכב", "בריאות", "כרטיסי אשראי", "משכורת", "אחר"];
-cats.forEach(c => {
-    let o = document.createElement('option');
-    o.value = c; o.innerText = c;
-    document.getElementById('transaction-category').appendChild(o);
-});
-
-// --- פונקציות השלמה אוטומטית חכמה (סוף הקובץ) ---
+const catSelect = document.getElementById('transaction-category');
+if (catSelect.options.length === 0) {
+    cats.forEach(c => {
+        let o = document.createElement('option');
+        o.value = c; o.innerText = c;
+        catSelect.appendChild(o);
+    });
+}
 
 function updateAutocomplete(data) {
     const list = document.getElementById('descriptions-list');
@@ -200,17 +261,8 @@ function updateAutocomplete(data) {
 document.getElementById('transaction-name').addEventListener('input', (e) => {
     const val = e.target.value;
     const match = allData.find(t => t.description === val);
-    
     if (match) {
         document.getElementById('transaction-category').value = match.category;
         currentType = match.type;
-        
-        if (currentType === 'income') {
-            document.getElementById('type-btn-income').classList.add('active');
-            document.getElementById('type-btn-expense').classList.remove('active');
-        } else {
-            document.getElementById('type-btn-expense').classList.add('active');
-            document.getElementById('type-btn-income').classList.remove('active');
-        }
     }
 });

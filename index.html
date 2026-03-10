@@ -15,6 +15,24 @@
 </head>
 <body>
 
+  <body>
+    <div id="auth-screen" class="app-loader">
+        <div class="wood-panel login-box" style="max-width: 400px; text-align: center; z-index: 3000;">
+            <h2 class="panel-title">🔑 כניסה למשפחת טולדנו</h2>
+            <p style="margin-bottom: 20px; color: var(--primary-brown); font-weight: bold;">רק מורשי גישה יכולים לצפות בנתונים</p>
+            
+            <button id="google-login-btn" class="btn-add" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: white; color: #757575; border: 2px solid var(--accent); cursor: pointer; padding: 10px; width: 100%; border-radius: 12px; font-family: 'Rubik', sans-serif;">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+                התחברות עם חשבון Google
+            </button>
+
+            <p id="login-error" style="color: #c75a56; margin-top: 15px; font-weight: bold; display: none;">המייל שלך לא מורשה גישה. ❌</p>
+        </div>
+    </div>
+
+    <div id="app-loader" class="app-loader">
+        ...
+
   <div id="app-loader" class="app-loader">
     <div class="loader-box">
       <p>מתחבר לענן…</p>
