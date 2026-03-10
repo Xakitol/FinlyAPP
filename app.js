@@ -19,7 +19,7 @@ const provider = new GoogleAuthProvider();
 const transactionsCol = collection(db, "transactions");
 
 // --- רשימת מיילים מורשים (תחליף כאן למייל שלך!) ---
-const allowedUsers = ["your-email@gmail.com"]; 
+const allowedUsers = ["matantoledano18@gmail.com"]; 
 
 let currentType = 'expense';
 let allData = [];
@@ -43,32 +43,40 @@ document.getElementById('google-login-btn').onclick = async () => {
 // ניהול מצב משתמש (מחובר/מנותק)
 onAuthStateChanged(auth, (user) => {
     const authScreen = document.getElementById('auth-screen');
+    const appLoader = document.getElementById('app-loader');
+    
     if (user && allowedUsers.includes(user.email)) {
         authScreen.classList.add('hidden');
-        startApp(); // מפעיל את האפליקציה רק אם המשתמש מורשה
+        appLoader.classList.remove('hidden'); // מראה את טעינת הנתונים
+        startApp(); 
     } else {
         authScreen.classList.remove('hidden');
+        appLoader.classList.add('hidden');
     }
 });
 
 function startApp() {
     populateMonths();
     
-    // האזנה לשינויים בנתונים רק אחרי חיבור
+    // האזנה לשינויים בנתונים רק אחרי חיבור מוצלח
     onSnapshot(query(transactionsCol, orderBy("date", "desc")), (snapshot) => {
         allData = [];
         snapshot.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
+        
+        // מסתיר את מסך הטעינה ברגע שהנתונים הגיעו
         document.getElementById('app-loader').classList.add('hidden');
         
         updateAutocomplete(allData); 
         checkAndRepeatTransactions(allData);
         renderUI(allData);
+    }, (error) => {
+        console.error("Firebase Error:", error);
     });
 }
 
 function populateMonths() {
     const filter = document.getElementById('month-filter');
-    if (filter.options.length > 0) return; // מונע כפילויות במעבר בין משתמשים
+    if (!filter || filter.options.length > 0) return;
 
     const months = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     const current = new Date().getMonth();
@@ -123,6 +131,7 @@ function renderUI(data) {
     const selMonth = document.getElementById('month-filter').value;
     const search = document.getElementById('search-input').value.toLowerCase();
     const tbody = document.getElementById('transactions-body');
+    if (!tbody) return;
     tbody.innerHTML = '';
     
     let inc = 0, exp = 0;
@@ -229,7 +238,9 @@ function updateSavingTarget(balance) {
 }
 
 function updateChart(totals) {
-    const ctx = document.getElementById('pie-chart').getContext('2d');
+    const chartCanvas = document.getElementById('pie-chart');
+    if (!chartCanvas) return;
+    const ctx = chartCanvas.getContext('2d');
     if (myChart) myChart.destroy();
     if (Object.keys(totals).length === 0) return;
     myChart = new Chart(ctx, {
@@ -243,7 +254,7 @@ function updateChart(totals) {
 
 const cats = ["מזון", "בית", "חינוך", "פנאי", "רכב", "בריאות", "כרטיסי אשראי", "משכורת", "אחר"];
 const catSelect = document.getElementById('transaction-category');
-if (catSelect.options.length === 0) {
+if (catSelect && catSelect.options.length === 0) {
     cats.forEach(c => {
         let o = document.createElement('option');
         o.value = c; o.innerText = c;
@@ -264,5 +275,12 @@ document.getElementById('transaction-name').addEventListener('input', (e) => {
     if (match) {
         document.getElementById('transaction-category').value = match.category;
         currentType = match.type;
+        if (currentType === 'income') {
+            document.getElementById('type-btn-income').classList.add('active');
+            document.getElementById('type-btn-expense').classList.remove('active');
+        } else {
+            document.getElementById('type-btn-expense').classList.add('active');
+            document.getElementById('type-btn-income').classList.remove('active');
+        }
     }
 });

@@ -68,15 +68,13 @@ main {
     margin-bottom: 20px;
 }
 
-/* באנר התראה על הוראות קבע - שולב כאן */
+/* באנר התראה על הוראות קבע */
 .recurring-alert {
     border: 2px solid var(--success-green);
     display: flex;
     justify-content: center;
     align-items: center;
 }
-
-.recurring-alert.hidden { display: none; }
 
 .alert-content { text-align: center; }
 #alert-text { 
@@ -168,5 +166,29 @@ td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
 .btn-pdf { background: #c75a56; }
 .btn-excel { background: var(--success-green); }
 
-.app-loader { position: fixed; inset: 0; background: var(--bg-creme); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-.app-loader.hidden { display: none; }
+/* מסכי טעינה והתחברות */
+.app-loader { 
+    position: fixed; 
+    inset: 0; 
+    background: var(--bg-creme); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 2000; 
+}
+
+#auth-screen {
+    z-index: 3000; /* מסך ההתחברות תמיד מעל הכל */
+}
+
+/* הפקודה שמסתירה את האלמנטים */
+.hidden { 
+    display: none !important; 
+}
+
+.loader-box {
+    text-align: center;
+    font-family: 'Rubik Scribble', cursive;
+    font-size: 1.5rem;
+    color: var(--primary-brown);
+}
