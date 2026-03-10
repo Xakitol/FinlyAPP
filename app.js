@@ -1,15 +1,15 @@
 ﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDK3oq5I-MHnjYGXkRBfUeYs3vw7zwB0gE",
-  authDomain: "mymoneyapp-abb12.firebaseapp.com",
-  projectId: "mymoneyapp-abb12",
-  storageBucket: "mymoneyapp-abb12.firebasestorage.app",
-  messagingSenderId: "728703755358",
-  appId: "1:728703755358:web:e10f94bfc61ec631dcc0cf",
-  measurementId: "G-2D4YL4DWQT"
+    apiKey: "AIzaSyDK3oq5I-MHnjYGXkRBfUeYs3vw7zwB0gE",
+    authDomain: "mymoneyapp-abb12.firebaseapp.com",
+    projectId: "mymoneyapp-abb12",
+    storageBucket: "mymoneyapp-abb12.firebasestorage.app",
+    messagingSenderId: "728703755358",
+    appId: "1:728703755358:web:e10f94bfc61ec631dcc0cf",
+    measurementId: "G-2D4YL4DWQT"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -18,7 +18,6 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const transactionsCol = collection(db, "transactions");
 
-// --- רשימת מיילים מורשים (תחליף כאן למייל שלך!) ---
 const allowedUsers = ["matantoledano18@gmail.com"]; 
 
 let currentType = 'expense';
@@ -27,27 +26,31 @@ let myChart = null;
 let editId = null;
 let pendingRecurring = [];
 
-// לוגיקת התחברות עם גוגל
-document.getElementById('google-login-btn').onclick = async () => {
-    try {
-        const result = await signInWithPopup(auth, provider);
+// לוגיקת התחברות עם Redirect - מותאם ל-EXE ולדפדפנים פנימיים
+document.getElementById('google-login-btn').onclick = () => {
+    signInWithRedirect(auth, provider);
+};
+
+// בדיקת תוצאת ההתחברות לאחר החזרה מהדף של גוגל
+getRedirectResult(auth).then(async (result) => {
+    if (result && result.user) {
         if (!allowedUsers.includes(result.user.email)) {
             await signOut(auth);
             document.getElementById('login-error').style.display = 'block';
         }
-    } catch (error) {
-        console.error("שגיאה בהתחברות:", error);
     }
-};
+}).catch((error) => {
+    console.error("שגיאה בתהליך ההתחברות:", error);
+});
 
-// ניהול מצב משתמש (מחובר/מנותק)
+// ניהול מצב משתמש
 onAuthStateChanged(auth, (user) => {
     const authScreen = document.getElementById('auth-screen');
     const appLoader = document.getElementById('app-loader');
     
     if (user && allowedUsers.includes(user.email)) {
         authScreen.classList.add('hidden');
-        appLoader.classList.remove('hidden'); // מראה את טעינת הנתונים
+        appLoader.classList.remove('hidden'); 
         startApp(); 
     } else {
         authScreen.classList.remove('hidden');
@@ -57,15 +60,10 @@ onAuthStateChanged(auth, (user) => {
 
 function startApp() {
     populateMonths();
-    
-    // האזנה לשינויים בנתונים רק אחרי חיבור מוצלח
     onSnapshot(query(transactionsCol, orderBy("date", "desc")), (snapshot) => {
         allData = [];
         snapshot.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
-        
-        // מסתיר את מסך הטעינה ברגע שהנתונים הגיעו
         document.getElementById('app-loader').classList.add('hidden');
-        
         updateAutocomplete(allData); 
         checkAndRepeatTransactions(allData);
         renderUI(allData);
@@ -77,14 +75,11 @@ function startApp() {
 function populateMonths() {
     const filter = document.getElementById('month-filter');
     if (!filter || filter.options.length > 0) return;
-
     const months = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     const current = new Date().getMonth();
-    
     let optAll = document.createElement('option');
     optAll.value = "all"; optAll.innerText = "הכל מהתחלה";
     filter.appendChild(optAll);
-
     months.forEach((m, i) => {
         let opt = document.createElement('option');
         opt.value = i; opt.innerText = m;
@@ -115,7 +110,6 @@ document.getElementById('transaction-form').onsubmit = async (e) => {
         recurring: document.getElementById('transaction-recurring').checked,
         date: editId ? allData.find(t => t.id === editId).date : Date.now()
     };
-
     if (editId) {
         await updateDoc(doc(db, "transactions", editId), transactionData);
         editId = null;
@@ -133,24 +127,20 @@ function renderUI(data) {
     const tbody = document.getElementById('transactions-body');
     if (!tbody) return;
     tbody.innerHTML = '';
-    
     let inc = 0, exp = 0;
     const catTotals = {};
-
     const filtered = data.filter(t => {
         const d = new Date(t.date);
         const mMatch = (selMonth === "all") || (d.getMonth() == selMonth);
         const sMatch = t.description.toLowerCase().includes(search);
         return mMatch && sMatch;
     });
-
     filtered.forEach(t => {
         if (t.type === 'income') inc += t.amount;
         else { 
             exp += t.amount; 
             catTotals[t.category] = (catTotals[t.category] || 0) + t.amount; 
         }
-
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${t.description} ${t.recurring ? '🔄' : ''}</td>
@@ -165,12 +155,10 @@ function renderUI(data) {
         `;
         tbody.appendChild(tr);
     });
-
     document.getElementById('total-income').innerText = `₪${inc.toLocaleString()}`;
     document.getElementById('total-expenses').innerText = `₪${exp.toLocaleString()}`;
     const balance = inc - exp;
     document.getElementById('balance').innerText = `₪${balance.toLocaleString()}`;
-    
     updateChart(catTotals);
     updateSavingTarget(balance);
 }
@@ -179,7 +167,6 @@ async function checkAndRepeatTransactions(data) {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-    
     pendingRecurring = data.filter(t => t.recurring === true).filter(t => {
         const tDate = new Date(t.date);
         const isPast = (tDate.getMonth() !== currentMonth || tDate.getFullYear() !== currentYear);
@@ -190,7 +177,6 @@ async function checkAndRepeatTransactions(data) {
         );
         return isPast && !alreadyExists;
     });
-
     const alertBox = document.getElementById('recurring-alert');
     if (pendingRecurring.length > 0) {
         document.getElementById('alert-text').innerText = `נמצאו ${pendingRecurring.length} תנועות קבועות מהחודש שעבר. להוסיף אותן?`;
