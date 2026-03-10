@@ -1,17 +1,4 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ניהול הון | משפחת טולדנו</title>
-    <link rel="stylesheet" href="style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head>
 <body>
-
     <header>
         <div class="header-right">
             <h1>משפחת טולדנו | ניהול הון</h1>
@@ -37,85 +24,41 @@
             </div>
         </section>
 
-        <section class="main-display">
-            <div class="chart-container">
-                <canvas id="pie-chart"></canvas>
+        <section class="main-grid">
+            <div class="actions-column">
+                <div class="action-card" onclick="openModal('modal-form')">
+                    <div class="icon-box">+</div>
+                    <h3>הוספת תנועה</h3>
+                    <p>תיעוד הכנסה או הוצאה חדשה</p>
+                </div>
+                <div class="action-card" onclick="openModal('modal-table')">
+                    <div class="icon-box">☰</div>
+                    <h3>רשימת תנועות</h3>
+                    <p>צפייה, עריכה וניהול היסטוריה</p>
+                </div>
+            </div>
+
+            <div class="chart-main-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        <span class="chart-icon">📊</span>
+                        <h3>פילוח הוצאות</h3>
+                    </div>
+                    <div class="chart-switcher">
+                        <button onclick="changeChartType('doughnut')" title="גרף עוגה">⭕</button>
+                        <button onclick="changeChartType('bar')" title="גרף עמודות">📊</button>
+                        <button onclick="changeChartType('line')" title="גרף קווי">📈</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="main-chart"></canvas>
+                </div>
             </div>
         </section>
     </main>
 
-    <div id="modal-form" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-form')">×</span>
-            <h2 style="color: var(--more-navy); text-align: center;">תיעוד תנועה חדשה</h2>
-            <form id="transaction-form">
-                <div class="form-group">
-                    <label>תיאור הפעולה</label>
-                    <input type="text" id="transaction-name" placeholder="לדוגמה: החזר ביטוח" list="descriptions-list" required />
-                    <datalist id="descriptions-list"></datalist>
-                </div>
-                <div class="form-group">
-                    <label>סכום (₪)</label>
-                    <input type="number" id="transaction-amount" step="0.01" placeholder="0.00" required />
-                </div>
-                <div class="form-group">
-                    <label>קטגוריה</label>
-                    <select id="transaction-category"></select>
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin: 20px 0;">
-                    <button type="button" id="type-btn-expense" class="save-btn" style="background: #ff5a5f; flex: 1;">↓ הוצאה</button>
-                    <button type="button" id="type-btn-income" class="save-btn" style="background: var(--more-teal); flex: 1; opacity: 0.5;">↑ הכנסה</button>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="transaction-recurring" style="width: auto;">
-                        תנועה קבועה מדי חודש
-                    </label>
-                </div>
-
-                <button type="submit" class="save-btn">שמור במערכת</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-table" class="modal">
-        <div class="modal-content large">
-            <span class="close-btn" onclick="closeModal('modal-table')">×</span>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="color: var(--more-navy);">פירוט תנועות מלא</h2>
-                <div style="display: flex; gap: 10px;">
-                    <button id="export-excel-btn" class="save-btn" style="padding: 8px 15px; font-size: 0.9rem;">Excel</button>
-                    <button id="export-pdf-btn" class="save-btn" style="padding: 8px 15px; font-size: 0.9rem; background: var(--more-purple);">PDF</button>
-                </div>
-            </div>
-            
-            <input type="text" id="search-input" placeholder="🔍 חפש תנועה ברשימה..." style="margin-bottom: 15px;">
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>תיאור</th>
-                            <th>קטגוריה</th>
-                            <th>סוג</th>
-                            <th>סכום</th>
-                            <th>תאריך</th>
-                            <th>פעולה</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactions-body"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="fab-container">
-        <button class="fab list-btn" id="open-table-btn" title="רשימת תנועות">☰</button>
-        <button class="fab add-btn" id="open-form-btn" title="הוספת תנועה">+</button>
-    </div>
+    <div id="modal-form" class="modal">...</div>
+    <div id="modal-table" class="modal">...</div>
 
     <script type="module" src="app.js"></script>
 </body>
-</html>
