@@ -1,13 +1,22 @@
 :root {
-    --more-navy: #002d4b;
-    --more-teal: #00c2cb;
-    --more-purple: #7d77b1;
-    --more-gold: #c5a059;
-    --bg-gradient: linear-gradient(135deg, #cfdbe6 0%, #e2e8f0 50%, #e8e1f2 100%);
-    --glass-bg: rgba(235, 245, 255, 0.65); 
-    --glass-border: rgba(255, 255, 255, 0.4);
-    --ice-white: #f8fbff;
-    --card-shadow: 0 12px 40px rgba(0, 45, 75, 0.1);
+    /* גוונים בהשראת האתר ששלחת */
+    --finly-blue: #007bff;
+    --finly-purple: #6f42c1;
+    --finly-gradient: linear-gradient(135deg, #007bff 0%, #6f42c1 100%);
+    /* ... שאר המשתנים שלך ... */
+}
+
+/* שדרוג הכפתורים למראה המודרני */
+.submit-btn, .action-card:hover {
+    background: var(--finly-gradient) !important;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submit-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(111, 66, 193, 0.4);
 }
 
 body, html {
@@ -277,3 +286,32 @@ td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
 
 /* Hide FAB if exists */
 .fab-container { display: none; }
+/* --- Finly Mascot Positioning & 3D Effect --- */
+.finly-mascot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 220px; /* גודל הדמות על המסך */
+    z-index: 9999;
+    pointer-events: none; /* מאפשר ללחוץ על מה שמתחת לדמות */
+    perspective: 1000px; /* מאפשר אפקט הטיה תלת-ממדי */
+}
+
+.mascot-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2));
+    transition: transform 0.1s ease-out; /* תנועה חלקה בעקבות העכבר */
+    transform-style: preserve-3d;
+}
+
+/* התאמה למסכים קטנים - שהדמות לא תסתיר את התוכן */
+@media (max-width: 768px) {
+    .finly-mascot-container {
+        width: 150px;
+        bottom: 10px;
+        right: 10px;
+        opacity: 0.8;
+    }
+}

@@ -264,3 +264,26 @@ if (catSelect && catSelect.options.length === 0) {
 }
 
 init();
+// --- לוגיקה לדמות האינטראקטיבית (Finly Mascot) ---
+document.addEventListener('mousemove', (e) => {
+    const mascotContainer = document.getElementById('finly-mascot');
+    if (!mascotContainer) return;
+
+    const mascotImg = mascotContainer.querySelector('.mascot-image');
+    const rect = mascotContainer.getBoundingClientRect();
+    
+    // מציאת מרכז הדמות
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // חישוב המרחק של העכבר מהמרכז (בטווח של -1 עד 1)
+    const moveX = (e.clientX - centerX) / (window.innerWidth / 2);
+    const moveY = (e.clientY - centerY) / (window.innerHeight / 2);
+
+    // הגדרת עוצמת ההטיה (15 מעלות לכל צד)
+    const rotateY = moveX * 15; 
+    const rotateX = moveY * -15; 
+
+    // החלת התנועה על התמונה
+    mascotImg.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+});
