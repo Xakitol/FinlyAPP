@@ -3,155 +3,121 @@
     --more-teal: #00c2cb;
     --more-purple: #7d77b1;
     --more-gold: #c5a059;
-    
-    /* רקע קרח עם עומק סגלגל */
-    --bg-gradient: linear-gradient(135deg, #d4e4ef 0%, #e6e9f0 50%, #eeeaf5 100%);
-    
-    /* זכוכית תכלת-קרח שקופה למחצה */
-    --glass-bg: rgba(230, 242, 250, 0.7); 
+    /* רקע קרח-סגלגל עמוק יותר */
+    --bg-gradient: linear-gradient(135deg, #cfdbe6 0%, #e2e8f0 50%, #e8e1f2 100%);
+    --glass-bg: rgba(235, 245, 255, 0.65); 
     --glass-border: rgba(255, 255, 255, 0.4);
-    
-    /* צבע "פנינה" במקום לבן - נוטה לתכלת סגלגל */
-    --ice-white: #f2f7ff; 
-    --card-shadow: 0 15px 45px rgba(0, 45, 75, 0.12);
+    --ice-white: #f8fbff; /* תכלכל פנינה */
+    --card-shadow: 0 12px 40px rgba(0, 45, 75, 0.1);
 }
 
-/* בסיס האפליקציה */
 body, html {
     margin: 0; padding: 0;
     height: 100vh; width: 100vw;
-    overflow: hidden; 
+    overflow: hidden;
     font-family: 'Rubik', sans-serif;
     background: var(--bg-gradient);
     direction: rtl;
 }
 
-header {
-    background: var(--more-navy);
-    color: var(--ice-white);
-    padding: 0.8rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 4px solid var(--more-teal);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+/* פריסת הגריד המרכזית - פותר את הבעיה מהתמונה */
+.main-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr; /* עמודת כרטיסי פעולה וגרף רחב */
+    gap: 30px;
+    flex: 1;
+    min-height: 0;
 }
 
-.month-select {
-    background: var(--glass-bg);
-    border: 1px solid var(--more-teal);
-    padding: 8px 20px;
-    border-radius: 20px;
-    color: var(--more-navy);
-    font-weight: bold;
-    backdrop-filter: blur(5px);
-}
-
-.dashboard-layout {
-    height: calc(100vh - 70px);
+/* כרטיסי הפעולה הריבועיים שביקשת */
+.actions-column {
     display: flex;
     flex-direction: column;
-    padding: 25px;
-    gap: 25px;
+    gap: 20px;
 }
 
-/* כרטיסי סיכום - אפקט יהלום */
-.card {
+.action-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--card-shadow);
+    border-right: 5px solid var(--more-teal); /* פס טורקיז בצד */
+}
+
+.action-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    background: rgba(255, 255, 255, 0.85);
+    border-right-color: var(--more-purple);
+}
+
+.icon-box {
+    width: 55px; height: 55px;
+    background: var(--more-navy);
+    color: white;
+    border-radius: 15px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 26px;
+    box-shadow: 0 5px 15px rgba(0, 45, 75, 0.2);
+}
+
+/* כרטיס הגרף החדש - לא עוד גרף צף בלבן */
+.chart-main-card {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
+    border-radius: 30px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
     box-shadow: var(--card-shadow);
     position: relative;
 }
 
-/* ברק יהלום סגלגל */
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(135deg, rgba(125, 119, 177, 0.1) 0%, transparent 100%);
-    pointer-events: none;
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 45, 75, 0.1);
 }
 
-.card p { font-size: 2.2rem; font-weight: 800; color: var(--more-navy); text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-
-/* גריד מרכזי */
-.main-grid {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 30px;
-    flex: 1;
-}
-
-/* כרטיסי פעולה - צבעי מור גמל */
-.action-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(15px);
-    border: 2px solid transparent;
-    border-radius: 22px;
-    padding: 30px;
-    cursor: pointer;
-    transition: all 0.4s ease;
-    box-shadow: var(--card-shadow);
-    border-bottom: 5px solid var(--more-purple); /* סיומת סגולה */
-}
-
-.action-card:hover {
-    transform: scale(1.03);
-    border-color: var(--more-teal);
-    background: rgba(242, 247, 255, 0.9);
-}
-
-.icon-box {
-    background: linear-gradient(135deg, var(--more-navy) 0%, var(--more-purple) 100%);
-    color: var(--ice-white);
-    width: 60px; height: 60px;
-    border-radius: 18px;
-    font-size: 28px;
-    margin-bottom: 15px;
-}
-
-/* כרטיס הגרף */
-.chart-main-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(25px);
-    border: 1px solid var(--glass-border);
-    border-radius: 30px;
-    padding: 30px;
-    box-shadow: var(--card-shadow);
-    border-right: 6px solid var(--more-teal); /* דגש טורקיז */
+.chart-switcher {
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 45, 75, 0.05);
+    padding: 5px;
+    border-radius: 15px;
 }
 
 .chart-switcher button {
-    background: var(--ice-white);
-    border: 1px solid var(--more-purple);
-    color: var(--more-navy);
-    border-radius: 12px;
+    background: transparent;
+    border: none;
+    width: 45px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: 0.2s;
 }
 
 .chart-switcher button:hover {
-    background: var(--more-teal);
-    color: white;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* מודלים - רקע פנינה סגלגל */
+/* עיצוב המודלים (Popups) - למראה יוקרתי */
 .modal-content {
     background: var(--ice-white);
-    border: 2px solid var(--more-purple);
-    box-shadow: 0 30px 70px rgba(0, 45, 75, 0.4);
+    border-radius: 30px;
+    border: 1px solid var(--more-teal);
+    box-shadow: 0 40px 100px rgba(0, 45, 75, 0.3);
 }
 
-/* טפסים */
-input, select {
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid var(--more-purple);
-    color: var(--more-navy);
-}
-
-input:focus {
-    background: white;
-    outline: 2px solid var(--more-teal);
-}
+/* ביטול הכפתורים הצפים מהגרסה הקודמת */
+.fab-container { display: none; }
