@@ -1,34 +1,28 @@
 :root {
-    /* גוונים בהשראת האתר ששלחת */
+    /* פלטת הצבעים המקורית והמלאה של Finly */
+    --more-navy: #002d4b;
+    --more-teal: #00c2cb;
+    --more-purple: #7d77b1;
+    --ice-white: #f8fbff;
+    --glass-bg: rgba(255, 255, 255, 0.9); /* שקיפות עדינה שמשאירה את הכרטיס גלוי */
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --bg-gradient: linear-gradient(135deg, #f0f7ff 0%, #e2e8f0 100%);
+    --card-shadow: 0 15px 35px rgba(0,45,75,0.08);
     --finly-blue: #007bff;
     --finly-purple: #6f42c1;
     --finly-gradient: linear-gradient(135deg, #007bff 0%, #6f42c1 100%);
-    /* ... שאר המשתנים שלך ... */
-}
-
-/* שדרוג הכפתורים למראה המודרני */
-.submit-btn, .action-card:hover {
-    background: var(--finly-gradient) !important;
-    color: white;
-    border: none;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.submit-btn:hover {
-    transform: scale(1.02);
-    box-shadow: 0 8px 20px rgba(111, 66, 193, 0.4);
 }
 
 body, html {
     margin: 0; padding: 0;
     height: 100vh; width: 100vw;
-    overflow: hidden;
+    overflow-x: hidden;
     font-family: 'Rubik', sans-serif;
     background: var(--bg-gradient);
     direction: rtl;
 }
 
-/* --- Header & Branding (Finly Update) --- */
+/* --- Header & Branding --- */
 header {
     background: var(--more-navy);
     color: white;
@@ -48,19 +42,14 @@ header {
     gap: 12px;
 }
 
-.logo-icon {
-    font-size: 1.8rem;
-    filter: drop-shadow(0 0 10px rgba(0, 194, 203, 0.5));
-}
+/* הסרנו את ה-logo-icon (היהלום) מה-HTML ולכן אין לו הגדרה כאן */
 
 .brand-name {
     font-size: 2rem !important;
     font-weight: 800;
     letter-spacing: -1px;
     background: linear-gradient(to right, #ffffff, var(--more-teal));
-    /* השורה שקיימת אצלך - עבור Chrome/Safari */
     -webkit-background-clip: text; 
-    /* הוספת השורה הזו תעלים את האזהרה ותבטיח תאימות */
     background-clip: text; 
     -webkit-text-fill-color: transparent;
     margin: 0;
@@ -77,7 +66,7 @@ header {
 
 .month-select {
     background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
     color: white;
     padding: 8px 15px;
     border-radius: 12px;
@@ -90,6 +79,11 @@ header {
     background: rgba(255,255,255,0.2);
 }
 
+.month-select option {
+    background: var(--more-navy);
+    color: white;
+}
+
 /* --- Dashboard Layout --- */
 .dashboard-layout {
     padding: 30px 40px;
@@ -99,7 +93,7 @@ header {
     height: calc(100vh - 80px);
 }
 
-/* Summary Row */
+/* Summary Row (הריבועים למעלה) */
 .summary-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -119,7 +113,7 @@ header {
 .card span { color: var(--more-navy); font-size: 0.9rem; font-weight: 500; opacity: 0.8; }
 .card p { margin: 10px 0 0; font-size: 1.8rem; font-weight: 800; color: var(--more-navy); }
 
-/* Main Grid */
+/* --- Main Grid (פעולות וגרף) --- */
 .main-grid {
     display: grid;
     grid-template-columns: 320px 1fr;
@@ -128,7 +122,7 @@ header {
     min-height: 0;
 }
 
-/* Action Cards */
+/* Actions Column (הוספת תנועה ורשימה) */
 .actions-column { display: flex; flex-direction: column; gap: 20px; }
 
 .action-card {
@@ -146,7 +140,7 @@ header {
 
 .action-card:hover { 
     transform: translateY(-5px); 
-    background: rgba(255,255,255,0.85); 
+    background: rgba(255,255,255,1); 
     border-right-color: var(--more-purple);
 }
 
@@ -200,7 +194,7 @@ header {
 
 .chart-switcher button:hover { background: white; }
 
-/* Modals */
+/* --- Modals (חלונות קופצים) --- */
 .modal {
     display: none;
     position: fixed;
@@ -272,7 +266,7 @@ header {
     box-shadow: 0 5px 15px rgba(0, 194, 203, 0.3);
 }
 
-/* Table Styling */
+/* --- Table Styling --- */
 .table-wrapper { 
     overflow-y: auto; 
     max-height: 65vh; 
@@ -284,34 +278,23 @@ table { width: 100%; border-collapse: collapse; text-align: right; }
 th { background: #f0f7ff; color: var(--more-navy); padding: 15px; position: sticky; top: 0; }
 td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
 
-/* Hide FAB if exists */
-.fab-container { display: none; }
-/* --- Finly Mascot Positioning & 3D Effect --- */
+/* --- Mascot (הדמות) --- */
 .finly-mascot-container {
     position: fixed;
     bottom: 20px;
-    right: 20px;
-    width: 220px; /* גודל הדמות על המסך */
+    left: 20px; /* צד שמאל כדי לא להפריע לטקסט */
+    width: 220px;
     z-index: 9999;
-    pointer-events: none; /* מאפשר ללחוץ על מה שמתחת לדמות */
-    perspective: 1000px; /* מאפשר אפקט הטיה תלת-ממדי */
+    pointer-events: none;
+    perspective: 1000px;
 }
 
 .mascot-image {
     width: 100%;
-    height: auto;
-    display: block;
     filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2));
-    transition: transform 0.1s ease-out; /* תנועה חלקה בעקבות העכבר */
+    transition: transform 0.1s ease-out;
     transform-style: preserve-3d;
 }
 
-/* התאמה למסכים קטנים - שהדמות לא תסתיר את התוכן */
-@media (max-width: 768px) {
-    .finly-mascot-container {
-        width: 150px;
-        bottom: 10px;
-        right: 10px;
-        opacity: 0.8;
-    }
-}
+/* העלמת אלמנטים ישנים אם נשארו */
+.fab-container { display: none; }
