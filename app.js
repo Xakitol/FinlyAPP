@@ -181,7 +181,7 @@ function updateChart(totals) {
     });
 }
 
-const cats = ["מזון", "בית", "חינוך", "פנאי", "רכב", "בריאות", "משכורת", "אחר"];
+const cats = ["מזון", "בית", "חינוך", "פנאי", "רכב", "בריאות", "כרטיסי אשראי", "משכורת", "אחר"];
 cats.forEach(c => {
     let o = document.createElement('option');
     o.value = c; o.innerText = c;
