@@ -42,10 +42,19 @@ window.closeModal = (id) => {
 window.openVisionHub = () => openModal('modal-vision-hub');
 
 window.showSpecificChart = (type) => {
+    // 1. סגור את תפריט הבחירה
     closeModal('modal-vision-hub');
-    chartType = type; // מעדכן את סוג הגרף
-    renderUI(allData); // מרנדר מחדש כדי שהגרף ייווצר בתוך ה-Canvas
+    
+    // 2. עדכן את סוג הגרף
+    chartType = type;
+    
+    // 3. פתח את המודל של הגרף הבודד
     openModal('modal-single-chart');
+    
+    // 4. חשוב: תן לדפדפן רגע לרנדר את המודל לפני שמציירים את הגרף
+    setTimeout(() => {
+        renderUI(allData); // זה יריץ את renderChart על ה-Canvas הנכון
+    }, 100);
 };
 
 window.backToHub = () => {
