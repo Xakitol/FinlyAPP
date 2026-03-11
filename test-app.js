@@ -38,23 +38,28 @@ window.closeModal = (id) => {
     }
 };
 
-// לוגיקת ה-Vision (גרפים בפופ-אפ)
+// --- לוגיקת ה-Vision (תיקון פתיחת גרפים) ---
 window.openVisionHub = () => openModal('modal-vision-hub');
 
 window.showSpecificChart = (type) => {
     // 1. סגור את תפריט הבחירה
     closeModal('modal-vision-hub');
     
-    // 2. עדכן את סוג הגרף
+    // 2. עדכן את סוג הגרף הגלובלי
     chartType = type;
     
-    // 3. פתח את המודל של הגרף הבודד
+    // 3. פתח את המודל שמכיל את ה-Canvas
     openModal('modal-single-chart');
     
-    // 4. חשוב: תן לדפדפן רגע לרנדר את המודל לפני שמציירים את הגרף
+    // 4. חשוב: השהיה כדי לוודא שה-Canvas נטען ב-DOM לפני הציור
     setTimeout(() => {
-        renderUI(allData); // זה יריץ את renderChart על ה-Canvas הנכון
-    }, 100);
+        // וודא שהנתונים קיימים לפני רינדור
+        if (allData.length > 0) {
+            renderUI(allData); 
+        } else {
+            console.error("No data available to render chart");
+        }
+    }, 250); // השהיה מוגדלת ליתר ביטחון עבור שרתים איטיים
 };
 
 window.backToHub = () => {
@@ -148,22 +153,29 @@ function renderUI(data) {
         }
     });
 
-    document.getElementById('total-income').innerText = `₪${inc.toLocaleString()}`;
-    document.getElementById('total-expenses').innerText = `₪${exp.toLocaleString()}`;
-    const balanceEl = document.getElementById('balance');
-    const balance = inc - exp;
-    balanceEl.innerText = `₪${balance.toLocaleString()}`;
-    balanceEl.style.color = balance >= 0 ? 'var(--more-navy)' : '#ff5a5f';
+    const incEl = document.getElementById('total-income');
+    const expEl = document.getElementById('total-expenses');
+    const balEl = document.getElementById('balance');
+
+    if (incEl) incEl.innerText = `₪${inc.toLocaleString()}`;
+    if (expEl) expEl.innerText = `₪${exp.toLocaleString()}`;
+    
+    if (balEl) {
+        const balance = inc - exp;
+        balEl.innerText = `₪${balance.toLocaleString()}`;
+        balEl.style.color = balance >= 0 ? 'var(--more-navy)' : '#ff5a5f';
+    }
 
     renderChart(catTotals, detailedList);
 }
 
-// --- גרפיקה (Chart.js) ---
+// --- גרפיקה (תיקון זיהוי קנבס במודל) ---
 function renderChart(totals, details) {
-    const canvas = document.getElementById('main-chart');
+    // ננסה למצוא קנבס במודל הספציפי או בקנבס הכללי
+    const canvas = document.getElementById('main-chart') || document.querySelector('#modal-single-chart canvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
     
+    const ctx = canvas.getContext('2d');
     if (myChart) myChart.destroy();
     if (Object.keys(totals).length === 0) return;
 
@@ -200,26 +212,29 @@ function renderChart(totals, details) {
 }
 
 // --- פעולות (שמירה, מחיקה, עריכה) ---
-document.getElementById('transaction-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const transactionData = {
-        description: document.getElementById('transaction-name').value,
-        amount: parseFloat(document.getElementById('transaction-amount').value),
-        category: document.getElementById('transaction-category').value,
-        type: currentType,
-        recurring: false, // פשטנו לבינתיים
-        date: editId ? allData.find(t => t.id === editId).date : Date.now()
-    };
+const form = document.getElementById('transaction-form');
+if (form) {
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const transactionData = {
+            description: document.getElementById('transaction-name').value,
+            amount: parseFloat(document.getElementById('transaction-amount').value),
+            category: document.getElementById('transaction-category').value,
+            type: currentType,
+            recurring: false,
+            date: editId ? allData.find(t => t.id === editId).date : Date.now()
+        };
 
-    try {
-        if (editId) {
-            await updateDoc(doc(db, "transactions", editId), transactionData);
-        } else {
-            await addDoc(transactionsCol, transactionData);
-        }
-        closeModal('modal-form');
-    } catch (e) { console.error(e); }
-};
+        try {
+            if (editId) {
+                await updateDoc(doc(db, "transactions", editId), transactionData);
+            } else {
+                await addDoc(transactionsCol, transactionData);
+            }
+            closeModal('modal-form');
+        } catch (e) { console.error(e); }
+    };
+}
 
 window.deleteTransaction = async (id) => {
     if (confirm("למחוק?")) await deleteDoc(doc(db, "transactions", id));
@@ -237,7 +252,6 @@ window.editTransaction = (id) => {
     editId = id;
 };
 
-// --- עזרים (Selectors) ---
 function setupTypeSelector() {
     const expBtn = document.getElementById('type-btn-expense');
     const incBtn = document.getElementById('type-btn-income');
@@ -260,7 +274,6 @@ function setupCategories() {
     }
 }
 
-// אנימציית הדמות
 document.addEventListener('mousemove', (e) => {
     const mascotImg = document.querySelector('.mascot-image');
     if (!mascotImg) return;
