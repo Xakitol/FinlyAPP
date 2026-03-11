@@ -1,16 +1,12 @@
 :root {
-    /* פלטת הצבעים המקורית והמלאה של Finly */
     --more-navy: #002d4b;
     --more-teal: #00c2cb;
     --more-purple: #7d77b1;
     --ice-white: #f8fbff;
-    --glass-bg: rgba(255, 255, 255, 0.9); /* שקיפות עדינה שמשאירה את הכרטיס גלוי */
+    --glass-bg: rgba(255, 255, 255, 0.9);
     --glass-border: rgba(255, 255, 255, 0.4);
     --bg-gradient: linear-gradient(135deg, #f0f7ff 0%, #e2e8f0 100%);
     --card-shadow: 0 15px 35px rgba(0,45,75,0.08);
-    --finly-blue: #007bff;
-    --finly-purple: #6f42c1;
-    --finly-gradient: linear-gradient(135deg, #007bff 0%, #6f42c1 100%);
 }
 
 body, html {
@@ -33,21 +29,12 @@ header {
     align-items: center;
     box-shadow: 0 4px 30px rgba(0,0,0,0.2);
     position: relative;
-    z-index: 10;
+    z-index: 100;
 }
-
-.logo-area {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-/* הסרנו את ה-logo-icon (היהלום) מה-HTML ולכן אין לו הגדרה כאן */
 
 .brand-name {
     font-size: 2rem !important;
     font-weight: 800;
-    letter-spacing: -1px;
     background: linear-gradient(to right, #ffffff, var(--more-teal));
     -webkit-background-clip: text; 
     background-clip: text; 
@@ -58,7 +45,6 @@ header {
 .brand-tagline {
     color: rgba(255, 255, 255, 0.5);
     font-size: 0.85rem;
-    font-weight: 300;
     margin-right: 10px;
     border-right: 1px solid rgba(255,255,255,0.2);
     padding-right: 10px;
@@ -71,17 +57,6 @@ header {
     padding: 8px 15px;
     border-radius: 12px;
     cursor: pointer;
-    font-family: 'Rubik';
-    transition: 0.3s;
-}
-
-.month-select:hover {
-    background: rgba(255,255,255,0.2);
-}
-
-.month-select option {
-    background: var(--more-navy);
-    color: white;
 }
 
 /* --- Dashboard Layout --- */
@@ -90,10 +65,8 @@ header {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    height: calc(100vh - 80px);
 }
 
-/* Summary Row (הריבועים למעלה) */
 .summary-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -101,200 +74,154 @@ header {
 }
 
 .card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    padding: 20px;
+    background: white;
+    padding: 30px;
     border-radius: 24px;
     text-align: center;
     box-shadow: var(--card-shadow);
+    border: 1px solid var(--glass-border);
 }
 
-.card span { color: var(--more-navy); font-size: 0.9rem; font-weight: 500; opacity: 0.8; }
-.card p { margin: 10px 0 0; font-size: 1.8rem; font-weight: 800; color: var(--more-navy); }
+.card p { margin: 10px 0 0; font-size: 2.2rem; font-weight: 800; color: var(--more-navy); }
 
-/* --- Main Grid (פעולות וגרף) --- */
-.main-grid {
+/* Vision Grid */
+.vision-grid {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 30px;
-    flex: 1;
-    min-height: 0;
+    margin-top: 10px;
 }
-
-/* Actions Column (הוספת תנועה ורשימה) */
-.actions-column { display: flex; flex-direction: column; gap: 20px; }
 
 .action-card {
     background: var(--glass-bg);
     backdrop-filter: blur(15px);
-    border: 1px solid var(--glass-border);
     border-radius: 24px;
-    padding: 30px 20px;
+    padding: 40px 20px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: var(--card-shadow);
-    border-right: 5px solid var(--more-teal);
+    border: 1px solid var(--glass-border);
+    border-bottom: 5px solid var(--more-teal);
 }
 
 .action-card:hover { 
-    transform: translateY(-5px); 
-    background: rgba(255,255,255,1); 
-    border-right-color: var(--more-purple);
+    transform: translateY(-10px); 
+    background: white; 
+    border-bottom-color: var(--more-purple);
 }
 
 .icon-box {
-    width: 50px; height: 50px;
+    width: 60px; height: 60px;
     background: var(--more-navy);
     color: white;
-    border-radius: 12px;
+    border-radius: 15px;
     display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 15px;
-    font-size: 22px;
+    margin: 0 auto 20px;
+    font-size: 28px;
 }
 
-/* Chart Main Card */
-.chart-main-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 30px;
-    padding: 25px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: var(--card-shadow);
-}
-
-.chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(0,45,75,0.05);
-}
-
-.chart-wrapper { flex: 1; position: relative; min-height: 0; }
-
-.chart-switcher {
-    background: rgba(0,45,75,0.05);
-    padding: 5px;
-    border-radius: 12px;
-}
-
-.chart-switcher button {
-    background: transparent;
-    border: none;
-    width: 40px; height: 35px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.chart-switcher button:hover { background: white; }
-
-/* --- Modals (חלונות קופצים) --- */
+/* --- Modals --- */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 2000;
     left: 0; top: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 45, 75, 0.4);
-    backdrop-filter: blur(5px);
-    align-items: center;
-    justify-content: center;
+    background: rgba(0, 45, 75, 0.5);
+    align-items: center; justify-content: center;
 }
 
 .modal.active { display: flex; }
 
 .modal-content {
-    background: var(--ice-white);
-    padding: 30px;
-    border-radius: 30px;
-    width: 400px;
-    position: relative;
-    border: 1px solid var(--more-teal);
-    box-shadow: 0 40px 100px rgba(0, 45, 75, 0.2);
-}
-
-.modal-content.full-width { width: 90%; max-width: 1100px; }
-
-.close {
-    position: absolute;
-    left: 20px; top: 15px;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--more-navy);
-}
-
-/* Form Styling */
-#transaction-form { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-#transaction-form input, #transaction-form select {
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.1);
-    font-family: 'Rubik';
     background: white;
+    padding: 40px;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
 }
 
-.type-selector {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+.modal-content.full-width { max-width: 1000px; }
+
+/* Vision Specific Modals */
+.vision-overlay {
+    backdrop-filter: blur(25px);
+    background: rgba(0, 45, 75, 0.35);
 }
 
-.type-selector button {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
+.vision-content { text-align: center; width: 100%; }
+.vision-title { color: white; font-size: 3rem; margin-bottom: 50px; font-weight: 800; }
+
+.charts-options-container { display: flex; justify-content: center; gap: 40px; }
+
+.chart-option-box {
+    background: white;
+    padding: 50px 30px;
+    border-radius: 40px;
     cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 200px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.chart-option-box:hover {
+    transform: scale(1.1) rotate(2deg);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+}
+
+.preview-icon { font-size: 70px; margin-bottom: 20px; }
+
+/* התיקון למודל הגרפים - כדי שלא יהיה ריק */
+.chart-display-area {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Form Elements --- */
+.type-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+.type-selector button {
+    flex: 1; padding: 12px; border: 2px solid #eee; border-radius: 12px;
+    background: white; cursor: pointer; font-weight: 600; transition: 0.3s;
+}
+.type-selector button.active#type-btn-expense { background: #ff5a5f; color: white; border-color: #ff5a5f; }
+.type-selector button.active#type-btn-income { background: var(--more-teal); color: white; border-color: var(--more-teal); }
+
+input, select {
+    width: 100%; padding: 15px; margin-bottom: 15px;
+    border: 2px solid #eee; border-radius: 12px; font-family: inherit;
+    box-sizing: border-box;
 }
 
 .submit-btn {
-    background: var(--more-teal);
-    color: white;
-    border: none;
-    padding: 15px;
-    border-radius: 12px;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 194, 203, 0.3);
+    width: 100%; padding: 15px; border: none; border-radius: 12px;
+    background: var(--more-navy); color: white; font-size: 1.1rem;
+    font-weight: 700; cursor: pointer; transition: 0.3s;
 }
 
-/* --- Table Styling --- */
-.table-wrapper { 
-    overflow-y: auto; 
-    max-height: 65vh; 
-    margin-top: 20px;
-    border-radius: 15px;
-    background: white;
-}
+/* --- Table Styles --- */
+.table-wrapper { overflow-x: auto; margin-top: 20px; }
 table { width: 100%; border-collapse: collapse; text-align: right; }
-th { background: #f0f7ff; color: var(--more-navy); padding: 15px; position: sticky; top: 0; }
-td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
+th, td { padding: 15px; border-bottom: 1px solid #eee; }
+th { color: var(--more-navy); font-weight: 700; }
 
-/* --- Mascot (הדמות) --- */
+/* --- Mascot --- */
 .finly-mascot-container {
-    position: fixed;
-    bottom: 20px;
-    left: 20px; /* צד שמאל כדי לא להפריע לטקסט */
-    width: 220px;
-    z-index: 9999;
-    pointer-events: none;
-    perspective: 1000px;
+    position: fixed; bottom: 30px; left: 30px;
+    width: 150px; z-index: 3000; pointer-events: none;
 }
+.mascot-image { width: 100%; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2)); }
 
-.mascot-image {
-    width: 100%;
-    filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2));
-    transition: transform 0.1s ease-out;
-    transform-style: preserve-3d;
+/* Close Buttons */
+.close, .close-vision, .close-btn {
+    position: absolute; cursor: pointer; border: none; background: none;
 }
-
-/* העלמת אלמנטים ישנים אם נשארו */
-.fab-container { display: none; }
+.close-vision { top: 30px; right: 40px; font-size: 40px; color: white; }
+.close { top: 20px; right: 25px; font-size: 30px; color: var(--more-navy); }
+.close-btn { top: 15px; right: 20px; font-size: 25px; color: var(--more-navy); font-weight: bold; }

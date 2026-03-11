@@ -21,7 +21,7 @@ let currentType = 'expense';
 let editId = null;
 let chartType = 'doughnut'; 
 
-// --- שליטה במודלים ---
+// --- ניהול מודלים ---
 window.openModal = (id) => {
     const modal = document.getElementById(id);
     if (modal) modal.classList.add('active');
@@ -34,42 +34,36 @@ window.closeModal = (id) => {
         if (id === 'modal-form') {
             document.getElementById('transaction-form').reset();
             editId = null;
-            // החזרת כפתור הוצאה לברירת מחדל
-            if (expBtn) expBtn.click();
         }
     }
 };
 
-// בורר סוג גרף
-window.changeChartType = (type) => {
+// --- לוגיקת ה-Vision (גרפים בפופ-אפ) ---
+window.openVisionHub = () => openModal('modal-vision-hub');
+
+window.showSpecificChart = (type) => {
+    closeModal('modal-vision-hub');
     chartType = type;
-    renderUI(allData);
+    openModal('modal-single-chart');
+    
+    setTimeout(() => {
+        if (allData.length > 0) {
+            renderUI(allData); 
+        }
+    }, 300);
 };
 
-// --- לוגיקה לבחירת סוג תנועה בטופס ---
-const expBtn = document.getElementById('type-btn-expense');
-const incBtn = document.getElementById('type-btn-income');
+window.backToHub = () => {
+    closeModal('modal-single-chart');
+    openModal('modal-vision-hub');
+};
 
-if (expBtn && incBtn) {
-    expBtn.onclick = () => { 
-        currentType = 'expense'; 
-        expBtn.classList.add('active'); 
-        incBtn.classList.remove('active');
-        expBtn.style.opacity = '1'; 
-        incBtn.style.opacity = '0.5'; 
-    };
-    incBtn.onclick = () => { 
-        currentType = 'income'; 
-        incBtn.classList.add('active'); 
-        expBtn.classList.remove('active');
-        incBtn.style.opacity = '1'; 
-        expBtn.style.opacity = '0.5'; 
-    };
-}
-
-// --- טעינת נתונים ---
+// --- טעינה ואתחול ---
 function init() {
     populateMonths();
+    setupTypeSelector();
+    setupCategories();
+    
     onSnapshot(query(transactionsCol, orderBy("date", "desc")), (snapshot) => {
         allData = [];
         snapshot.forEach(docSnap => {
@@ -120,7 +114,6 @@ function renderUI(data) {
         } else {
             exp += t.amount;
             catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
-            
             if (!detailedList[t.category]) detailedList[t.category] = [];
             detailedList[t.category].push(`${t.description}: ₪${t.amount.toLocaleString()}`);
         }
@@ -145,34 +138,45 @@ function renderUI(data) {
         }
     });
 
-    document.getElementById('total-income').innerText = `₪${inc.toLocaleString()}`;
-    document.getElementById('total-expenses').innerText = `₪${exp.toLocaleString()}`;
-    const balanceEl = document.getElementById('balance');
-    const balance = inc - exp;
-    balanceEl.innerText = `₪${balance.toLocaleString()}`;
-    balanceEl.style.color = balance >= 0 ? 'var(--more-navy)' : '#ff5a5f';
+    const incEl = document.getElementById('total-income');
+    const expEl = document.getElementById('total-expenses');
+    const balEl = document.getElementById('balance');
+
+    if (incEl) incEl.innerText = `₪${inc.toLocaleString()}`;
+    if (expEl) expEl.innerText = `₪${exp.toLocaleString()}`;
+    if (balEl) {
+        const balance = inc - exp;
+        balEl.innerText = `₪${balance.toLocaleString()}`;
+        balEl.style.color = balance >= 0 ? 'var(--more-navy)' : '#ff5a5f';
+    }
 
     renderChart(catTotals, detailedList);
 }
 
-// --- הגרף החכם ---
+// --- גרפיקה (Chart.js) - גרסה מתוקנת ללא undefined ---
 function renderChart(totals, details) {
-    const canvas = document.getElementById('main-chart');
+    const canvas = document.getElementById('main-chart') || document.querySelector('#modal-single-chart canvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
     
+    const ctx = canvas.getContext('2d');
     if (myChart) myChart.destroy();
     if (Object.keys(totals).length === 0) return;
+
+    const labels = Object.keys(totals);
+    const dataValues = Object.values(totals);
+    const colors = ['#002d4b', '#00c2cb', '#7d77b1', '#c5a059', '#a5b4fc', '#4ade80', '#fb923c'];
 
     myChart = new Chart(ctx, {
         type: chartType,
         data: {
-            labels: Object.keys(totals),
+            labels: labels,
             datasets: [{
-                data: Object.values(totals),
-                backgroundColor: ['#002d4b', '#00c2cb', '#7d77b1', '#c5a059', '#a5b4fc', '#4ade80', '#fb923c'],
+                label: 'פירוט הוצאות',
+                data: dataValues,
+                backgroundColor: chartType === 'doughnut' ? colors : colors[1],
+                borderColor: '#ffffff',
                 borderWidth: 2,
-                borderColor: '#f8fbff'
+                fill: chartType === 'line'
             }]
         },
         options: {
@@ -180,62 +184,69 @@ function renderChart(totals, details) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { 
-                    position: 'bottom', 
+                legend: {
+                    display: true,
+                    position: 'bottom',
                     rtl: true,
-                    labels: { color: '#002d4b', font: { family: 'Rubik', size: 12 } } 
+                    labels: {
+                        font: { family: 'Rubik' },
+                        generateLabels: (chart) => {
+                            if (chart.config.type === 'doughnut') {
+                                return Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                            }
+                            return [{
+                                text: 'סינון לפי קטגוריה',
+                                fillStyle: colors[1],
+                                datasetIndex: 0
+                            }];
+                        }
+                    }
                 },
                 tooltip: {
                     rtl: true,
-                    backgroundColor: 'rgba(0, 45, 75, 0.9)',
-                    titleFont: { size: 14, family: 'Rubik' },
-                    bodyFont: { size: 12, family: 'Rubik' },
-                    padding: 12,
                     callbacks: {
-                        label: function(context) {
-                            return ` סה"כ: ₪${context.raw.toLocaleString()}`;
-                        },
-                        afterBody: function(context) {
-                            const category = context[0].label;
-                            return details[category] ? ["", "פירוט תנועות:", ...details[category]] : [];
+                        label: (ctx) => ` סה"כ: ₪${ctx.raw.toLocaleString()}`,
+                        afterBody: (ctx) => {
+                            const cat = ctx[0].label;
+                            return details[cat] ? ["", "פירוט:", ...details[cat]] : [];
                         }
                     }
                 }
-            }
+            },
+            scales: chartType !== 'doughnut' ? {
+                y: { beginAtZero: true, position: 'right' },
+                x: { reverse: true }
+            } : {}
         }
     });
 }
 
-// --- שמירה ועדכון ---
-document.getElementById('transaction-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const transactionData = {
-        description: document.getElementById('transaction-name').value,
-        amount: parseFloat(document.getElementById('transaction-amount').value),
-        category: document.getElementById('transaction-category').value,
-        type: currentType,
-        recurring: document.getElementById('transaction-recurring').checked,
-        date: editId ? allData.find(t => t.id === editId).date : Date.now()
+// --- פעולות (שמירה, מחיקה, עריכה) ---
+const form = document.getElementById('transaction-form');
+if (form) {
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const transactionData = {
+            description: document.getElementById('transaction-name').value,
+            amount: parseFloat(document.getElementById('transaction-amount').value),
+            category: document.getElementById('transaction-category').value,
+            type: currentType,
+            recurring: false,
+            date: editId ? allData.find(t => t.id === editId).date : Date.now()
+        };
+        try {
+            if (editId) {
+                await updateDoc(doc(db, "transactions", editId), transactionData);
+            } else {
+                await addDoc(transactionsCol, transactionData);
+            }
+            closeModal('modal-form');
+        } catch (e) { console.error(e); }
     };
-
-    try {
-        if (editId) {
-            await updateDoc(doc(db, "transactions", editId), transactionData);
-            editId = null;
-        } else {
-            await addDoc(transactionsCol, transactionData);
-        }
-        closeModal('modal-form');
-    } catch (error) {
-        console.error("Error saving transaction: ", error);
-        alert("שגיאה בשמירת הנתונים");
-    }
-};
+}
 
 window.deleteTransaction = async (id) => {
-    if (confirm("האם למחוק את התנועה לצמיתות?")) {
-        await deleteDoc(doc(db, "transactions", id));
-    }
+    if (confirm("למחוק?")) await deleteDoc(doc(db, "transactions", id));
 };
 
 window.editTransaction = (id) => {
@@ -246,44 +257,30 @@ window.editTransaction = (id) => {
     document.getElementById('transaction-name').value = t.description;
     document.getElementById('transaction-amount').value = t.amount;
     document.getElementById('transaction-category').value = t.category;
-    document.getElementById('transaction-recurring').checked = t.recurring || false;
-    
-    if (t.type === 'income') incBtn.click(); else expBtn.click();
+    currentType = t.type;
     editId = id;
 };
 
-// אתחול קטגוריות
-const cats = ["מזון", "בית", "חינוך", "פנאי", "רכב", "בריאות", "אשראי", "משכורת", "אחר"];
-const catSelect = document.getElementById('transaction-category');
-if (catSelect && catSelect.options.length === 0) {
-    cats.forEach(c => {
-        let o = document.createElement('option');
-        o.value = c; o.innerText = c;
-        catSelect.appendChild(o);
-    });
+function setupTypeSelector() {
+    const expBtn = document.getElementById('type-btn-expense');
+    const incBtn = document.getElementById('type-btn-income');
+    if (expBtn && incBtn) {
+        expBtn.onclick = () => { currentType = 'expense'; expBtn.classList.add('active'); incBtn.classList.remove('active'); };
+        incBtn.onclick = () => { currentType = 'income'; incBtn.classList.add('active'); expBtn.classList.remove('active'); };
+    }
+}
+
+function setupCategories() {
+    const cats = ["מזון", "בית", "חינוך", "פנאי", "רכב", "בריאות", "אשראי", "משכורת", "אחר"];
+    const catSelect = document.getElementById('transaction-category');
+    if (catSelect) {
+        catSelect.innerHTML = '';
+        cats.forEach(c => {
+            let o = document.createElement('option');
+            o.value = c; o.innerText = c;
+            catSelect.appendChild(o);
+        });
+    }
 }
 
 init();
-// --- לוגיקה לדמות האינטראקטיבית (Finly Mascot) ---
-document.addEventListener('mousemove', (e) => {
-    const mascotContainer = document.getElementById('finly-mascot');
-    if (!mascotContainer) return;
-
-    const mascotImg = mascotContainer.querySelector('.mascot-image');
-    const rect = mascotContainer.getBoundingClientRect();
-    
-    // מציאת מרכז הדמות
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    // חישוב המרחק של העכבר מהמרכז (בטווח של -1 עד 1)
-    const moveX = (e.clientX - centerX) / (window.innerWidth / 2);
-    const moveY = (e.clientY - centerY) / (window.innerHeight / 2);
-
-    // הגדרת עוצמת ההטיה (15 מעלות לכל צד)
-    const rotateY = moveX * 15; 
-    const rotateX = moveY * -15; 
-
-    // החלת התנועה על התמונה
-    mascotImg.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
-});

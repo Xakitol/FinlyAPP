@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finly | ניהול פיננסי חכם</title>
+    <title>Finly Vision | ניהול פיננסי חכם</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,6 +12,7 @@
     <header>
         <div class="header-right">
             <div class="logo-area">
+                <span class="logo-icon">💎</span>
                 <h1 class="brand-name">Finly</h1>
                 <span class="brand-tagline">| Smart Finance</span>
             </div>
@@ -37,56 +38,67 @@
             </div>
         </section>
 
-        <section class="main-grid">
-            <div class="actions-column">
-                <div class="action-card" onclick="openModal('modal-form')">
-                    <div class="icon-box">+</div>
-                    <h3>הוספת תנועה</h3>
-                    <p>תיעוד הכנסה או הוצאה חדשה</p>
-                </div>
-                <div class="action-card" onclick="openModal('modal-table')">
-                    <div class="icon-box">☰</div>
-                    <h3>רשימת תנועות</h3>
-                    <p>צפייה, עריכה וניהול היסטוריה</p>
-                </div>
+        <section class="main-grid vision-grid">
+            <div class="action-card" onclick="openModal('modal-form')">
+                <div class="icon-box">+</div>
+                <h3>הוספת תנועה</h3>
+                <p>תיעוד הכנסה או הוצאה</p>
             </div>
-
-            <div class="chart-main-card">
-                <div class="chart-header">
-                    <div class="chart-title">
-                        <span class="chart-icon">📊</span>
-                        <h3>פילוח הוצאות</h3>
-                    </div>
-                    <div class="chart-switcher">
-                        <button onclick="changeChartType('doughnut')" title="גרף עוגה">⭕</button>
-                        <button onclick="changeChartType('bar')" title="גרף עמודות">📊</button>
-                        <button onclick="changeChartType('line')" title="גרף קווי">📈</button>
-                    </div>
-                </div>
-                <div class="chart-wrapper">
-                    <canvas id="main-chart"></canvas>
-                </div>
+            <div class="action-card" onclick="openModal('modal-table')">
+                <div class="icon-box">☰</div>
+                <h3>רשימת תנועות</h3>
+                <p>ניהול היסטוריה</p>
+            </div>
+            <div class="action-card" onclick="openVisionHub()">
+                <div class="icon-box">📊</div>
+                <h3>ניתוח נתונים</h3>
+                <p>צפייה בגרפים ופילוחים</p>
             </div>
         </section>
     </main>
 
+    <div id="modal-vision-hub" class="modal vision-overlay">
+        <div class="vision-content">
+            <span class="close-vision" onclick="closeModal('modal-vision-hub')">&times;</span>
+            <h2 class="vision-title">מה ננתח הפעם?</h2>
+            <div class="charts-options-container">
+                <div class="chart-option-box" onclick="showSpecificChart('doughnut')">
+                    <div class="preview-icon">⭕</div>
+                    <span>גרף עוגה</span>
+                </div>
+                <div class="chart-option-box" onclick="showSpecificChart('bar')">
+                    <div class="preview-icon">📊</div>
+                    <span>גרף עמודות</span>
+                </div>
+                <div class="chart-option-box" onclick="showSpecificChart('line')">
+                    <div class="preview-icon">📈</div>
+                    <span>מגמת הוצאות</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-single-chart" class="modal vision-overlay">
+        <div class="modal-content chart-display-area" style="width: 90%; max-width: 800px; height: 500px; position: relative;">
+            <button class="close-btn" onclick="backToHub()">✖</button>
+            <div style="width: 100%; height: 100%; padding: 20px;">
+                <canvas id="main-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-form" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('modal-form')">&times;</span>
-            <h2>הוספת תנועה חדשה</h2>
+            <h2>ניהול תנועה</h2>
             <form id="transaction-form">
                 <div class="type-selector">
                     <button type="button" id="type-btn-expense" class="active">הוצאה</button>
                     <button type="button" id="type-btn-income">הכנסה</button>
                 </div>
-                <input type="text" id="transaction-name" placeholder="תיאור (למשל: סופר פארם)" required>
+                <input type="text" id="transaction-name" placeholder="תיאור" required>
                 <input type="number" id="transaction-amount" placeholder="סכום ב-₪" required>
                 <select id="transaction-category" required></select>
-                <label class="checkbox-container">
-                    תנועה קבועה?
-                    <input type="checkbox" id="transaction-recurring">
-                    <span class="checkmark"></span>
-                </label>
                 <button type="submit" class="submit-btn">שמירה</button>
             </form>
         </div>
@@ -114,10 +126,10 @@
         </div>
     </div>
 
-  <script type="module" src="app.js"></script>
-
     <div class="finly-mascot-container" id="finly-mascot">
         <img src="finly_mascot.png" alt="Finly Mascot" class="mascot-image">
     </div>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
