@@ -18,210 +18,59 @@ body, html {
     direction: rtl;
 }
 
-/* --- Header & Branding --- */
 header {
-    background: var(--more-navy);
-    color: white;
-    padding: 10px 40px;
-    height: 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.2);
-    position: relative;
-    z-index: 100;
+    background: var(--more-navy); color: white; padding: 10px 40px;
+    height: 60px; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.2); position: relative; z-index: 100;
 }
 
 .brand-name {
-    font-size: 2rem !important;
-    font-weight: 800;
+    font-size: 2rem !important; font-weight: 800;
     background: linear-gradient(to right, #ffffff, var(--more-teal));
-    -webkit-background-clip: text; 
-    background-clip: text; 
-    -webkit-text-fill-color: transparent;
-    margin: 0;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 
-.brand-tagline {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.85rem;
-    margin-right: 10px;
-    border-right: 1px solid rgba(255,255,255,0.2);
-    padding-right: 10px;
-}
-
-.month-select {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-    padding: 8px 15px;
-    border-radius: 12px;
-    cursor: pointer;
-}
-
-/* --- Dashboard Layout --- */
-.dashboard-layout {
-    padding: 30px 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-.summary-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-}
-
-.card {
-    background: white;
-    padding: 30px;
-    border-radius: 24px;
-    text-align: center;
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--glass-border);
-}
-
+.dashboard-layout { padding: 30px 40px; display: flex; flex-direction: column; gap: 30px; }
+.summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.card { background: white; padding: 30px; border-radius: 24px; text-align: center; box-shadow: var(--card-shadow); border: 1px solid var(--glass-border); }
 .card p { margin: 10px 0 0; font-size: 2.2rem; font-weight: 800; color: var(--more-navy); }
 
-/* Vision Grid */
-.vision-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-    margin-top: 10px;
-}
-
+.vision-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
 .action-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(15px);
-    border-radius: 24px;
-    padding: 40px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--glass-border);
+    background: var(--glass-bg); backdrop-filter: blur(15px); border-radius: 24px; padding: 40px 20px;
+    text-align: center; cursor: pointer; transition: 0.4s; box-shadow: var(--card-shadow);
     border-bottom: 5px solid var(--more-teal);
 }
+.action-card:hover { transform: translateY(-10px); border-bottom-color: var(--more-purple); }
 
-.action-card:hover { 
-    transform: translateY(-10px); 
-    background: white; 
-    border-bottom-color: var(--more-purple);
-}
-
-.icon-box {
-    width: 60px; height: 60px;
-    background: var(--more-navy);
-    color: white;
-    border-radius: 15px;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 28px;
-}
-
-/* --- Modals --- */
+/* --- Modals - Soft Focus Effect --- */
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 45, 75, 0.5);
-    align-items: center; justify-content: center;
+    display: none; position: fixed; z-index: 2000;
+    left: 0; top: 0; width: 100%; height: 100%;
+    background: rgba(0, 45, 75, 0.2); align-items: center; justify-content: center;
+    cursor: pointer; /* סגירה בלחיצה על הרקע */
 }
-
 .modal.active { display: flex; }
 
 .modal-content {
-    background: white;
-    padding: 40px;
-    border-radius: 24px;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    background: white; padding: 40px; border-radius: 24px; width: 90%; max-width: 500px;
+    position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); cursor: default;
 }
 
-.modal-content.full-width { max-width: 1000px; }
-
-/* Vision Specific Modals */
 .vision-overlay {
-    backdrop-filter: blur(25px);
-    background: rgba(0, 45, 75, 0.35);
+    backdrop-filter: blur(6px) !important; /* טשטוש עדין */
+    background: rgba(0, 45, 75, 0.15) !important;
 }
 
-.vision-content { text-align: center; width: 100%; }
-.vision-title { color: white; font-size: 3rem; margin-bottom: 50px; font-weight: 800; }
-
-.charts-options-container { display: flex; justify-content: center; gap: 40px; }
-
+.vision-content { text-align: center; width: 100%; cursor: default; }
 .chart-option-box {
-    background: white;
-    padding: 50px 30px;
-    border-radius: 40px;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    width: 200px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    background: white; padding: 30px; border-radius: 30px; cursor: pointer;
+    transition: 0.4s; width: 180px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
+.chart-option-box:hover { transform: scale(1.1); }
 
-.chart-option-box:hover {
-    transform: scale(1.1) rotate(2deg);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-}
-
-.preview-icon { font-size: 70px; margin-bottom: 20px; }
-
-/* התיקון למודל הגרפים - כדי שלא יהיה ריק */
-.chart-display-area {
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(10px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/* --- Form Elements --- */
-.type-selector { display: flex; gap: 10px; margin-bottom: 20px; }
-.type-selector button {
-    flex: 1; padding: 12px; border: 2px solid #eee; border-radius: 12px;
-    background: white; cursor: pointer; font-weight: 600; transition: 0.3s;
-}
-.type-selector button.active#type-btn-expense { background: #ff5a5f; color: white; border-color: #ff5a5f; }
-.type-selector button.active#type-btn-income { background: var(--more-teal); color: white; border-color: var(--more-teal); }
-
-input, select {
-    width: 100%; padding: 15px; margin-bottom: 15px;
-    border: 2px solid #eee; border-radius: 12px; font-family: inherit;
-    box-sizing: border-box;
-}
-
-.submit-btn {
-    width: 100%; padding: 15px; border: none; border-radius: 12px;
-    background: var(--more-navy); color: white; font-size: 1.1rem;
-    font-weight: 700; cursor: pointer; transition: 0.3s;
-}
-
-/* --- Table Styles --- */
-.table-wrapper { overflow-x: auto; margin-top: 20px; }
-table { width: 100%; border-collapse: collapse; text-align: right; }
-th, td { padding: 15px; border-bottom: 1px solid #eee; }
-th { color: var(--more-navy); font-weight: 700; }
-
-/* --- Mascot --- */
-.finly-mascot-container {
-    position: fixed; bottom: 30px; left: 30px;
-    width: 150px; z-index: 3000; pointer-events: none;
-}
-.mascot-image { width: 100%; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2)); }
-
-/* Close Buttons */
-.close, .close-vision, .close-btn {
-    position: absolute; cursor: pointer; border: none; background: none;
-}
-.close-vision { top: 30px; right: 40px; font-size: 40px; color: white; }
-.close { top: 20px; right: 25px; font-size: 30px; color: var(--more-navy); }
-.close-btn { top: 15px; right: 20px; font-size: 25px; color: var(--more-navy); font-weight: bold; }
+/* --- Forms & Buttons --- */
+input, select { width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #eee; border-radius: 12px; }
+.submit-btn { width: 100%; padding: 15px; background: var(--more-navy); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.close-btn, .close-vision { position: absolute; top: 20px; right: 25px; font-size: 25px; cursor: pointer; border: none; background: none; }
+.close-vision { color: white; font-size: 40px; top: 30px; right: 40px; }
