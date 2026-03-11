@@ -1,227 +1,259 @@
+/* --- הגדרות משתנים ועיצוב כללי --- */
 :root {
     --more-navy: #002d4b;
     --more-teal: #00c2cb;
     --more-purple: #7d77b1;
-    --ice-white: #f8fbff;
-    --glass-bg: rgba(255, 255, 255, 0.9);
-    --glass-border: rgba(255, 255, 255, 0.4);
-    --bg-gradient: linear-gradient(135deg, #f0f7ff 0%, #e2e8f0 100%);
-    --card-shadow: 0 15px 35px rgba(0,45,75,0.08);
+    --more-gold: #c5a059;
+    --bg-light: #f4f7f9;
+    --white: #ffffff;
+    --shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
-body, html {
-    margin: 0; padding: 0;
-    height: 100vh; width: 100vw;
-    overflow-x: hidden;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
     font-family: 'Rubik', sans-serif;
-    background: var(--bg-gradient);
-    direction: rtl;
 }
 
-/* --- Header & Branding --- */
+body {
+    direction: rtl;
+    background-color: var(--bg-light);
+    color: var(--more-navy);
+    line-height: 1.6;
+}
+
+/* --- מבנה דף ראשי --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 header {
-    background: var(--more-navy);
-    color: white;
-    padding: 10px 40px;
-    height: 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.2);
-    position: relative;
-    z-index: 100;
+    margin-bottom: 30px;
 }
 
-.brand-name {
-    font-size: 2rem !important;
+/* --- כרטיסי סיכום (יתרה, הכנסות, הוצאות) --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.stat-card .amount {
+    font-size: 2rem;
     font-weight: 800;
-    background: linear-gradient(to right, #ffffff, var(--more-teal));
-    -webkit-background-clip: text; 
-    background-clip: text; 
-    -webkit-text-fill-color: transparent;
-    margin: 0;
 }
 
-.brand-tagline {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.85rem;
-    margin-right: 10px;
-    border-right: 1px solid rgba(255,255,255,0.2);
-    padding-right: 10px;
+/* --- כפתורי ניווט מהירים --- */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
 }
 
-.month-select {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-    padding: 8px 15px;
-    border-radius: 12px;
+.action-btn {
+    background: var(--white);
+    border: none;
+    padding: 20px;
+    border-radius: 15px;
     cursor: pointer;
-}
-
-/* --- Dashboard Layout --- */
-.dashboard-layout {
-    padding: 30px 40px;
+    box-shadow: var(--shadow);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--more-navy);
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    border-bottom: 4px solid var(--more-teal);
 }
 
-.summary-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+.action-btn:hover {
+    background: #fdfdfd;
+    filter: brightness(0.95);
 }
 
-.card {
-    background: white;
-    padding: 30px;
-    border-radius: 24px;
-    text-align: center;
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--glass-border);
-}
-
-.card p { margin: 10px 0 0; font-size: 2.2rem; font-weight: 800; color: var(--more-navy); }
-
-/* Vision Grid */
-.vision-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-    margin-top: 10px;
-}
-
-.action-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(15px);
-    border-radius: 24px;
-    padding: 40px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--glass-border);
-    border-bottom: 5px solid var(--more-teal);
-}
-
-.action-card:hover { 
-    transform: translateY(-10px); 
-    background: white; 
-    border-bottom-color: var(--more-purple);
-}
-
-.icon-box {
-    width: 60px; height: 60px;
-    background: var(--more-navy);
-    color: white;
-    border-radius: 15px;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 28px;
-}
-
-/* --- Modals --- */
+/* --- ניהול מודלים (פופ-אפים) --- */
 .modal {
     display: none;
     position: fixed;
     z-index: 2000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 45, 75, 0.5);
-    align-items: center; justify-content: center;
-}
-
-.modal.active { display: flex; }
-
-.modal-content {
-    background: white;
-    padding: 40px;
-    border-radius: 24px;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-}
-
-.modal-content.full-width { max-width: 1000px; }
-
-/* Vision Specific Modals */
-.vision-overlay {
-    backdrop-filter: blur(25px);
-    background: rgba(0, 45, 75, 0.35);
-}
-
-.vision-content { text-align: center; width: 100%; }
-.vision-title { color: white; font-size: 3rem; margin-bottom: 50px; font-weight: 800; }
-
-.charts-options-container { display: flex; justify-content: center; gap: 40px; }
-
-.chart-option-box {
-    background: white;
-    padding: 50px 30px;
-    border-radius: 40px;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    width: 200px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-}
-
-.chart-option-box:hover {
-    transform: scale(1.1) rotate(2deg);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-}
-
-.preview-icon { font-size: 70px; margin-bottom: 20px; }
-
-/* התיקון למודל הגרפים - כדי שלא יהיה ריק */
-.chart-display-area {
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(10px);
-    display: flex;
-    flex-direction: column;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    /* טשטוש עדין - "יציאה מפוקוס" */
+    backdrop-filter: blur(5px);
+    background: rgba(0, 45, 75, 0.15);
     align-items: center;
     justify-content: center;
+    /* מציין למשתמש שניתן ללחוץ כאן לסגירה */
+    cursor: pointer; 
 }
 
-/* --- Form Elements --- */
-.type-selector { display: flex; gap: 10px; margin-bottom: 20px; }
-.type-selector button {
-    flex: 1; padding: 12px; border: 2px solid #eee; border-radius: 12px;
-    background: white; cursor: pointer; font-weight: 600; transition: 0.3s;
+.modal.active {
+    display: flex;
 }
-.type-selector button.active#type-btn-expense { background: #ff5a5f; color: white; border-color: #ff5a5f; }
-.type-selector button.active#type-btn-income { background: var(--more-teal); color: white; border-color: var(--more-teal); }
+
+.modal-content {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 25px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    /* ביטול ה-cursor של הסגירה בתוך החלון עצמו */
+    cursor: default; 
+}
+
+/* --- כפתור סגירה (X) --- */
+.close-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    background: #f0f0f0;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* --- עיצוב טפסים --- */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
 
 input, select {
-    width: 100%; padding: 15px; margin-bottom: 15px;
-    border: 2px solid #eee; border-radius: 12px; font-family: inherit;
-    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    border-color: var(--more-teal);
+}
+
+.type-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.type-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    background: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.type-btn.active {
+    background: var(--more-navy);
+    color: white;
+    border-color: var(--more-navy);
 }
 
 .submit-btn {
-    width: 100%; padding: 15px; border: none; border-radius: 12px;
-    background: var(--more-navy); color: white; font-size: 1.1rem;
-    font-weight: 700; cursor: pointer; transition: 0.3s;
+    width: 100%;
+    padding: 15px;
+    background: var(--more-teal);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
 }
 
-/* --- Table Styles --- */
-.table-wrapper { overflow-x: auto; margin-top: 20px; }
-table { width: 100%; border-collapse: collapse; text-align: right; }
-th, td { padding: 15px; border-bottom: 1px solid #eee; }
-th { color: var(--more-navy); font-weight: 700; }
-
-/* --- Mascot --- */
-.finly-mascot-container {
-    position: fixed; bottom: 30px; left: 30px;
-    width: 150px; z-index: 3000; pointer-events: none;
+/* --- טבלת תנועות --- */
+.table-container {
+    background: var(--white);
+    border-radius: 20px;
+    overflow-x: auto;
+    box-shadow: var(--shadow);
 }
-.mascot-image { width: 100%; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2)); }
 
-/* Close Buttons */
-.close, .close-vision, .close-btn {
-    position: absolute; cursor: pointer; border: none; background: none;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: right;
 }
-.close-vision { top: 30px; right: 40px; font-size: 40px; color: white; }
-.close { top: 20px; right: 25px; font-size: 30px; color: var(--more-navy); }
-.close-btn { top: 15px; right: 20px; font-size: 25px; color: var(--more-navy); font-weight: bold; }
+
+th, td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+th {
+    background: #f8fafc;
+    font-weight: 700;
+}
+
+/* --- עיצוב הגרפים (Vision) --- */
+.vision-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.chart-container {
+    position: relative;
+    /* גובה קבוע לגרפים במודל */
+    height: 400px; 
+    width: 100%;
+}
+
+canvas {
+    max-width: 100% !important;
+}
+
+/* --- התאמה לניידים --- */
+@media (max-width: 600px) {
+    .container { padding: 10px; }
+    .stat-card { padding: 15px; }
+    .stat-card .amount { font-size: 1.5rem; }
+}

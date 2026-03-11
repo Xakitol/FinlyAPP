@@ -1,6 +1,7 @@
 ﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// הגדרות חיבור ל-Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyDK3oq5I-MHnjYGXkRBfUeYs3vw7zwB0gE",
     authDomain: "mymoneyapp-abb12.firebaseapp.com",
@@ -21,12 +22,14 @@ let currentType = 'expense';
 let editId = null;
 let chartType = 'doughnut'; 
 
-// --- ניהול מודלים וחלונות קופצים ---
+/**
+ * ניהול מודלים - פתיחת חלון וסגירה בלחיצה על הרקע
+ */
 window.openModal = (id) => {
     const modal = document.getElementById(id);
     if (modal) {
         modal.classList.add('active');
-        // מאפשר סגירה בלחיצה על אזור הטשטוש שמחוץ לתוכן
+        // מאפשר סגירה בלחיצה על אזור הטשטוש (Overlay)
         modal.onclick = (e) => {
             if (e.target === modal) closeModal(id);
         };
@@ -44,7 +47,9 @@ window.closeModal = (id) => {
     }
 };
 
-// --- ניהול תצוגות גרפים (Vision Hub) ---
+/**
+ * לוגיקת ה-Vision (מרכז הגרפים)
+ */
 window.openVisionHub = () => openModal('modal-vision-hub');
 
 window.showSpecificChart = (type) => {
@@ -52,6 +57,7 @@ window.showSpecificChart = (type) => {
     chartType = type;
     openModal('modal-single-chart');
     
+    // השהייה קלה כדי לוודא שה-Canvas מוכן לרינדור
     setTimeout(() => {
         if (allData.length > 0) {
             renderUI(allData); 
@@ -64,12 +70,15 @@ window.backToHub = () => {
     openModal('modal-vision-hub');
 };
 
-// --- טעינה ראשונית ואתחול מאגר הנתונים ---
+/**
+ * אתחול האפליקציה וטעינת נתונים מ-Firebase
+ */
 function init() {
     populateMonths();
     setupTypeSelector();
     setupCategories();
     
+    // האזנה לשינויים בבסיס הנתונים בזמן אמת
     onSnapshot(query(transactionsCol, orderBy("date", "desc")), (snapshot) => {
         allData = [];
         snapshot.forEach(docSnap => {
@@ -79,7 +88,9 @@ function init() {
     });
 }
 
-// --- הגדרת מסנן חודשים ---
+/**
+ * יצירת רשימת חודשים למסנן
+ */
 function populateMonths() {
     const filter = document.getElementById('month-filter');
     if (!filter || filter.options.length > 0) return;
@@ -99,7 +110,9 @@ function populateMonths() {
     filter.onchange = () => renderUI(allData);
 }
 
-// --- עדכון ממשק המשתמש והנתונים המוצגים ---
+/**
+ * עדכון הממשק: טבלה, כרטיסי סיכום וגרפים
+ */
 function renderUI(data) {
     const filterEl = document.getElementById('month-filter');
     const selMonth = filterEl ? filterEl.value : "all";
@@ -110,6 +123,7 @@ function renderUI(data) {
     const catTotals = {};
     const detailedList = {}; 
 
+    // סינון נתונים לפי חודש נבחר
     const filtered = data.filter(t => {
         const d = new Date(t.date);
         return (selMonth === "all") || (d.getMonth() == selMonth);
@@ -125,6 +139,7 @@ function renderUI(data) {
             detailedList[t.category].push(`${t.description}: ₪${t.amount.toLocaleString()}`);
         }
 
+        // בניית שורות הטבלה
         if (tbody) {
             const dateStr = new Date(t.date).toLocaleDateString('he-IL');
             const tr = document.createElement('tr');
@@ -145,6 +160,7 @@ function renderUI(data) {
         }
     });
 
+    // עדכון כרטיסי סיכום (יתרה, הכנסות, הוצאות)
     const incEl = document.getElementById('total-income');
     const expEl = document.getElementById('total-expenses');
     const balEl = document.getElementById('balance');
@@ -160,7 +176,9 @@ function renderUI(data) {
     renderChart(catTotals, detailedList);
 }
 
-// --- יצירת גרפים ועדכון נתונים ויזואליים ---
+/**
+ * יצירת ועדכון הגרף באמצעות Chart.js
+ */
 function renderChart(totals, details) {
     const canvas = document.getElementById('main-chart') || document.querySelector('#modal-single-chart canvas');
     if (!canvas) return;
@@ -192,13 +210,11 @@ function renderChart(totals, details) {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    // הצגת מקרא רק בגרף עוגה למניעת undefined בגרפים אחרים
+                    // הצגת מקרא רק בגרף עוגה למניעת undefined בגרפי עמודות/קו
                     display: chartType === 'doughnut',
                     position: 'bottom',
                     rtl: true,
-                    labels: {
-                        font: { family: 'Rubik' }
-                    }
+                    labels: { font: { family: 'Rubik' } }
                 },
                 tooltip: {
                     rtl: true,
@@ -219,7 +235,9 @@ function renderChart(totals, details) {
     });
 }
 
-// --- ניהול טופס הוספה/עריכה ושליחה ל-Firebase ---
+/**
+ * טיפול בטופס (שמירת תנועה חדשה או עריכת קיימת)
+ */
 const form = document.getElementById('transaction-form');
 if (form) {
     form.onsubmit = async (e) => {
@@ -239,16 +257,20 @@ if (form) {
                 await addDoc(transactionsCol, transactionData);
             }
             closeModal('modal-form');
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error saving document: ", e); }
     };
 }
 
-// --- מחיקת תנועה ---
+/**
+ * מחיקת תנועה מ-Firebase
+ */
 window.deleteTransaction = async (id) => {
-    if (confirm("למחוק?")) await deleteDoc(doc(db, "transactions", id));
+    if (confirm("האם למחוק תנועה זו?")) await deleteDoc(doc(db, "transactions", id));
 };
 
-// --- עריכת תנועה קיימת ---
+/**
+ * טעינת נתוני תנועה לטופס לצורך עריכה
+ */
 window.editTransaction = (id) => {
     const t = allData.find(item => item.id === id);
     if (!t) return;
@@ -261,7 +283,9 @@ window.editTransaction = (id) => {
     editId = id;
 };
 
-// --- הגדרת בורר סוג התנועה (הכנסה/הוצאה) ---
+/**
+ * הגדרת לוגיקת בחירת סוג (הכנסה/הוצאה) בטופס
+ */
 function setupTypeSelector() {
     const expBtn = document.getElementById('type-btn-expense');
     const incBtn = document.getElementById('type-btn-income');
@@ -271,7 +295,9 @@ function setupTypeSelector() {
     }
 }
 
-// --- טעינת רשימת הקטגוריות לתפריט הבחירה ---
+/**
+ * הגדרת קטגוריות ברירת מחדל
+ */
 function setupCategories() {
     const cats = ["מזון", "בית", "חינוך", "פנאי", "רכב", "בריאות", "אשראי", "משכורת", "אחר"];
     const catSelect = document.getElementById('transaction-category');
