@@ -6,11 +6,7 @@ import { TransactionFormModal } from './components/modals/TransactionFormModal';
 import { TransactionTableModal } from './components/modals/TransactionTableModal';
 import { StarField } from './components/effects/StarField';
 import { HomeHeader } from './components/home/HomeHeader';
-import { MonthlyHeroCard } from './components/home/MonthlyHeroCard';
-import { SummaryCards } from './components/home/SummaryCards';
-import { UpcomingList } from './components/home/UpcomingList';
-import { SavingsMiniCard } from './components/home/SavingsMiniCard';
-import { BottomActionBar } from './components/home/BottomActionBar';
+import { FloatingCirclesHome } from './components/home/FloatingCirclesHome';
 import { mockHomeData } from '../data/mockHome';
 import { getHomeSnapshot } from '../utils/homeCalculations';
 
@@ -44,7 +40,7 @@ export default function App() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full overflow-x-hidden relative animate-in fade-in duration-700"
+      className="min-h-screen w-full overflow-hidden relative animate-in fade-in duration-700"
       style={{
         fontFamily: 'Rubik, sans-serif',
         background: backgroundGradient,
@@ -52,43 +48,18 @@ export default function App() {
     >
       <StarField darkMode={darkMode} />
 
-      <div className="relative z-10 mx-auto w-full max-w-md px-4 pb-24 pt-4 sm:px-5">
+      <div className="relative z-10 mx-auto w-full max-w-md px-4 pt-4 sm:px-5">
         <HomeHeader
           darkMode={darkMode}
           onToggleDarkMode={() => setDarkMode(!darkMode)}
           monthLabel={snapshot.monthLabel}
         />
 
-        <main className="space-y-4">
-          <MonthlyHeroCard
-            darkMode={darkMode}
-            statusLabel={snapshot.statusLabel}
-            remaining={snapshot.remaining}
-            upcoming={snapshot.upcoming}
-          />
-
-          <SummaryCards
-            darkMode={darkMode}
-            income={snapshot.income}
-            expenses={snapshot.expenses}
-            upcoming={snapshot.upcoming}
-          />
-
-          <UpcomingList
-            darkMode={darkMode}
-            items={snapshot.upcomingItems}
-          />
-
-          <SavingsMiniCard
-            darkMode={darkMode}
-            currentAmount={snapshot.savingsCurrent}
-            targetAmount={snapshot.savingsTarget}
-            progress={snapshot.savingsProgress}
-            onEdit={() => setSavingsGoalOpen(true)}
-          />
-
-          <BottomActionBar onPrimaryClick={() => setFormOpen(true)} />
-        </main>
+        <FloatingCirclesHome
+          darkMode={darkMode}
+          snapshot={snapshot}
+          onAddClick={() => setFormOpen(true)}
+        />
       </div>
 
       <InsightsModal

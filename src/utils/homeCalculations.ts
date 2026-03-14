@@ -1,4 +1,4 @@
-import type { FinanceEntry, HomeMonthData } from '../../../types/finance';
+import type { FinanceEntry, HomeMonthData } from '../types/finance';
 
 function sumAmounts(entries: FinanceEntry[]) {
   return entries.reduce((sum, entry) => sum + entry.amount, 0);

@@ -11,6 +11,7 @@ interface HomeHeaderProps {
 export function HomeHeader({ darkMode, onToggleDarkMode, monthLabel }: HomeHeaderProps) {
   return (
     <header className="mb-4 flex items-center justify-between">
+      {/* Left: dark mode toggle + month selector */}
       <div className="flex items-center gap-2">
         <CircularButton
           size="sm"
@@ -35,13 +36,11 @@ export function HomeHeader({ darkMode, onToggleDarkMode, monthLabel }: HomeHeade
         </GlassCard>
       </div>
 
+      {/* Right: logo + brand line */}
       <div className="flex items-center gap-2">
         <div className="text-right">
-          <p className={`text-xs ${darkMode ? 'text-cyan-200/70' : 'text-cyan-700/70'}`}>
-            החודש שלכם
-          </p>
           <h1
-            className={`text-2xl font-bold ${
+            className={`text-2xl font-bold leading-tight ${
               darkMode
                 ? 'bg-gradient-to-r from-cyan-300 via-violet-300 to-purple-300 bg-clip-text text-transparent'
                 : 'bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent'
@@ -49,10 +48,20 @@ export function HomeHeader({ darkMode, onToggleDarkMode, monthLabel }: HomeHeade
           >
             Finly
           </h1>
+          <p className={`text-[10px] ${darkMode ? 'text-white/40' : 'text-gray-400/80'}`}>
+            כסף, בשקט
+          </p>
         </div>
 
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-violet-500 shadow-lg">
-          <Sparkles className="h-5 w-5 text-white" />
+        {/* Glass logo icon — unified with screen glass language */}
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md shadow-lg ${
+            darkMode
+              ? 'border border-white/15 bg-white/10'
+              : 'border border-white/70 bg-white/40'
+          }`}
+        >
+          <Sparkles className={`h-5 w-5 ${darkMode ? 'text-cyan-300' : 'text-violet-500'}`} />
         </div>
       </div>
     </header>
