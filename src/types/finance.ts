@@ -69,3 +69,15 @@ export interface SavingsProgressSummary {
   savingsGap: number;
   isSavingsGoalMet: boolean;
 }
+
+/** A user-approved recurring expense that projects into future months */
+export interface RecurringRule {
+  id: string;
+  title: string;
+  category: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  /** Day of the month this expense recurs on (1–31) */
+  dayOfMonth: number;
+  note?: string;
+}

@@ -189,3 +189,14 @@ export const mockHomeData: HomeMonthData = {
     // Salary and rent were already recurring — not included here intentionally
   ],
 };
+
+export const YEAR = 2026;
+
+/** Hebrew month names, index 0 = January */
+export const HEBREW_MONTH_NAMES = [
+  'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
+  'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר',
+];
+
+/** Default month shown on load = current real month (March 2026 = index 2) */
+export const DEFAULT_MONTH_INDEX = 2;

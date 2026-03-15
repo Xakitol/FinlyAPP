@@ -94,7 +94,7 @@ export function detectRecurringCandidates(
           currentEntry: current,
           matchedEntry: prev,
           confidence,
-          suggestionText: 'נראה שזה חוזר שוב',
+          suggestionText: 'פיינלי מזהה הוצאה שחוזרת על עצמה?',
           actionText: 'לשמור את זה כהוצאה קבועה?',
         });
         break; // first match per current entry is enough

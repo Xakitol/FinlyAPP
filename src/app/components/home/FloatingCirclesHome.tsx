@@ -17,6 +17,7 @@ interface FloatingCirclesHomeProps {
   darkMode: boolean;
   snapshot: HomeSnapshot;
   onAddClick: () => void;
+  onOpenTransactions: () => void;
 }
 
 const KEYFRAMES = `
@@ -54,7 +55,7 @@ function handleCircleLeave(e: React.MouseEvent<HTMLDivElement>) {
   e.currentTarget.style.transform = '';
 }
 
-export function FloatingCirclesHome({ darkMode, snapshot, onAddClick }: FloatingCirclesHomeProps) {
+export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTransactions }: FloatingCirclesHomeProps) {
   const text = darkMode ? 'text-white' : 'text-gray-800';
   const muted = darkMode ? 'text-white/55' : 'text-gray-500';
   const accent = darkMode ? 'text-cyan-300' : 'text-violet-600';
@@ -91,8 +92,9 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick }: Floating
 
           {/* הכנסות */}
           <div
-            className="flex flex-col rounded-2xl p-4 transition-transform hover:scale-[1.02]"
+            className="flex cursor-pointer flex-col rounded-2xl p-4 transition-transform hover:scale-[1.02]"
             style={glass}
+            onClick={onOpenTransactions}
           >
             <p className={`text-[11px] ${muted}`}>הכנסות החודש</p>
             <p className={`mt-1 text-[18px] font-bold ${text}`}>
@@ -103,8 +105,9 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick }: Floating
 
           {/* הוצאות */}
           <div
-            className="flex flex-col rounded-2xl p-4 transition-transform hover:scale-[1.02]"
+            className="flex cursor-pointer flex-col rounded-2xl p-4 transition-transform hover:scale-[1.02]"
             style={glass}
+            onClick={onOpenTransactions}
           >
             <p className={`text-[11px] ${muted}`}>הוצאות החודש</p>
             <p className={`mt-1 text-[18px] font-bold ${text}`}>

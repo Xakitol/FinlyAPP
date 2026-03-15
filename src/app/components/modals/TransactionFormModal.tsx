@@ -1,56 +1,113 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { GlassCard } from '../cards/GlassCard';
 import { CircularButton } from '../buttons/CircularButton';
-
+import type { FinanceEntry, PaymentMethod } from '../../../types/finance';
 
 interface TransactionFormModalProps {
   open: boolean;
   onClose: () => void;
   darkMode?: boolean;
+  initialEntry?: FinanceEntry | null;
+  onSave: (data: Omit<FinanceEntry, 'id'>, existingId?: string) => void;
 }
 
-export function TransactionFormModal({ open, onClose, darkMode = false }: TransactionFormModalProps) {
+const EXPENSE_CATEGORIES = ['מזון', 'תחבורה', 'דיור', 'בילויים', 'בריאות', 'מנויים', 'ביטוחים', 'חשבונות', 'אחר'];
+const INCOME_CATEGORIES = ['משכורת', 'פרילנס', 'השקעות', 'מתנה', 'אחר'];
+
+export function TransactionFormModal({
+  open,
+  onClose,
+  darkMode = false,
+  initialEntry,
+  onSave,
+}: TransactionFormModalProps) {
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank');
+  const [isRecurring, setIsRecurring] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    if (initialEntry) {
+      setType(initialEntry.type);
+      setAmount(String(initialEntry.amount));
+      setCategory(initialEntry.category);
+      setTitle(initialEntry.title);
+      setDate(initialEntry.date);
+      setPaymentMethod(initialEntry.paymentMethod);
+      setIsRecurring(initialEntry.recurring);
+    } else {
+      setType('expense');
+      setAmount('');
+      setCategory('');
+      setTitle('');
+      setDate(new Date().toISOString().split('T')[0]);
+      setPaymentMethod('bank');
+      setIsRecurring(false);
+    }
+  }, [open, initialEntry]);
 
   if (!open) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isEdit = !!initialEntry;
+  const text = darkMode ? 'text-white' : 'text-gray-800';
+  const labelCls = `block mb-1.5 text-[12px] font-medium ${darkMode ? 'text-white/70' : 'text-gray-600'}`;
+  const inputCls = `w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl ${text} placeholder-white/30 outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30 transition-all text-[14px]`;
+
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log({ type, amount, category, description });
-    onClose();
-  };
+    onSave(
+      {
+        type,
+        amount: parseFloat(amount),
+        category,
+        title,
+        date,
+        paymentMethod,
+        recurring: isRecurring,
+        status: 'recorded',
+        source: 'manual',
+        countsTowardRemaining: true,
+      },
+      initialEntry?.id,
+    );
+  }
+
+  const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-8 bg-black/50"
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
       style={{ backdropFilter: 'blur(5px)' }}
       onClick={onClose}
     >
-      <GlassCard 
-        className="w-full max-w-2xl p-10 animate-in fade-in zoom-in duration-300"
+      <GlassCard
+        className="w-full max-w-lg rounded-t-3xl sm:rounded-3xl animate-in fade-in slide-in-from-bottom-4 duration-300"
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between px-5 pb-4 pt-5">
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
           >
-            <X className="w-5 h-5 text-white" />
+            <X className="h-4 w-4 text-white" />
           </button>
-          <h2 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>הוספת תנועה</h2>
+          <h2 className={`text-lg font-bold ${text}`}>
+            {isEdit ? 'עריכת תנועה' : 'הוספת תנועה'}
+          </h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Type Selector */}
-          <div className="flex gap-4 justify-end">
+        <form onSubmit={handleSubmit} className="space-y-4 px-5 pb-6">
+          {/* Type toggle */}
+          <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => setType('income')}
-              className={`px-8 py-3 rounded-full transition-all ${
+              onClick={() => { setType('income'); setCategory(''); }}
+              className={`flex-1 rounded-xl py-2.5 text-[13px] font-semibold transition-all ${
                 type === 'income'
                   ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-white shadow-lg'
                   : 'bg-white/10 text-white/60 hover:bg-white/20'
@@ -60,8 +117,8 @@ export function TransactionFormModal({ open, onClose, darkMode = false }: Transa
             </button>
             <button
               type="button"
-              onClick={() => setType('expense')}
-              className={`px-8 py-3 rounded-full transition-all ${
+              onClick={() => { setType('expense'); setCategory(''); }}
+              className={`flex-1 rounded-xl py-2.5 text-[13px] font-semibold transition-all ${
                 type === 'expense'
                   ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg'
                   : 'bg-white/10 text-white/60 hover:bg-white/20'
@@ -71,71 +128,113 @@ export function TransactionFormModal({ open, onClose, darkMode = false }: Transa
             </button>
           </div>
 
-          {/* Amount Input */}
+          {/* Title */}
           <div className="text-right">
-            <label className={`block ${darkMode ? 'text-white' : 'text-gray-800'} mb-2 font-medium`}>סכום (₪)</label>
+            <label className={labelCls}>שם / תיאור</label>
             <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className={`w-full px-6 py-4 bg-white/10 border border-white/20 rounded-2xl ${darkMode ? 'text-white' : 'text-gray-800'} placeholder-white/40 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition-all`}
-              placeholder="0.00"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className={inputCls}
+              placeholder="לדוגמה: קניות בסופר"
               required
+              dir="rtl"
             />
           </div>
 
-          {/* Category Input */}
-          <div className="text-right">
-            <label className={`block ${darkMode ? 'text-white' : 'text-gray-800'} mb-2 font-medium`}>קטגוריה</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className={`w-full px-6 py-4 bg-white/10 border border-white/20 rounded-2xl ${darkMode ? 'text-white' : 'text-gray-800'} outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30 transition-all`}
-              required
-            >
-              <option value="" className="bg-slate-800">בחר קטגוריה</option>
-              {type === 'expense' ? (
-                <>
-                  <option value="food" className="bg-slate-800">מזון</option>
-                  <option value="transport" className="bg-slate-800">תחבורה</option>
-                  <option value="housing" className="bg-slate-800">דיור</option>
-                  <option value="entertainment" className="bg-slate-800">בילויים</option>
-                  <option value="health" className="bg-slate-800">בריאות</option>
-                  <option value="other" className="bg-slate-800">אחר</option>
-                </>
-              ) : (
-                <>
-                  <option value="salary" className="bg-slate-800">משכורת</option>
-                  <option value="freelance" className="bg-slate-800">פרילנס</option>
-                  <option value="investment" className="bg-slate-800">השקעות</option>
-                  <option value="other" className="bg-slate-800">אחר</option>
-                </>
-              )}
-            </select>
+          {/* Amount + Date */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="text-right">
+              <label className={labelCls}>סכום (₪)</label>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className={inputCls}
+                placeholder="0"
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+            <div className="text-right">
+              <label className={labelCls}>תאריך</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className={inputCls}
+                required
+              />
+            </div>
           </div>
 
-          {/* Description Input */}
-          <div className="text-right">
-            <label className={`block ${darkMode ? 'text-white' : 'text-gray-800'} mb-2 font-medium`}>תיאור</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className={`w-full px-6 py-4 bg-white/10 border border-white/20 rounded-2xl ${darkMode ? 'text-white' : 'text-gray-800'} placeholder-white/40 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/30 transition-all resize-none`}
-              placeholder="הוסף פרטים נוספים..."
-              rows={3}
-            />
+          {/* Category + Payment method */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="text-right">
+              <label className={labelCls}>קטגוריה</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className={inputCls}
+                required
+                dir="rtl"
+              >
+                <option value="" className="bg-slate-800">בחר</option>
+                {categories.map((c) => (
+                  <option key={c} value={c} className="bg-slate-800">{c}</option>
+                ))}
+              </select>
+            </div>
+            <div className="text-right">
+              <label className={labelCls}>תשלום</label>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+                className={inputCls}
+                dir="rtl"
+              >
+                <option value="bank" className="bg-slate-800">בנק</option>
+                <option value="credit" className="bg-slate-800">אשראי</option>
+                <option value="cash" className="bg-slate-800">מזומן</option>
+              </select>
+            </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-center pt-4">
-          <CircularButton 
-  size="lg"
-  variant="gradient"
-  type="submit"
->
-  <Check className="w-8 h-8 text-white" />
-</CircularButton>
+          {/* Recurring toggle */}
+          <div className="text-right">
+            <label className={labelCls}>תדירות</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setIsRecurring(false)}
+                className={`flex-1 rounded-xl py-2.5 text-[12px] font-medium transition-all ${
+                  !isRecurring
+                    ? darkMode ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-800'
+                    : 'bg-white/8 text-white/50 hover:bg-white/15'
+                }`}
+              >
+                חד פעמי
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsRecurring(true)}
+                className={`flex-1 rounded-xl py-2.5 text-[12px] font-medium transition-all ${
+                  isRecurring
+                    ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg'
+                    : 'bg-white/8 text-white/50 hover:bg-white/15'
+                }`}
+              >
+                קבועה / עומדת
+              </button>
+            </div>
+          </div>
 
+          {/* Submit */}
+          <div className="flex justify-center pt-2">
+            <CircularButton size="lg" variant="gradient" type="submit">
+              <Check className="h-7 w-7 text-white" />
+            </CircularButton>
           </div>
         </form>
       </GlassCard>

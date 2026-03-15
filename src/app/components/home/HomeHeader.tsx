@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ChevronDown, Moon, Sparkles, Sun } from 'lucide-react';
 import { CircularButton } from '../buttons/CircularButton';
 import { GlassCard } from '../cards/GlassCard';
@@ -5,10 +6,24 @@ import { GlassCard } from '../cards/GlassCard';
 interface HomeHeaderProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
-  monthLabel: string;
+  availableMonths: string[];
+  selectedMonthIndex: number;
+  onMonthChange: (index: number) => void;
 }
 
-export function HomeHeader({ darkMode, onToggleDarkMode, monthLabel }: HomeHeaderProps) {
+export function HomeHeader({
+  darkMode,
+  onToggleDarkMode,
+  availableMonths,
+  selectedMonthIndex,
+  onMonthChange,
+}: HomeHeaderProps) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const monthLabel = availableMonths[selectedMonthIndex] ?? '';
+  const text = darkMode ? 'text-white' : 'text-gray-800';
+  const accent = darkMode ? 'text-cyan-300' : 'text-violet-600';
+
   return (
     <header className="mb-4 flex items-center justify-between">
       {/* Left: dark mode toggle + month selector */}
@@ -26,14 +41,60 @@ export function HomeHeader({ darkMode, onToggleDarkMode, monthLabel }: HomeHeade
           )}
         </CircularButton>
 
-        <GlassCard hover={false} className="px-4 py-2">
-          <div className="flex items-center gap-2">
-            <ChevronDown className={`h-4 w-4 ${darkMode ? 'text-cyan-300' : 'text-violet-600'}`} />
-            <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-              {monthLabel}
-            </span>
-          </div>
-        </GlassCard>
+        {/* Month selector */}
+        <div className="relative">
+          <GlassCard
+            hover={false}
+            className="cursor-pointer px-4 py-2"
+            onClick={() => setDropdownOpen((v) => !v)}
+          >
+            <div className="flex items-center gap-2">
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${accent} ${dropdownOpen ? 'rotate-180' : ''}`}
+              />
+              <span className={`text-sm font-medium ${text}`}>{monthLabel}</span>
+            </div>
+          </GlassCard>
+
+          {dropdownOpen && (
+            <>
+              {/* Click-outside overlay — closes dropdown when tapping anywhere else */}
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setDropdownOpen(false)}
+              />
+              <div
+                className={`absolute right-0 top-full z-50 mt-1 min-w-[7rem] overflow-hidden rounded-xl shadow-lg ${
+                  darkMode
+                    ? 'border border-white/15 bg-[#1a1f3a]/95 backdrop-blur-md'
+                    : 'border border-white/70 bg-white/90 backdrop-blur-md'
+                }`}
+              >
+                {availableMonths.map((label, i) => (
+                  <button
+                    key={label}
+                    type="button"
+                    className={`w-full px-4 py-2.5 text-right text-sm transition-colors ${
+                      i === selectedMonthIndex
+                        ? darkMode
+                          ? 'bg-violet-500/30 font-semibold text-cyan-300'
+                          : 'bg-violet-100 font-semibold text-violet-700'
+                        : darkMode
+                          ? 'text-white/80 hover:bg-white/10'
+                          : 'text-gray-700 hover:bg-violet-50'
+                    }`}
+                    onClick={() => {
+                      onMonthChange(i);
+                      setDropdownOpen(false);
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Right: logo + brand line */}
@@ -53,7 +114,6 @@ export function HomeHeader({ darkMode, onToggleDarkMode, monthLabel }: HomeHeade
           </p>
         </div>
 
-        {/* Glass logo icon — unified with screen glass language */}
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md shadow-lg ${
             darkMode

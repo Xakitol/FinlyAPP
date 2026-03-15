@@ -1,4 +1,4 @@
-import type { FinanceEntry, ForwardViewSummary, HomeMonthData, SavingsProgressSummary } from '../types/finance';
+import type { FinanceEntry, ForwardViewSummary, HomeMonthData, RecurringRule, SavingsProgressSummary } from '../types/finance';
 
 function sumAmounts(entries: FinanceEntry[]) {
   return entries.reduce((sum, entry) => sum + entry.amount, 0);
@@ -62,10 +62,10 @@ export function getHomeSnapshot(data: HomeMonthData) {
   const upcoming = getUpcomingObligations(data.entries);
   const remaining = getRemainingThisMonth(data.entries);
   const upcomingItems = getUpcomingDisplayItems(data.entries);
-  const savingsProgress = Math.min(
-    (data.savingsGoal.currentAmount / data.savingsGoal.targetAmount) * 100,
-    100,
-  );
+  const savingsProgress =
+    data.savingsGoal.targetAmount === 0
+      ? 0
+      : Math.min((data.savingsGoal.currentAmount / data.savingsGoal.targetAmount) * 100, 100);
 
   return {
     monthLabel: data.monthLabel,
@@ -126,8 +126,53 @@ export function getSavingsProgressSummary(data: HomeMonthData): SavingsProgressS
   return {
     currentAmount,
     targetAmount,
-    savingsProgressPercent: Math.min((currentAmount / targetAmount) * 100, 100),
+    savingsProgressPercent:
+      targetAmount === 0 ? 0 : Math.min((currentAmount / targetAmount) * 100, 100),
     savingsGap: Math.max(targetAmount - currentAmount, 0),
     isSavingsGoalMet: currentAmount >= targetAmount,
   };
+}
+
+/**
+ * Generate projected upcoming entries for a target month from recurring rules.
+ * Skips rules where an entry with the same title already exists in that month
+ * (recorded or upcoming) to prevent double-counting.
+ */
+export function projectRecurringRules(
+  rules: RecurringRule[],
+  targetMonth: number,
+  targetYear: number,
+  existingEntries: FinanceEntry[],
+): FinanceEntry[] {
+  return rules
+    .filter((rule) => {
+      return !existingEntries.some(
+        (e) =>
+          e.recurring &&
+          e.type === 'expense' &&
+          e.title === rule.title &&
+          new Date(e.date).getMonth() === targetMonth &&
+          new Date(e.date).getFullYear() === targetYear,
+      );
+    })
+    .map((rule) => {
+      const lastDay = new Date(targetYear, targetMonth + 1, 0).getDate();
+      const day = Math.min(rule.dayOfMonth, lastDay);
+      const mm = String(targetMonth + 1).padStart(2, '0');
+      const dd = String(day).padStart(2, '0');
+      return {
+        id: `projected-${rule.id}-${targetYear}-${targetMonth}`,
+        type: 'expense' as const,
+        amount: rule.amount,
+        date: `${targetYear}-${mm}-${dd}`,
+        paymentMethod: rule.paymentMethod,
+        status: 'upcoming' as const,
+        recurring: true,
+        source: 'system' as const,
+        title: rule.title,
+        category: rule.category,
+        countsTowardRemaining: true,
+        note: rule.note,
+      };
+    });
 }
