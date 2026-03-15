@@ -2,23 +2,27 @@ export function StarField({ darkMode = false }: { darkMode?: boolean }) {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none">
       <div className="absolute inset-0">
-        {Array.from({ length: 50 }).map((_, i) => {
+        {Array.from({ length: 38 }).map((_, i) => {
           const randomX = Math.random() * 100;
           const randomY = Math.random() * 100;
-          const randomSize = Math.random() * 3 + 1;
-          const randomDuration = Math.random() * 3 + 2;
-          const randomDelay = Math.random() * 2;
+          const randomSize = Math.random() * 2.5 + 1.5;
+          const randomDuration = Math.random() * 4 + 3;
+          const randomDelay = Math.random() * 3;
+
+          // Dark mode: mix of gold, silver, pale-gold for a financial night sky feel
+          const darkColors = ['bg-amber-300', 'bg-slate-300', 'bg-stone-200'];
+          const darkColor = darkColors[i % 3];
 
           return (
             <div
               key={i}
-              className={`absolute rounded-full animate-pulse ${darkMode ? 'bg-white' : 'bg-violet-400'}`}
+              className={`absolute rounded-full animate-pulse ${darkMode ? darkColor : 'bg-amber-400'}`}
               style={{
                 left: `${randomX}%`,
                 top: `${randomY}%`,
                 width: `${randomSize}px`,
                 height: `${randomSize}px`,
-                opacity: darkMode ? Math.random() * 0.5 + 0.2 : Math.random() * 0.3 + 0.1,
+                opacity: darkMode ? Math.random() * 0.38 + 0.13 : Math.random() * 0.2 + 0.07,
                 animationDuration: `${randomDuration}s`,
                 animationDelay: `${randomDelay}s`,
               }}
