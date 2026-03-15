@@ -1,88 +1,193 @@
-import { useState } from 'react';
-import { X, Target, Check } from 'lucide-react';
-import { GlassCard } from "../cards/GlassCard";
-import { CircularButton } from "../buttons/CircularButton";
-
+import { useState, useEffect } from 'react';
+import { X, Check, PiggyBank } from 'lucide-react';
 
 interface SavingsGoalModalProps {
   open: boolean;
   onClose: () => void;
+  darkMode?: boolean;
   currentGoal?: number;
   onSave?: (goal: number) => void;
 }
 
-export function SavingsGoalModal({ open, onClose, currentGoal = 12000, onSave }: SavingsGoalModalProps) {
-  const [goalAmount, setGoalAmount] = useState(currentGoal.toString());
+const tactileBtn: React.CSSProperties = {
+  transition: 'transform 0.1s ease, box-shadow 0.1s ease',
+};
+
+function onPress(e: React.PointerEvent<HTMLButtonElement>) {
+  e.currentTarget.style.transform = 'translateY(3px)';
+  e.currentTarget.style.boxShadow = '0 1px 0 rgba(0,0,0,0.3)';
+}
+function onRelease(e: React.PointerEvent<HTMLButtonElement>) {
+  e.currentTarget.style.transform = '';
+  e.currentTarget.style.boxShadow = '';
+}
+
+export function SavingsGoalModal({
+  open,
+  onClose,
+  darkMode = false,
+  currentGoal = 0,
+  onSave,
+}: SavingsGoalModalProps) {
+  const [goalAmount, setGoalAmount] = useState(currentGoal > 0 ? currentGoal.toString() : '');
+
+  useEffect(() => {
+    if (open) setGoalAmount(currentGoal > 0 ? currentGoal.toString() : '');
+  }, [open, currentGoal]);
 
   if (!open) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(goalAmount);
-    if (!isNaN(amount) && amount > 0) {
+    if (!isNaN(amount) && amount >= 0) {
       onSave?.(amount);
       onClose();
     }
   };
 
+  const text = darkMode ? 'text-white' : 'text-gray-900';
+  const muted = darkMode ? 'text-white/55' : 'text-gray-500';
+  const labelCls = `block mb-1.5 text-[12px] font-medium ${darkMode ? 'text-white/70' : 'text-gray-600'}`;
+
+  const modalBg: React.CSSProperties = darkMode
+    ? {
+        background: 'linear-gradient(145deg, rgba(26,31,58,0.97) 0%, rgba(15,20,40,0.98) 100%)',
+        border: '1px solid rgba(255,255,255,0.12)',
+        backdropFilter: 'blur(20px)',
+        boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+      }
+    : {
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.97) 0%, rgba(245,240,255,0.98) 100%)',
+        border: '1.5px solid rgba(200,190,255,0.6)',
+        backdropFilter: 'blur(20px)',
+        boxShadow: '0 24px 60px rgba(139,92,246,0.2)',
+      };
+
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-8 bg-black/50"
-      style={{ backdropFilter: 'blur(5px)' }}
-      onClick={onClose}
+    // No backdrop click — X button only
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-6"
+      style={{ backdropFilter: 'blur(6px)', background: 'rgba(0,0,0,0.5)' }}
     >
-      <GlassCard 
-        className="w-full max-w-xl p-10 animate-in fade-in zoom-in duration-300"
-        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+      <div
+        className="w-full max-w-sm rounded-3xl animate-in fade-in zoom-in-95 duration-300"
+        style={modalBg}
       >
-        <div className="flex items-center justify-between mb-8">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pb-2 pt-5">
           <button
+            type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${darkMode ? 'bg-white/15' : 'bg-gray-100'}`}
+            style={{
+              ...tactileBtn,
+              boxShadow: darkMode
+                ? '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
+                : '0 4px 0 rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
+            }}
+            onPointerDown={onPress}
+            onPointerUp={onRelease}
+            onPointerLeave={onRelease}
           >
-            <X className="w-5 h-5 text-white" />
+            <X className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-600'}`} />
           </button>
-          <h2 className="text-3xl font-bold text-white">הגדרת יעד חיסכון</h2>
+          <h2 className={`text-lg font-bold ${text}`}>יעד חיסכון</h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex justify-center mb-6">
-            <CircularButton size="xl" variant="violet">
-              <Target className="w-8 h-8 text-white" />
-            </CircularButton>
+        <form onSubmit={handleSubmit} className="px-5 pb-6 pt-4 space-y-5">
+          {/* Piggy bank icon */}
+          <div className="flex justify-center py-2">
+            <div
+              className="flex h-20 w-20 items-center justify-center rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, #06b6d4 0%, #6366f1 45%, #a855f7 100%)',
+                boxShadow: '0 8px 0 rgba(99,102,241,0.5), 0 16px 32px rgba(99,102,241,0.3), inset 0 1.5px 0 rgba(255,255,255,0.35)',
+              }}
+            >
+              <PiggyBank className="h-9 w-9 text-white" />
+            </div>
           </div>
 
+          {/* Current goal display */}
+          {currentGoal > 0 && (
+            <p className={`text-center text-[12px] ${muted}`}>
+              יעד נוכחי: ₪{currentGoal.toLocaleString()}
+            </p>
+          )}
+
+          {/* Amount input */}
           <div className="text-right">
-            <label className="block text-white mb-2 font-medium">סכום יעד (₪)</label>
+            <label className={labelCls}>סכום יעד (₪)</label>
             <input
               type="number"
               value={goalAmount}
               onChange={(e) => setGoalAmount(e.target.value)}
-              className="w-full px-6 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/40 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-400/30 transition-all text-center text-2xl font-bold"
-              placeholder="0.00"
+              className={`w-full rounded-2xl border px-5 py-4 text-center text-[22px] font-bold outline-none transition-all focus:ring-2 focus:ring-violet-400/40 ${
+                darkMode
+                  ? 'border-white/20 bg-white/10 text-white placeholder-white/30 focus:border-violet-400'
+                  : 'border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-300 focus:border-violet-400'
+              }`}
+              placeholder="0"
               required
               min="0"
-              step="0.01"
+              step="1"
+              dir="ltr"
             />
           </div>
 
-          <p className="text-center text-cyan-200/70 text-sm">
-            קבעו יעד חיסכון ועקבו אחרי ההתקדמות שלכם
+          <p className={`text-center text-[11px] ${muted}`}>
+            קבעו יעד ועקבו אחרי ההתקדמות שלכם
           </p>
 
-          {/* Submit Button */}
-          <div className="flex justify-center pt-4">
-          <CircularButton
-  size="lg"
-  variant="gradient"
-  type="submit"
->
-  <Check className="w-8 h-8 text-white" />
-</CircularButton>
+          {/* Reset — only shown if a goal exists */}
+          {currentGoal > 0 && (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => { onSave?.(0); onClose(); }}
+                className={`rounded-xl px-4 py-2 text-[12px] font-medium ${
+                  darkMode ? 'bg-white/10 text-white/50' : 'bg-gray-100 text-gray-500'
+                }`}
+                style={{ ...tactileBtn, boxShadow: '0 3px 0 rgba(0,0,0,0.1)' }}
+                onPointerDown={onPress}
+                onPointerUp={onRelease}
+                onPointerLeave={onRelease}
+              >
+                איפוס יעד
+              </button>
+            </div>
+          )}
 
+          {/* Save button — galactic 3D */}
+          <div className="flex justify-center pt-1">
+            <button
+              type="submit"
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #06b6d4 0%, #6366f1 45%, #a855f7 100%)',
+                boxShadow: '0 6px 0 rgba(99,102,241,0.6), 0 12px 28px rgba(99,102,241,0.35), inset 0 1.5px 0 rgba(255,255,255,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'transform 0.1s ease, box-shadow 0.1s ease',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              onPointerDown={(e) => {
+                e.currentTarget.style.transform = 'translateY(5px)';
+                e.currentTarget.style.boxShadow = '0 1px 0 rgba(99,102,241,0.6), 0 4px 12px rgba(99,102,241,0.25), inset 0 1.5px 0 rgba(255,255,255,0.3)';
+              }}
+              onPointerUp={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+              onPointerLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+            >
+              <Check className="h-7 w-7 text-white" />
+            </button>
           </div>
         </form>
-      </GlassCard>
+      </div>
     </div>
   );
 }

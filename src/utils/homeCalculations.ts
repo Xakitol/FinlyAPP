@@ -5,7 +5,7 @@ function sumAmounts(entries: FinanceEntry[]) {
 }
 
 export function getRecordedIncome(entries: FinanceEntry[]) {
-  return sumAmounts(entries.filter((entry) => entry.type === 'income' && entry.status === 'recorded'));
+  return sumAmounts(entries.filter((entry) => entry.type === 'income' && (entry.status === 'recorded' || entry.status === 'upcoming')));
 }
 
 export function getRecordedExpenses(entries: FinanceEntry[]) {
@@ -62,10 +62,16 @@ export function getHomeSnapshot(data: HomeMonthData) {
   const upcoming = getUpcomingObligations(data.entries);
   const remaining = getRemainingThisMonth(data.entries);
   const upcomingItems = getUpcomingDisplayItems(data.entries);
+
+  // Savings progress = how much of the savings target the current remaining covers
   const savingsProgress =
     data.savingsGoal.targetAmount === 0
       ? 0
-      : Math.min((data.savingsGoal.currentAmount / data.savingsGoal.targetAmount) * 100, 100);
+      : Math.min(Math.max((remaining / data.savingsGoal.targetAmount) * 100, 0), 100);
+
+  const today = new Date();
+  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const daysLeftInMonth = Math.max(lastDayOfMonth - today.getDate(), 0);
 
   return {
     monthLabel: data.monthLabel,
@@ -74,9 +80,9 @@ export function getHomeSnapshot(data: HomeMonthData) {
     upcoming,
     remaining,
     upcomingItems,
-    savingsCurrent: data.savingsGoal.currentAmount,
     savingsTarget: data.savingsGoal.targetAmount,
     savingsProgress,
+    daysLeftInMonth,
     statusLabel: getMonthlyStatus(remaining),
   };
 }
@@ -146,10 +152,16 @@ export function projectRecurringRules(
 ): FinanceEntry[] {
   return rules
     .filter((rule) => {
+      // Only project from the month the rule was created — never backward
+      const ruleStartYear = rule.startYear ?? 0;
+      const ruleStartMonth = rule.startMonth ?? 0;
+      if (targetYear < ruleStartYear) return false;
+      if (targetYear === ruleStartYear && targetMonth < ruleStartMonth) return false;
+
       return !existingEntries.some(
         (e) =>
           e.recurring &&
-          e.type === 'expense' &&
+          e.type === rule.type &&
           e.title === rule.title &&
           new Date(e.date).getMonth() === targetMonth &&
           new Date(e.date).getFullYear() === targetYear,
@@ -162,7 +174,7 @@ export function projectRecurringRules(
       const dd = String(day).padStart(2, '0');
       return {
         id: `projected-${rule.id}-${targetYear}-${targetMonth}`,
-        type: 'expense' as const,
+        type: rule.type,
         amount: rule.amount,
         date: `${targetYear}-${mm}-${dd}`,
         paymentMethod: rule.paymentMethod,

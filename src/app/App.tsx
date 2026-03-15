@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { ChartModal } from './components/modals/ChartModal';
 import { InsightsModal } from './components/modals/InsightsModal';
 import { SavingsGoalModal } from './components/modals/SavingsGoalModal';
 import { TransactionFormModal } from './components/modals/TransactionFormModal';
 import { TransactionTableModal } from './components/modals/TransactionTableModal';
+import { UpcomingExpensesModal } from './components/modals/UpcomingExpensesModal';
+import { IncomeBreakdownModal } from './components/modals/IncomeBreakdownModal';
 import { StarField } from './components/effects/StarField';
 import { HomeHeader } from './components/home/HomeHeader';
 import { FloatingCirclesHome } from './components/home/FloatingCirclesHome';
@@ -18,18 +20,30 @@ export default function App() {
   const [formOpen, setFormOpen] = useState(false);
   const [tableOpen, setTableOpen] = useState(false);
   const [savingsGoalOpen, setSavingsGoalOpen] = useState(false);
+  const [upcomingOpen, setUpcomingOpen] = useState(false);
+  const [incomeOpen, setIncomeOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [editingEntry, setEditingEntry] = useState<FinanceEntry | null>(null);
 
   // ── Month selection ─────────────────────────────────────────────────────────
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(DEFAULT_MONTH_INDEX);
 
-  // ── Per-month entries (start empty — user builds from scratch) ───────────────
-  const [monthEntriesMap, setMonthEntriesMap] = useState<Record<number, FinanceEntry[]>>({});
-  const [savingsGoalsMap, setSavingsGoalsMap] = useState<Record<number, SavingsGoal>>({});
+  // ── Per-month entries (persisted) ───────────────────────────────────────────
+  const [monthEntriesMap, setMonthEntriesMap] = useState<Record<number, FinanceEntry[]>>(() => {
+    try { return JSON.parse(localStorage.getItem('finly_entries') ?? 'null') ?? {}; } catch { return {}; }
+  });
+  const [savingsGoalsMap, setSavingsGoalsMap] = useState<Record<number, SavingsGoal>>(() => {
+    try { return JSON.parse(localStorage.getItem('finly_goals') ?? 'null') ?? {}; } catch { return {}; }
+  });
 
-  // ── Recurring rules — created only by manual user action in the form ─────────
-  const [recurringRules, setRecurringRules] = useState<RecurringRule[]>([]);
+  // ── Recurring rules (persisted) ──────────────────────────────────────────────
+  const [recurringRules, setRecurringRules] = useState<RecurringRule[]>(() => {
+    try { return JSON.parse(localStorage.getItem('finly_rules') ?? 'null') ?? []; } catch { return []; }
+  });
+
+  useEffect(() => { localStorage.setItem('finly_entries', JSON.stringify(monthEntriesMap)); }, [monthEntriesMap]);
+  useEffect(() => { localStorage.setItem('finly_goals', JSON.stringify(savingsGoalsMap)); }, [savingsGoalsMap]);
+  useEffect(() => { localStorage.setItem('finly_rules', JSON.stringify(recurringRules)); }, [recurringRules]);
 
   // ── Derived home data ───────────────────────────────────────────────────────
   const homeData = useMemo(() => {
@@ -63,16 +77,19 @@ export default function App() {
       return { ...prev, [selectedMonthIndex]: [...current, savedEntry] };
     });
 
-    // Sync recurring rule: add/update if recurring expense, remove if not
+    // Sync recurring rule: add/update if recurring, remove if not
     const ruleId = `rule-${entryId}`;
-    if (data.recurring && data.type === 'expense') {
+    if (data.recurring) {
       const rule: RecurringRule = {
         id: ruleId,
+        type: data.type,
         title: data.title,
         category: data.category,
         amount: data.amount,
         paymentMethod: data.paymentMethod,
         dayOfMonth: new Date(data.date).getDate(),
+        startMonth: selectedMonthIndex,
+        startYear: YEAR,
       };
       setRecurringRules((prev) => [...prev.filter((r) => r.id !== ruleId), rule]);
     } else if (existingId) {
@@ -91,10 +108,38 @@ export default function App() {
     setRecurringRules((prev) => prev.filter((r) => r.id !== `rule-${id}`));
   }
 
+  function handleMarkAsPaid(entry: FinanceEntry) {
+    if (entry.source === 'system') {
+      // Projected entry — add as recorded to the month's entries
+      const paid: FinanceEntry = {
+        ...entry,
+        id: `entry-${Date.now()}`,
+        status: 'recorded',
+        source: 'manual',
+      };
+      setMonthEntriesMap((prev) => ({
+        ...prev,
+        [selectedMonthIndex]: [...(prev[selectedMonthIndex] ?? []), paid],
+      }));
+    } else {
+      // Manual upcoming entry — update status in place
+      setMonthEntriesMap((prev) => ({
+        ...prev,
+        [selectedMonthIndex]: (prev[selectedMonthIndex] ?? []).map((e) =>
+          e.id === entry.id ? { ...e, status: 'recorded' as const } : e,
+        ),
+      }));
+    }
+  }
+
   function handleEditEntry(entry: FinanceEntry) {
     setEditingEntry(entry);
     setTableOpen(false);
     setFormOpen(true);
+  }
+
+  function handleDeleteRule(entry: FinanceEntry) {
+    setRecurringRules((prev) => prev.filter((r) => !(r.type === entry.type && r.title === entry.title)));
   }
 
   function handleSaveSavingsGoal(targetAmount: number) {
@@ -134,6 +179,9 @@ export default function App() {
           snapshot={snapshot}
           onAddClick={() => { setEditingEntry(null); setFormOpen(true); }}
           onOpenTransactions={() => setTableOpen(true)}
+          onOpenSavingsGoal={() => setSavingsGoalOpen(true)}
+          onOpenUpcoming={() => setUpcomingOpen(true)}
+          onOpenIncome={() => setIncomeOpen(true)}
         />
       </div>
 
@@ -157,14 +205,34 @@ export default function App() {
         open={tableOpen}
         onClose={() => setTableOpen(false)}
         darkMode={darkMode}
-        entries={homeData.entries.filter((e) => e.status === 'recorded')}
+        entries={homeData.entries}
         onEdit={handleEditEntry}
         onDelete={handleDeleteEntry}
+        onMarkAsPaid={handleMarkAsPaid}
+        onDeleteRule={handleDeleteRule}
+      />
+
+      <UpcomingExpensesModal
+        open={upcomingOpen}
+        onClose={() => setUpcomingOpen(false)}
+        darkMode={darkMode}
+        entries={homeData.entries.filter((e) => e.status === 'upcoming' && e.type === 'expense').sort((a, b) => a.date.localeCompare(b.date))}
+        onMarkAsPaid={handleMarkAsPaid}
+        onDeleteRule={handleDeleteRule}
+      />
+
+      <IncomeBreakdownModal
+        open={incomeOpen}
+        onClose={() => setIncomeOpen(false)}
+        darkMode={darkMode}
+        entries={homeData.entries.filter((e) => e.type === 'income').sort((a, b) => a.date.localeCompare(b.date))}
+        onMarkAsPaid={handleMarkAsPaid}
       />
 
       <SavingsGoalModal
         open={savingsGoalOpen}
         onClose={() => setSavingsGoalOpen(false)}
+        darkMode={darkMode}
         currentGoal={savingsGoalsMap[selectedMonthIndex]?.targetAmount ?? 0}
         onSave={handleSaveSavingsGoal}
       />
