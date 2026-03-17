@@ -207,9 +207,9 @@ export function TransactionFormModal({
               }`}
               style={{
                 ...tactileBtn,
-                background: type === 'expense' ? 'linear-gradient(135deg, #6366f1, #a855f7)' : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
+                background: type === 'expense' ? 'linear-gradient(135deg, #8b5cf6, #ec4899)' : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
                 boxShadow: type === 'expense'
-                  ? '0 4px 0 rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.25)'
+                  ? '0 4px 0 rgba(168,85,247,0.45), inset 0 1px 0 rgba(255,255,255,0.25)'
                   : darkMode ? '0 3px 0 rgba(0,0,0,0.2)' : '0 3px 0 rgba(0,0,0,0.08)',
               }}
               onPointerDown={pressDown}
@@ -240,10 +240,10 @@ export function TransactionFormModal({
               style={{
                 background: type === 'income'
                   ? 'linear-gradient(135deg, #06b6d4, #0891b2)'
-                  : 'linear-gradient(135deg, #6366f1, #a855f7)',
+                  : 'linear-gradient(135deg, #8b5cf6, #ec4899)',
                 boxShadow: type === 'income'
                   ? '0 4px 0 rgba(6,182,212,0.4)'
-                  : '0 4px 0 rgba(124,58,237,0.4)',
+                  : '0 4px 0 rgba(168,85,247,0.4)',
               }}
             >
               <Sparkles className="h-5 w-5 text-white" />

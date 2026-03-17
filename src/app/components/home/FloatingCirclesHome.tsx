@@ -123,9 +123,9 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
     const delta = e.changedTouches[0].clientX - touchStartX.current;
     touchStartX.current = null;
     if (Math.abs(delta) < 40) return;
-    // In RTL: swipe left (delta < 0) = next card; swipe right (delta > 0) = prev card
-    if (delta < 0 && cardIdx < 2) goToCard(cardIdx + 1);
-    else if (delta > 0 && cardIdx > 0) goToCard(cardIdx - 1);
+    // Swipe right (delta > 0) = next card; swipe left (delta < 0) = prev card
+    if (delta > 0 && cardIdx < 2) goToCard(cardIdx + 1);
+    else if (delta < 0 && cardIdx > 0) goToCard(cardIdx - 1);
   }
 
   const insightAnimStyle: CSSProperties = swipeAnim === 'fromRight'
@@ -162,14 +162,20 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
             </div>
             {/* Main remaining — center */}
             <div className="flex flex-col items-center px-3 shrink-0">
-              <p className={`text-[40px] font-bold leading-tight tracking-tight ${text}`}>
+              <p className={`text-[40px] font-bold leading-tight tracking-tight ${
+                snapshot.remaining > 50
+                  ? darkMode ? 'text-cyan-300' : 'text-cyan-600'
+                  : snapshot.remaining < -50
+                  ? darkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'
+                  : text
+              }`}>
                 {formatCurrency(snapshot.remaining)}
               </p>
             </div>
             {/* Expenses — left side in RTL */}
             <div className="flex-1 text-left">
               <p className={`text-[9px] ${muted}`}>הוצאות</p>
-              <p className={`text-[17px] font-bold ${darkMode ? 'text-purple-300' : 'text-violet-600'}`}>
+              <p className={`text-[17px] font-bold ${darkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
                 -{formatCurrency(snapshot.expenses)}
               </p>
             </div>
@@ -260,29 +266,32 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
             onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
             onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
           >
-            <p className={`text-[10px] leading-tight ${muted}`}>Finly צופה שיצא החודש</p>
+            <p className={`text-[10px] leading-tight ${muted}`}>Finly צופה שייצא החודש</p>
             <p className={`mt-1 text-[18px] font-bold ${text}`}>{formatCurrency(snapshot.upcoming)}</p>
             <p className={`mt-0.5 text-[10px] ${muted}`}>לפירוט לחץ כאן</p>
           </button>
 
-          {/* מה עוד צפוי לרדת — opens detail list */}
-          <button
-            type="button"
-            onClick={onOpenUpcoming}
-            className="flex flex-col rounded-2xl p-4 text-right"
-            style={{
-              ...glass,
-              boxShadow: tactileBox(darkMode),
-              transition: 'transform 0.1s ease, box-shadow 0.1s ease',
-            }}
-            onPointerDown={(e) => PRESS_DOWN.onPointerDown(e, darkMode)}
-            onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
-            onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
-          >
-            <p className={`text-[11px] ${muted}`}>מה עוד צפוי לרדת</p>
-            <p className={`mt-1 text-[18px] font-bold ${text}`}>{formatCurrency(snapshot.upcoming)}</p>
-            <p className={`mt-0.5 text-[10px] ${muted}`}>לפירוט לחץ כאן</p>
-          </button>
+          {/* מרווח נשימה — actual buffer after all upcoming obligations */}
+          {(() => {
+            const buffer = snapshot.remaining - snapshot.upcoming;
+            const bufferColor = buffer > 500
+              ? darkMode ? 'text-cyan-300' : 'text-cyan-600'
+              : buffer < 0
+              ? darkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'
+              : text;
+            return (
+              <div
+                className="flex flex-col rounded-2xl p-4 text-right"
+                style={{ ...glass, boxShadow: tactileBox(darkMode) }}
+              >
+                <p className={`text-[10px] leading-tight ${muted}`}>מרווח נשימה</p>
+                <p className={`mt-1 text-[18px] font-bold ${bufferColor}`}>
+                  {buffer < 0 ? '-' : ''}{formatCurrency(Math.abs(buffer))}
+                </p>
+                <p className={`mt-0.5 text-[10px] ${muted}`}>אחרי כל ההתחייבויות</p>
+              </div>
+            );
+          })()}
 
           {/* יעד חיסכון — 3D tactile button */}
           <button
