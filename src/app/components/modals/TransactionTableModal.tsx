@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import * as XLSX from 'xlsx';
 import { X, Search, Pencil, Trash2, FileSpreadsheet, FileText, ArrowUpDown, RotateCcw, TrendingUp, TrendingDown } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 import type { FinanceEntry } from '../../../types/finance';
@@ -16,20 +17,59 @@ interface TransactionTableModalProps {
   onDeleteRule: (entry: FinanceEntry) => void;
 }
 
-function exportToCSV(entries: FinanceEntry[]) {
-  const header = 'תאריך,כותרת,קטגוריה,סוג,שיטת תשלום,סכום\n';
-  const rows = entries
-    .map((e) =>
-      [e.date, e.title, e.category, e.type === 'income' ? 'הכנסה' : 'הוצאה', e.paymentMethod, e.amount].join(','),
+function exportToExcel(entries: FinanceEntry[]) {
+  const rows = [
+    ['תאריך', 'תיאור', 'קטגוריה', 'סוג', 'שיטת תשלום', 'סכום', 'סטטוס'],
+    ...entries.map((e) => [
+      e.date,
+      e.title,
+      e.category,
+      e.type === 'income' ? 'הכנסה' : 'הוצאה',
+      e.paymentMethod === 'bank' ? 'בנק' : e.paymentMethod === 'credit' ? 'אשראי' : 'מזומן',
+      e.type === 'income' ? e.amount : -e.amount,
+      e.status === 'upcoming' ? 'צפוי' : 'מאושר',
+    ]),
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  // Right-to-left column widths
+  ws['!cols'] = [{ wch: 12 }, { wch: 30 }, { wch: 14 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 8 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'תנועות');
+  XLSX.writeFile(wb, 'finly-transactions.xlsx');
+}
+
+function exportToPrintPDF(entries: FinanceEntry[]) {
+  const win = window.open('', '_blank', 'width=820,height=680');
+  if (!win) return;
+  const rowsHtml = entries
+    .map(
+      (e) => `<tr>
+        <td>${e.date}</td>
+        <td>${e.title}</td>
+        <td>${e.category}</td>
+        <td style="color:${e.type === 'income' ? '#0284c7' : '#9333ea'}">${e.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
+        <td style="font-weight:600;color:${e.type === 'income' ? '#0284c7' : '#9333ea'}">${e.type === 'income' ? '+' : '-'}${e.amount.toLocaleString('he-IL')} ₪</td>
+        <td>${e.status === 'upcoming' ? 'צפוי' : 'מאושר'}</td>
+      </tr>`,
     )
-    .join('\n');
-  const blob = new Blob(['\ufeff' + header + rows], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'finly-transactions.csv';
-  a.click();
-  URL.revokeObjectURL(url);
+    .join('');
+  win.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>Finly — תנועות</title>
+    <style>
+      body{font-family:Arial,sans-serif;direction:rtl;padding:24px;color:#111}
+      h1{font-size:22px;color:#7c3aed;margin-bottom:4px}
+      p{color:#6b7280;font-size:12px;margin-bottom:16px}
+      table{width:100%;border-collapse:collapse;font-size:13px}
+      th{background:#7c3aed;color:#fff;padding:8px 10px;text-align:right}
+      td{padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right}
+      tr:nth-child(even) td{background:#f9fafb}
+    </style></head><body>
+    <h1>Finly — ייצוא תנועות</h1>
+    <p>${entries.length} תנועות · ${new Date().toLocaleDateString('he-IL')}</p>
+    <table><thead><tr><th>תאריך</th><th>תיאור</th><th>קטגוריה</th><th>סוג</th><th>סכום</th><th>סטטוס</th></tr></thead>
+    <tbody>${rowsHtml}</tbody></table>
+    <script>window.onload=()=>{window.print();}<\/script>
+    </body></html>`);
+  win.document.close();
 }
 
 const tactileBtn: React.CSSProperties = {
@@ -131,12 +171,12 @@ export function TransactionTableModal({
         <div className="flex gap-2 px-5 pb-3">
           <button
             type="button"
-            onClick={() => exportToCSV(sorted)}
+            onClick={() => exportToExcel(sorted)}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12px] font-semibold text-white"
             style={{
               ...tactileBtn,
-              background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
-              boxShadow: '0 4px 0 rgba(8,145,178,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
+              background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+              boxShadow: '0 4px 0 rgba(2,132,199,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
             }}
             onPointerDown={onPress}
             onPointerUp={onRelease}
@@ -147,12 +187,12 @@ export function TransactionTableModal({
           </button>
           <button
             type="button"
-            onClick={() => window.print()}
+            onClick={() => exportToPrintPDF(sorted)}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12px] font-semibold text-white"
             style={{
               ...tactileBtn,
-              background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-              boxShadow: '0 4px 0 rgba(109,40,217,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
+              background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+              boxShadow: '0 4px 0 rgba(139,92,246,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
             }}
             onPointerDown={onPress}
             onPointerUp={onRelease}
@@ -249,7 +289,7 @@ export function TransactionTableModal({
                             className="flex h-8 items-center justify-center rounded-xl px-2 text-[10px] font-semibold text-white leading-tight text-center"
                             style={{
                               ...tactileBtn,
-                              background: 'linear-gradient(135deg, #06b6d4, #6366f1)',
+                              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
                               boxShadow: '0 3px 0 rgba(99,102,241,0.45)',
                               maxWidth: 72,
                             }}
@@ -305,11 +345,11 @@ export function TransactionTableModal({
                     <div className="flex flex-1 items-center justify-between text-right">
                       <div className="flex items-center gap-1.5">
                         {entry.type === 'income' ? (
-                          <TrendingUp className="h-3.5 w-3.5 shrink-0 text-cyan-500" />
+                          <TrendingUp className="h-3.5 w-3.5 shrink-0 text-sky-500" />
                         ) : (
                           <TrendingDown className="h-3.5 w-3.5 shrink-0 text-violet-500" />
                         )}
-                        <span className={`text-[14px] font-bold ${entry.type === 'income' ? (darkMode ? 'text-cyan-300' : 'text-cyan-600') : (darkMode ? 'text-purple-300' : 'text-violet-600')}`}>
+                        <span className={`text-[14px] font-bold ${entry.type === 'income' ? (darkMode ? 'text-sky-300' : 'text-sky-600') : (darkMode ? 'text-purple-300' : 'text-violet-600')}`}>
                           {entry.type === 'income' ? '+' : '-'}{formatCurrency(entry.amount)}
                         </span>
                       </div>

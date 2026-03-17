@@ -1,6 +1,13 @@
 import * as XLSX from 'xlsx';
+import * as pdfjsLib from 'pdfjs-dist';
 import type { DescMemory } from './descMemory';
 import { autoClassify } from './descMemory';
+
+// Worker URL resolved at build-time by Vite's static-import analysis
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.mjs',
+  import.meta.url,
+).href;
 
 export interface ParsedRow {
   id: string;
@@ -48,11 +55,8 @@ function inferCategory(description: string, type: 'income' | 'expense'): string 
 function parseAmount(raw: string | number | null | undefined): number | null {
   if (raw === null || raw === undefined || raw === '') return null;
   if (typeof raw === 'number') return isNaN(raw) ? null : Math.abs(raw);
-  // Handle Israeli format: 1,234.56 or 1234.56 or (1234) for negative
   let s = String(raw).trim().replace(/[₪\s]/g, '');
-  // Parentheses = negative
   if (s.startsWith('(') && s.endsWith(')')) s = '-' + s.slice(1, -1);
-  // Remove thousands separators (commas before digits)
   s = s.replace(/,(?=\d)/g, '');
   const n = parseFloat(s);
   return isNaN(n) ? null : Math.abs(n);
@@ -72,7 +76,6 @@ function rawToSigned(raw: string | number | null | undefined): number | null {
 
 function parseDate(raw: string | number | null | undefined): string {
   if (raw === null || raw === undefined || raw === '') return '';
-  // Excel serial date number
   if (typeof raw === 'number') {
     const d = XLSX.SSF.parse_date_code(raw);
     if (d) {
@@ -83,22 +86,12 @@ function parseDate(raw: string | number | null | undefined): string {
     return '';
   }
   const s = String(raw).trim();
-  // Already ISO
   if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
-  // DD/MM/YYYY or DD.MM.YYYY
   const dmyMatch = s.match(/^(\d{1,2})[./\-](\d{1,2})[./\-](\d{2,4})$/);
   if (dmyMatch) {
     const [, d, m, y] = dmyMatch;
     const year = y.length === 2 ? '20' + y : y;
     return `${year}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-  }
-  // MM/DD/YYYY (US format — less common but possible)
-  const mdyMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (mdyMatch) {
-    const [, m, d, y] = mdyMatch;
-    // Heuristic: if m > 12 it's actually DD/MM/YYYY
-    if (parseInt(m) > 12) return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
   }
   return '';
 }
@@ -108,26 +101,29 @@ function parseDate(raw: string | number | null | undefined): string {
 interface ColumnMap {
   date: number | null;
   description: number | null;
-  amount: number | null;   // single signed column
-  debit: number | null;    // expense
-  credit: number | null;   // income
+  amount: number | null;
+  debit: number | null;
+  credit: number | null;
 }
 
-const DATE_PATTERNS = ['תאריך', 'date', 'Date', 'תאריך ביצוע', 'תאריך ערך', 'תאריך פעולה'];
-const DESC_PATTERNS = ['תיאור', 'תיאור פעולה', 'תיאור העסקה', 'פירוט', 'description', 'Description', 'details', 'Details', 'פרטי עסקה', 'תנועה'];
-const DEBIT_PATTERNS = ['חיוב', 'חובה', 'הוצאה', 'סכום חיוב', 'debit', 'Debit', 'charge', 'חיובים'];
-const CREDIT_PATTERNS = ['זכות', 'הכנסה', 'סכום זכות', 'credit', 'Credit', 'הפקדה'];
-const AMOUNT_PATTERNS = ['סכום', 'amount', 'Amount', 'סכום עסקה', 'total'];
+const DATE_PATTERNS   = ['תאריך', 'date', 'תאריך ביצוע', 'תאריך ערך', 'תאריך פעולה', 'תאריך עסקה'];
+const DESC_PATTERNS   = ['תיאור', 'תיאור פעולה', 'תיאור העסקה', 'פירוט', 'description', 'details', 'פרטי עסקה', 'תנועה', 'שם בית עסק'];
+const DEBIT_PATTERNS  = ['חיוב', 'חובה', 'הוצאה', 'סכום חיוב', 'debit', 'charge', 'חיובים'];
+const CREDIT_PATTERNS = ['זכות', 'הכנסה', 'סכום זכות', 'credit', 'הפקדה'];
+const AMOUNT_PATTERNS = ['סכום', 'amount', 'סכום עסקה', 'total', 'סכום הפעולה'];
 
 function detectColumns(headers: (string | number | null | undefined)[]): ColumnMap {
   const cols: ColumnMap = { date: null, description: null, amount: null, debit: null, credit: null };
   headers.forEach((h, i) => {
     const s = String(h ?? '').trim();
-    if (cols.date === null && DATE_PATTERNS.some((p) => s.includes(p) || p.includes(s))) cols.date = i;
-    if (cols.description === null && DESC_PATTERNS.some((p) => s.includes(p) || p.includes(s))) cols.description = i;
-    if (cols.debit === null && DEBIT_PATTERNS.some((p) => s.includes(p))) cols.debit = i;
-    if (cols.credit === null && CREDIT_PATTERNS.some((p) => s.includes(p))) cols.credit = i;
-    if (cols.amount === null && cols.debit === null && cols.credit === null && AMOUNT_PATTERNS.some((p) => s.toLowerCase() === p.toLowerCase())) cols.amount = i;
+    if (!s) return;
+    const sl = s.toLowerCase();
+    if (cols.date === null        && DATE_PATTERNS.some((p)   => sl.includes(p.toLowerCase()) || p.toLowerCase().includes(sl))) cols.date = i;
+    if (cols.description === null && DESC_PATTERNS.some((p)   => sl.includes(p.toLowerCase()) || p.toLowerCase().includes(sl))) cols.description = i;
+    if (cols.debit === null       && DEBIT_PATTERNS.some((p)  => sl.includes(p.toLowerCase()))) cols.debit = i;
+    if (cols.credit === null      && CREDIT_PATTERNS.some((p) => sl.includes(p.toLowerCase()))) cols.credit = i;
+    if (cols.amount === null && cols.debit === null && cols.credit === null &&
+        AMOUNT_PATTERNS.some((p) => sl === p.toLowerCase() || sl.includes(p.toLowerCase()))) cols.amount = i;
   });
   return cols;
 }
@@ -152,7 +148,6 @@ function applyMemory(
         needsReview: classified.confidence !== 'high',
       };
     }
-    // No memory — infer from keywords only
     const category = inferCategory(row.description, row.type);
     return { ...row, category, confidence: 'unknown' as const, needsReview: true };
   });
@@ -163,7 +158,6 @@ function applyMemory(
 function sheetToRows(
   sheet: XLSX.WorkSheet,
   memory: DescMemory,
-  isPdf = false,
 ): ParsedRow[] {
   const json = XLSX.utils.sheet_to_json<(string | number | null)[]>(sheet, {
     header: 1,
@@ -172,9 +166,9 @@ function sheetToRows(
   });
   if (json.length < 2) return [];
 
-  // Find the header row (first row that has 3+ non-empty string cells)
+  // Find the header row: first row with 3+ non-empty cells
   let headerIdx = 0;
-  for (let i = 0; i < Math.min(json.length, 8); i++) {
+  for (let i = 0; i < Math.min(json.length, 15); i++) {
     const row = json[i];
     const nonEmpty = row.filter((c) => c !== null && c !== '').length;
     if (nonEmpty >= 3) { headerIdx = i; break; }
@@ -182,6 +176,12 @@ function sheetToRows(
 
   const headers = json[headerIdx];
   const cols = detectColumns(headers);
+
+  // Fallback: if description not found, use first non-empty column
+  if (cols.description === null) {
+    const firstNonEmpty = headers.findIndex((h) => h !== null && h !== '');
+    cols.description = firstNonEmpty >= 0 ? firstNonEmpty : 0;
+  }
 
   const raw: Omit<ParsedRow, 'confidence' | 'needsReview'>[] = [];
 
@@ -197,20 +197,31 @@ function sheetToRows(
     let type: 'income' | 'expense' = 'expense';
 
     if (cols.debit !== null || cols.credit !== null) {
-      const debit = cols.debit !== null ? parseAmount(row[cols.debit]) : null;
+      const debit  = cols.debit  !== null ? parseAmount(row[cols.debit])  : null;
       const credit = cols.credit !== null ? parseAmount(row[cols.credit]) : null;
-      if ((debit ?? 0) > 0) { amount = debit!; type = 'expense'; }
+      if ((debit ?? 0) > 0)       { amount = debit!;  type = 'expense'; }
       else if ((credit ?? 0) > 0) { amount = credit!; type = 'income'; }
       else continue;
     } else if (cols.amount !== null) {
       const signed = rawToSigned(row[cols.amount]);
       if (signed === null) continue;
       amount = Math.abs(signed);
-      // Convention: positive in a bank statement is usually credit (income), negative = debit (expense)
-      // But some exports use positive = expense. We default to: negative = income (deposit), positive = expense.
-      // Most Israeli bank exports: positive debit = expense
       type = signed < 0 ? 'income' : 'expense';
-    } else continue;
+    } else {
+      // Last-resort: scan all numeric cells
+      let found = false;
+      for (let c = 0; c < row.length; c++) {
+        if (c === cols.date || c === cols.description) continue;
+        const v = rawToSigned(row[c]);
+        if (v !== null && Math.abs(v) > 0) {
+          amount = Math.abs(v);
+          type = v < 0 ? 'income' : 'expense';
+          found = true;
+          break;
+        }
+      }
+      if (!found) continue;
+    }
 
     if (amount <= 0) continue;
 
@@ -221,7 +232,6 @@ function sheetToRows(
       amount,
       type,
       category: '',
-      isPdfRow: isPdf,
     });
   }
 
@@ -231,14 +241,7 @@ function sheetToRows(
 // ── PDF text extraction ────────────────────────────────────────────────────────
 
 async function parsePdfRows(buffer: ArrayBuffer, memory: DescMemory): Promise<ParsedRow[]> {
-  // Dynamic import to avoid SSR issues
-  const pdfjsLib = await import('pdfjs-dist');
-  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.mjs',
-    import.meta.url,
-  ).href;
-
-  const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
   let fullText = '';
   for (let p = 1; p <= pdf.numPages; p++) {
     const page = await pdf.getPage(p);
@@ -246,8 +249,6 @@ async function parsePdfRows(buffer: ArrayBuffer, memory: DescMemory): Promise<Pa
     fullText += content.items.map((item) => ('str' in item ? item.str : '')).join(' ') + '\n';
   }
 
-  // Attempt to extract rows by finding patterns: date + amount
-  // Date pattern: DD/MM/YYYY or YYYY-MM-DD
   const datePattern = /\b(\d{1,2}[./]\d{1,2}[./]\d{2,4}|\d{4}-\d{2}-\d{2})\b/g;
   const amountPattern = /\b\d{1,6}(?:,\d{3})*(?:\.\d{1,2})?\b/g;
 
@@ -260,11 +261,9 @@ async function parsePdfRows(buffer: ArrayBuffer, memory: DescMemory): Promise<Pa
     if (!dates || !amounts) continue;
 
     const date = parseDate(dates[0]);
-    // Use the last numeric value on the line as the amount (usually correct for bank rows)
     const amount = parseAmount(amounts[amounts.length - 1]);
     if (!amount || amount <= 0) continue;
 
-    // Description = text between the date and the amount (rough heuristic)
     const desc = line.replace(datePattern, '').replace(amountPattern, '').replace(/\s+/g, ' ').trim();
     if (!desc) continue;
 
@@ -273,7 +272,7 @@ async function parsePdfRows(buffer: ArrayBuffer, memory: DescMemory): Promise<Pa
       date,
       description: desc,
       amount,
-      type: 'expense', // default — user must review PDF rows
+      type: 'expense',
       category: '',
       isPdfRow: true,
     });
@@ -281,8 +280,8 @@ async function parsePdfRows(buffer: ArrayBuffer, memory: DescMemory): Promise<Pa
 
   return applyMemory(raw, memory).map((r) => ({
     ...r,
-    needsReview: true, // always require review for PDF
-    confidence: r.confidence === 'high' ? 'suggestion' : r.confidence, // downgrade high for PDF
+    needsReview: true,
+    confidence: r.confidence === 'high' ? 'suggestion' : r.confidence,
   }));
 }
 
@@ -296,9 +295,9 @@ export async function parseFile(file: File, memory: DescMemory): Promise<ParsedR
     return parsePdfRows(buffer, memory);
   }
 
-  // xlsx or csv — both handled by SheetJS
+  // xlsx / xls / csv — SheetJS; type:'array' requires Uint8Array
   const buffer = await file.arrayBuffer();
-  const workbook = XLSX.read(buffer, { type: 'array', cellDates: false });
+  const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: false });
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
   return sheetToRows(sheet, memory);

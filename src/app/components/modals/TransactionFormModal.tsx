@@ -204,9 +204,9 @@ export function TransactionFormModal({
               }`}
               style={{
                 ...tactileBtn,
-                background: type === 'income' ? 'linear-gradient(135deg, #06b6d4, #0891b2)' : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
+                background: type === 'income' ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
                 boxShadow: type === 'income'
-                  ? '0 4px 0 rgba(6,182,212,0.5), inset 0 1px 0 rgba(255,255,255,0.25)'
+                  ? '0 4px 0 rgba(2,132,199,0.5), inset 0 1px 0 rgba(255,255,255,0.25)'
                   : darkMode ? '0 3px 0 rgba(0,0,0,0.2)' : '0 3px 0 rgba(0,0,0,0.08)',
               }}
               onPointerDown={pressDown}
@@ -255,10 +255,10 @@ export function TransactionFormModal({
               className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-2xl mb-0.5"
               style={{
                 background: type === 'income'
-                  ? 'linear-gradient(135deg, #06b6d4, #0891b2)'
+                  ? 'linear-gradient(135deg, #0ea5e9, #0284c7)'
                   : 'linear-gradient(135deg, #8b5cf6, #ec4899)',
                 boxShadow: type === 'income'
-                  ? '0 4px 0 rgba(6,182,212,0.4)'
+                  ? '0 4px 0 rgba(2,132,199,0.4)'
                   : '0 4px 0 rgba(168,85,247,0.4)',
               }}
             >
@@ -315,7 +315,7 @@ export function TransactionFormModal({
                             {cat ? ` · ${cat}` : ''}
                           </p>
                         </div>
-                        <span className={`text-[9px] font-bold shrink-0 ${confidence === 'ambiguous' ? 'text-amber-500' : confidence === 'high' ? 'text-cyan-500' : 'text-violet-400'}`}>
+                        <span className={`text-[9px] font-bold shrink-0 ${confidence === 'ambiguous' ? 'text-amber-500' : confidence === 'high' ? 'text-sky-500' : 'text-violet-400'}`}>
                           {confLabel}
                         </span>
                       </div>
@@ -374,13 +374,13 @@ export function TransactionFormModal({
               type="button"
               onClick={() => setIsRecurring(false)}
               className={`flex-1 rounded-xl py-2 text-[12px] font-medium ${
-                !isRecurring ? (darkMode ? 'text-white' : 'text-gray-800') : (darkMode ? 'text-white/40' : 'text-gray-400')
+                !isRecurring ? 'text-white' : (darkMode ? 'text-white/40' : 'text-gray-400')
               }`}
               style={{
                 ...tactileBtn,
-                background: !isRecurring ? (darkMode ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.07)') : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'),
+                background: !isRecurring ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'),
                 boxShadow: !isRecurring
-                  ? darkMode ? '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)' : '0 4px 0 rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)'
+                  ? '0 4px 0 rgba(2,132,199,0.5), inset 0 1px 0 rgba(255,255,255,0.25)'
                   : darkMode ? '0 2px 0 rgba(0,0,0,0.2)' : '0 2px 0 rgba(0,0,0,0.05)',
               }}
               onPointerDown={pressDown}

@@ -22,7 +22,7 @@ const CONFIDENCE_LABELS: Record<ParsedRow['confidence'], string> = {
 };
 
 const CONFIDENCE_COLORS: Record<ParsedRow['confidence'], { badge: string; dot: string }> = {
-  high:      { badge: 'bg-cyan-500/20 text-cyan-600', dot: 'bg-cyan-500' },
+  high:      { badge: 'bg-sky-500/20 text-sky-600', dot: 'bg-sky-500' },
   suggestion:{ badge: 'bg-violet-500/20 text-violet-600', dot: 'bg-violet-400' },
   ambiguous: { badge: 'bg-amber-500/20 text-amber-600', dot: 'bg-amber-400' },
   inferred:  { badge: 'bg-orange-400/20 text-orange-600', dot: 'bg-orange-400' },
@@ -30,7 +30,7 @@ const CONFIDENCE_COLORS: Record<ParsedRow['confidence'], { badge: string; dot: s
 };
 
 const CONFIDENCE_COLORS_DARK: Record<ParsedRow['confidence'], { badge: string }> = {
-  high:      { badge: 'bg-cyan-500/20 text-cyan-300' },
+  high:      { badge: 'bg-sky-500/20 text-sky-300' },
   suggestion:{ badge: 'bg-violet-500/20 text-violet-300' },
   ambiguous: { badge: 'bg-amber-500/20 text-amber-300' },
   inferred:  { badge: 'bg-orange-400/20 text-orange-300' },
@@ -38,7 +38,7 @@ const CONFIDENCE_COLORS_DARK: Record<ParsedRow['confidence'], { badge: string }>
 };
 
 function ConfidenceIcon({ confidence }: { confidence: ParsedRow['confidence'] }) {
-  if (confidence === 'high') return <CheckCircle className="h-3.5 w-3.5 text-cyan-500" />;
+  if (confidence === 'high') return <CheckCircle className="h-3.5 w-3.5 text-sky-500" />;
   if (confidence === 'ambiguous') return <HelpCircle className="h-3.5 w-3.5 text-amber-500" />;
   return <AlertCircle className="h-3.5 w-3.5 text-violet-400" />;
 }
@@ -54,7 +54,7 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
 
   const text = darkMode ? 'text-white' : 'text-gray-900';
   const muted = darkMode ? 'text-white/60' : 'text-gray-500';
-  const accent = darkMode ? 'text-cyan-300' : 'text-violet-600';
+  const accent = darkMode ? 'text-sky-300' : 'text-violet-600';
 
   const modalBg: React.CSSProperties = darkMode
     ? {
@@ -175,7 +175,7 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
                 >
                   <div
                     className="flex h-12 w-12 items-center justify-center rounded-2xl"
-                    style={{ background: 'linear-gradient(135deg, #06b6d4, #6366f1)' }}
+                    style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}
                   >
                     <Upload className="h-6 w-6 text-white" />
                   </div>
@@ -225,7 +225,7 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
         >
           <div
             className="flex h-14 w-14 items-center justify-center rounded-2xl"
-            style={{ background: 'linear-gradient(135deg, #06b6d4, #6366f1)' }}
+            style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}
           >
             <CheckCircle className="h-7 w-7 text-white" />
           </div>
@@ -235,7 +235,7 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
             type="button"
             onClick={handleClose}
             className="mt-6 rounded-xl px-8 py-2.5 text-[13px] font-semibold text-white"
-            style={{ background: 'linear-gradient(135deg, #06b6d4, #6366f1)' }}
+            style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}
           >
             סגור
           </button>
@@ -306,7 +306,7 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
                   <div className="flex items-start justify-between gap-2">
                     <p className={`text-[15px] font-bold shrink-0 ${
                       row.type === 'income'
-                        ? darkMode ? 'text-cyan-300' : 'text-cyan-600'
+                        ? darkMode ? 'text-sky-300' : 'text-sky-600'
                         : darkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'
                     }`}>
                       {row.type === 'income' ? '+' : '-'}{formatCurrency(row.amount)}
@@ -362,7 +362,7 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
                         }`}
                         style={{
                           background: row.type === 'income'
-                            ? 'linear-gradient(135deg, #06b6d4, #0891b2)'
+                            ? 'linear-gradient(135deg, #0ea5e9, #0284c7)'
                             : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
                         }}
                       >
@@ -398,7 +398,7 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
             disabled={rows.length === 0}
             className="w-full rounded-2xl py-3.5 text-[14px] font-bold text-white disabled:opacity-40"
             style={{
-              background: 'linear-gradient(135deg, #06b6d4 0%, #6366f1 50%, #a855f7 100%)',
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #a855f7 100%)',
               boxShadow: '0 6px 0 rgba(99,102,241,0.5)',
             }}
           >

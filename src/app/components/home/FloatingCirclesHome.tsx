@@ -88,7 +88,7 @@ const PRESS_DOWN = {
 export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTransactions, onOpenSavingsGoal, onOpenUpcoming, onOpenIncome, onOpenExpenses }: FloatingCirclesHomeProps) {
   const text = darkMode ? 'text-white' : 'text-gray-800';
   const muted = darkMode ? 'text-white/55' : 'text-gray-500';
-  const accent = darkMode ? 'text-cyan-300' : 'text-violet-600';
+  const accent = darkMode ? 'text-sky-300' : 'text-violet-600';
   const glass = glassStyle(darkMode);
 
   const [cardIdx, setCardIdx] = useState(0);
@@ -156,7 +156,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
             {/* Income — right side in RTL */}
             <div className="flex-1 text-right">
               <p className={`text-[9px] ${muted}`}>הכנסות</p>
-              <p className={`text-[17px] font-bold ${darkMode ? 'text-cyan-300' : 'text-cyan-600'}`}>
+              <p className={`text-[17px] font-bold ${darkMode ? 'text-sky-300' : 'text-sky-600'}`}>
                 +{formatCurrency(snapshot.income)}
               </p>
             </div>
@@ -164,7 +164,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
             <div className="flex flex-col items-center px-3 shrink-0">
               <p className={`text-[40px] font-bold leading-tight tracking-tight ${
                 snapshot.remaining > 50
-                  ? darkMode ? 'text-cyan-300' : 'text-cyan-600'
+                  ? darkMode ? 'text-sky-300' : 'text-sky-600'
                   : snapshot.remaining < -50
                   ? darkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'
                   : text
@@ -200,7 +200,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
             </div>
             <div
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl mt-0.5"
-              style={{ background: 'linear-gradient(135deg, #06b6d4, #6366f1)' }}
+              style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}
             >
               <Sparkles className="h-4 w-4 text-white" />
             </div>
@@ -218,7 +218,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
                   width: i === cardIdx ? 18 : 5,
                   borderRadius: 99,
                   background: i === cardIdx
-                    ? 'linear-gradient(90deg, #06b6d4, #6366f1)'
+                    ? 'linear-gradient(90deg, #0ea5e9, #6366f1)'
                     : darkMode ? 'rgba(255,255,255,0.25)' : 'rgba(99,102,241,0.25)',
                   transition: 'width 0.25s ease, background 0.25s ease',
                   border: 'none',
@@ -309,7 +309,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
                     className="h-full rounded-full"
                     style={{
                       width: `${snapshot.savingsProgress}%`,
-                      background: 'linear-gradient(90deg, #06b6d4, #6366f1)',
+                      background: 'linear-gradient(90deg, #0ea5e9, #6366f1)',
                     }}
                   />
                 </div>
@@ -349,7 +349,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
             style={{
               width: 116,
               height: 116,
-              background: 'linear-gradient(135deg, #06b6d4 0%, #6366f1 40%, #a855f7 70%, #ec4899 100%)',
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 40%, #a855f7 70%, #ec4899 100%)',
               boxShadow: '0 8px 0 rgba(99,102,241,0.65), 0 16px 36px rgba(99,102,241,0.4), inset 0 1.5px 0 rgba(255,255,255,0.35), inset 0 -1.5px 0 rgba(0,0,0,0.2)',
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}

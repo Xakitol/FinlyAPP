@@ -7,11 +7,14 @@ import { TransactionTableModal } from './components/modals/TransactionTableModal
 import { UpcomingExpensesModal } from './components/modals/UpcomingExpensesModal';
 import { IncomeBreakdownModal } from './components/modals/IncomeBreakdownModal';
 import { ExpenseBreakdownModal } from './components/modals/ExpenseBreakdownModal';
+import { ImportModal } from './components/modals/ImportModal';
 import { StarField } from './components/effects/StarField';
 import { HomeHeader } from './components/home/HomeHeader';
 import { FloatingCirclesHome } from './components/home/FloatingCirclesHome';
 import { HEBREW_MONTH_NAMES, YEAR, DEFAULT_MONTH_INDEX } from '../data/mockHome';
 import { getHomeSnapshot, projectRecurringRules } from '../utils/homeCalculations';
+import { loadDescMemory, saveDescMemory, recordTransaction } from '../utils/descMemory';
+import type { ParsedRow } from '../utils/importParser';
 import type { FinanceEntry, RecurringRule, SavingsGoal } from '../types/finance';
 
 export default function App() {
@@ -26,6 +29,7 @@ export default function App() {
   const [expensesOpen, setExpensesOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [editingEntry, setEditingEntry] = useState<FinanceEntry | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   // ── Month selection ─────────────────────────────────────────────────────────
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(DEFAULT_MONTH_INDEX);
@@ -147,6 +151,45 @@ export default function App() {
     setRecurringRules((prev) => prev.filter((r) => !(r.type === entry.type && r.title === entry.title)));
   }
 
+  function handleImport(rows: ParsedRow[]) {
+    let memory = loadDescMemory();
+    const grouped: Record<number, FinanceEntry[]> = {};
+
+    for (const row of rows) {
+      // Determine month index from date, fallback to selectedMonthIndex
+      let monthIndex = selectedMonthIndex;
+      if (row.date) {
+        const m = parseInt(row.date.slice(5, 7), 10);
+        if (m >= 1 && m <= 12) monthIndex = m - 1;
+      }
+      if (!grouped[monthIndex]) grouped[monthIndex] = [];
+      const entry: FinanceEntry = {
+        id: `entry-${Date.now()}-${row.id}`,
+        date: row.date || new Date().toISOString().slice(0, 10),
+        title: row.description,
+        amount: row.amount,
+        type: row.type,
+        category: row.category,
+        paymentMethod: 'bank',
+        status: 'recorded',
+        source: 'manual',
+        recurring: false,
+      };
+      grouped[monthIndex].push(entry);
+      memory = recordTransaction(memory, row.description, row.type, row.category);
+    }
+
+    saveDescMemory(memory);
+    setMonthEntriesMap((prev) => {
+      const next = { ...prev };
+      for (const [idx, entries] of Object.entries(grouped)) {
+        const key = Number(idx);
+        next[key] = [...(prev[key] ?? []), ...entries];
+      }
+      return next;
+    });
+  }
+
   function handleSaveSavingsGoal(targetAmount: number) {
     setSavingsGoalsMap((prev) => ({
       ...prev,
@@ -177,6 +220,7 @@ export default function App() {
           availableMonths={HEBREW_MONTH_NAMES}
           selectedMonthIndex={selectedMonthIndex}
           onMonthChange={handleMonthChange}
+          onOpenImport={() => setImportOpen(true)}
         />
 
         <FloatingCirclesHome
@@ -241,6 +285,13 @@ export default function App() {
         darkMode={darkMode}
         entries={homeData.entries.filter((e) => e.type === 'income').sort((a, b) => a.date.localeCompare(b.date))}
         onMarkAsPaid={handleMarkAsPaid}
+      />
+
+      <ImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        darkMode={darkMode}
+        onImport={handleImport}
       />
 
       <SavingsGoalModal
