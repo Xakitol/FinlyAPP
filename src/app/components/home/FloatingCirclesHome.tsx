@@ -271,33 +271,11 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
             <p className={`mt-0.5 text-[10px] ${muted}`}>לפירוט לחץ כאן</p>
           </button>
 
-          {/* מרווח נשימה — actual buffer after all upcoming obligations */}
-          {(() => {
-            const buffer = snapshot.remaining - snapshot.upcoming;
-            const bufferColor = buffer > 500
-              ? darkMode ? 'text-cyan-300' : 'text-cyan-600'
-              : buffer < 0
-              ? darkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'
-              : text;
-            return (
-              <div
-                className="flex flex-col rounded-2xl p-4 text-right"
-                style={{ ...glass, boxShadow: tactileBox(darkMode) }}
-              >
-                <p className={`text-[10px] leading-tight ${muted}`}>מרווח נשימה</p>
-                <p className={`mt-1 text-[18px] font-bold ${bufferColor}`}>
-                  {buffer < 0 ? '-' : ''}{formatCurrency(Math.abs(buffer))}
-                </p>
-                <p className={`mt-0.5 text-[10px] ${muted}`}>אחרי כל ההתחייבויות</p>
-              </div>
-            );
-          })()}
-
-          {/* יעד חיסכון — 3D tactile button */}
+          {/* יעד חיסכון — full-width 3D tactile button */}
           <button
             type="button"
             onClick={onOpenSavingsGoal}
-            className="flex flex-col rounded-2xl p-3 text-right"
+            className="col-span-2 rounded-2xl p-3 text-right"
             style={{
               ...glass,
               boxShadow: tactileBox(darkMode),
@@ -307,19 +285,26 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
             onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
             onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
           >
-            <div className="flex items-center justify-between mb-1">
-              <PiggyBank className={`h-5 w-5 ${accent}`} />
-              <p className={`text-[11px] ${muted}`}>יעד חיסכון</p>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <PiggyBank className={`h-4 w-4 ${accent}`} />
+                {snapshot.savingsTarget > 0 && (
+                  <p className={`text-[16px] font-bold ${accent}`}>{Math.round(snapshot.savingsProgress)}%</p>
+                )}
+              </div>
+              <div className="text-right">
+                <p className={`text-[11px] ${muted}`}>יעד חיסכון</p>
+                {snapshot.savingsTarget > 0 && (
+                  <p className={`text-[10px] ${muted}`}>מתוך {formatCurrency(snapshot.savingsTarget)}</p>
+                )}
+              </div>
             </div>
 
             {snapshot.savingsTarget === 0 ? (
-              <p className={`text-[12px] font-medium ${muted}`}>לא הוגדר יעד</p>
+              <p className={`text-[12px] font-medium ${muted}`}>לא הוגדר יעד — לחץ להגדרה</p>
             ) : (
               <>
-                <p className={`text-[16px] font-bold ${accent}`}>{Math.round(snapshot.savingsProgress)}%</p>
-                <p className={`text-[10px] ${muted}`}>מתוך {formatCurrency(snapshot.savingsTarget)}</p>
-                {/* Progress bar */}
-                <div className={`mt-1.5 h-1.5 w-full rounded-full overflow-hidden ${darkMode ? 'bg-white/10' : 'bg-gray-200/60'}`}>
+                <div className={`h-1.5 w-full rounded-full overflow-hidden ${darkMode ? 'bg-white/10' : 'bg-gray-200/60'}`}>
                   <div
                     className="h-full rounded-full"
                     style={{

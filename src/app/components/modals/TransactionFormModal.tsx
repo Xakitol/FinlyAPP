@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, Check, Sparkles } from 'lucide-react';
 import type { FinanceEntry, PaymentMethod } from '../../../types/finance';
+import {
+  loadDescMemory,
+  saveDescMemory,
+  recordTransaction,
+  getSuggestions,
+  autoClassify,
+  removeFromMemory,
+  type DescMemory,
+  type Confidence,
+} from '../../../utils/descMemory';
 
 interface TransactionFormModalProps {
   open: boolean;
@@ -13,7 +23,11 @@ interface TransactionFormModalProps {
 const EXPENSE_CATEGORIES = ['מזון', 'תחבורה', 'דיור', 'בילויים', 'בריאות', 'מנויים', 'ביטוחים', 'חשבונות', 'אחר'];
 const INCOME_CATEGORIES = ['משכורת', 'פרילנס', 'השקעות', 'שכר דירה', 'מתנה', 'אחר'];
 
-type DescMemory = Record<string, { type: 'income' | 'expense'; category: string }>;
+const CONFIDENCE_LABEL: Record<Confidence, string> = {
+  high: '✓',
+  suggestion: '~',
+  ambiguous: '?',
+};
 
 const tactileBtn: React.CSSProperties = { transition: 'transform 0.1s ease, box-shadow 0.1s ease' };
 
@@ -41,14 +55,14 @@ export function TransactionFormModal({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank');
   const [isRecurring, setIsRecurring] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [descMemory, setDescMemory] = useState<DescMemory>(() => {
-    try { return JSON.parse(localStorage.getItem('finly_desc_memory') ?? 'null') ?? {}; } catch { return {}; }
-  });
+  const [descMemory, setDescMemory] = useState<DescMemory>({});
 
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
+    // Reload memory fresh on each open (picks up imports and other sessions)
+    setDescMemory(loadDescMemory());
     if (initialEntry) {
       setType(initialEntry.type);
       setAmount(String(initialEntry.amount));
@@ -75,34 +89,36 @@ export function TransactionFormModal({
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
   const suggestions = title.trim().length >= 1
-    ? Object.entries(descMemory).filter(([desc]) =>
-        desc.includes(title.trim())
-      ).slice(0, 4)
+    ? getSuggestions(descMemory, title.trim())
     : [];
 
-  function handleSelectSuggestion(desc: string, data: { type: 'income' | 'expense'; category: string }) {
+  function handleSelectSuggestion(desc: string, confidence: Confidence) {
     setTitle(desc);
-    setType(data.type);
-    setCategory(data.category);
+    // Only auto-fill type+category if not ambiguous
+    if (confidence !== 'ambiguous') {
+      const classified = autoClassify(descMemory, desc);
+      if (classified) {
+        setType(classified.type);
+        if (classified.category) setCategory(classified.category);
+      }
+    }
     setShowSuggestions(false);
   }
 
   function handleRemoveSuggestion(desc: string, e: React.MouseEvent) {
     e.stopPropagation();
-    const next = { ...descMemory };
-    delete next[desc];
+    const next = removeFromMemory(descMemory, desc);
     setDescMemory(next);
-    localStorage.setItem('finly_desc_memory', JSON.stringify(next));
+    saveDescMemory(next);
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Save to description memory
     const trimmed = title.trim();
     if (trimmed) {
-      const next = { ...descMemory, [trimmed]: { type, category } };
+      const next = recordTransaction(descMemory, trimmed, type, category);
       setDescMemory(next);
-      localStorage.setItem('finly_desc_memory', JSON.stringify(next));
+      saveDescMemory(next);
     }
     onSave(
       {
@@ -275,25 +291,36 @@ export function TransactionFormModal({
                     border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(139,92,246,0.2)',
                   }}
                 >
-                  {suggestions.map(([desc, data]) => (
-                    <div
-                      key={desc}
-                      className={`flex items-center justify-between px-3 py-2 cursor-pointer ${darkMode ? 'hover:bg-white/8' : 'hover:bg-violet-50'}`}
-                      onMouseDown={() => handleSelectSuggestion(desc, data)}
-                    >
-                      <button
-                        type="button"
-                        className={`text-[10px] ${darkMode ? 'text-white/40 hover:text-white/70' : 'text-gray-400 hover:text-gray-600'}`}
-                        onMouseDown={(e) => handleRemoveSuggestion(desc, e)}
+                  {suggestions.map(({ description: desc, entry, confidence }) => {
+                    const dominantType = entry.incomeCount > entry.expenseCount ? 'income' : 'expense';
+                    const cat = entry.categoryByType[dominantType] ?? '';
+                    const confLabel = CONFIDENCE_LABEL[confidence];
+                    return (
+                      <div
+                        key={desc}
+                        className={`flex items-center justify-between px-3 py-2 cursor-pointer ${darkMode ? 'hover:bg-white/8' : 'hover:bg-violet-50'}`}
+                        onMouseDown={() => handleSelectSuggestion(desc, confidence)}
                       >
-                        ×
-                      </button>
-                      <div className="text-right min-w-0 flex-1 mx-2">
-                        <p className={`text-[12px] font-medium truncate ${text}`}>{desc}</p>
-                        <p className={`text-[10px] ${muted}`}>{data.type === 'income' ? 'הכנסה' : 'הוצאה'} · {data.category}</p>
+                        <button
+                          type="button"
+                          className={`text-[10px] ${darkMode ? 'text-white/40 hover:text-white/70' : 'text-gray-400 hover:text-gray-600'}`}
+                          onMouseDown={(e) => handleRemoveSuggestion(desc, e)}
+                        >
+                          ×
+                        </button>
+                        <div className="text-right min-w-0 flex-1 mx-2">
+                          <p className={`text-[12px] font-medium truncate ${text}`}>{desc}</p>
+                          <p className={`text-[10px] ${muted}`}>
+                            {confidence === 'ambiguous' ? 'הכנסה/הוצאה — דו-משמעי' : (dominantType === 'income' ? 'הכנסה' : 'הוצאה')}
+                            {cat ? ` · ${cat}` : ''}
+                          </p>
+                        </div>
+                        <span className={`text-[9px] font-bold shrink-0 ${confidence === 'ambiguous' ? 'text-amber-500' : confidence === 'high' ? 'text-cyan-500' : 'text-violet-400'}`}>
+                          {confLabel}
+                        </span>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
