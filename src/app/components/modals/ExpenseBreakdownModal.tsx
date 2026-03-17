@@ -2,11 +2,11 @@ import { X } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 import type { FinanceEntry } from '../../../types/finance';
 
-interface IncomeBreakdownModalProps {
+interface ExpenseBreakdownModalProps {
   open: boolean;
   onClose: () => void;
   darkMode?: boolean;
-  entries: FinanceEntry[]; // all income entries — only upcoming will be shown
+  entries: FinanceEntry[]; // all expense entries (recorded + upcoming), sorted by date
   onMarkAsPaid: (entry: FinanceEntry) => void;
 }
 
@@ -21,13 +21,13 @@ function onRelease(e: React.PointerEvent<HTMLButtonElement>) {
   e.currentTarget.style.transform = '';
 }
 
-export function IncomeBreakdownModal({
+export function ExpenseBreakdownModal({
   open,
   onClose,
   darkMode = false,
   entries,
   onMarkAsPaid,
-}: IncomeBreakdownModalProps) {
+}: ExpenseBreakdownModalProps) {
   if (!open) return null;
 
   const text = darkMode ? 'text-white' : 'text-gray-900';
@@ -41,10 +41,10 @@ export function IncomeBreakdownModal({
         boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
       }
     : {
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.97) 0%, rgba(240,255,250,0.98) 100%)',
-        border: '1.5px solid rgba(6,182,212,0.3)',
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.97) 0%, rgba(248,245,255,0.98) 100%)',
+        border: '1.5px solid rgba(139,92,246,0.25)',
         backdropFilter: 'blur(20px)',
-        boxShadow: '0 24px 60px rgba(6,182,212,0.15)',
+        boxShadow: '0 24px 60px rgba(139,92,246,0.15)',
       };
 
   const upcoming = entries.filter((e) => e.status === 'upcoming');
@@ -78,7 +78,7 @@ export function IncomeBreakdownModal({
             <X className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
           </button>
           <div className="text-right">
-            <h2 className={`text-lg font-bold ${text}`}>Finly צופה שייכנס החודש</h2>
+            <h2 className={`text-lg font-bold ${text}`}>Finly צופה שיצא החודש</h2>
             {upcoming.length > 0 && (
               <p className={`text-[11px] ${muted}`}>סה״כ צפוי {formatCurrency(total)}</p>
             )}
@@ -88,14 +88,15 @@ export function IncomeBreakdownModal({
         {/* List */}
         <div className="flex-1 overflow-y-auto px-4 pb-6">
           {upcoming.length === 0 ? (
-            <p className={`py-12 text-center text-sm ${muted}`}>אין הכנסות צפויות לחודש זה</p>
+            <p className={`py-12 text-center text-sm ${muted}`}>אין הוצאות צפויות לחודש זה</p>
           ) : (
             <div className="flex flex-col gap-2 pt-1">
+              {/* Upcoming (projected) expenses */}
               {upcoming.map((entry) => (
                 <div
                   key={entry.id}
-                  className={`flex items-center justify-between rounded-2xl px-4 py-3 ${
-                    darkMode ? 'bg-cyan-500/10' : 'bg-cyan-50/50'
+                  className={`flex items-center justify-between rounded-2xl px-4 py-3 opacity-80 ${
+                    darkMode ? 'bg-violet-500/10' : 'bg-violet-50/40'
                   }`}
                 >
                   <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -105,19 +106,19 @@ export function IncomeBreakdownModal({
                       className="flex h-8 items-center justify-center rounded-xl px-2 text-[10px] font-semibold text-white shrink-0"
                       style={{
                         ...tactileBtn,
-                        background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
-                        boxShadow: '0 3px 0 rgba(8,145,178,0.45)',
+                        background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+                        boxShadow: '0 3px 0 rgba(124,58,237,0.45)',
                         maxWidth: 72,
                       }}
                       onPointerDown={onPress}
                       onPointerUp={onRelease}
                       onPointerLeave={onRelease}
                     >
-                      סמן אם כבר נכנס
+                      סמן אם כבר יצא
                     </button>
                     <div className="text-right min-w-0">
                       <div className="flex items-center justify-end gap-1.5">
-                        <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-semibold ${darkMode ? 'bg-cyan-500/20 text-cyan-300' : 'bg-cyan-100 text-cyan-600'}`}>
+                        <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-semibold ${darkMode ? 'bg-violet-500/20 text-violet-300' : 'bg-violet-100 text-violet-600'}`}>
                           בהמשך החודש
                         </span>
                         <p className={`text-[13px] font-semibold truncate ${text}`}>{entry.title}</p>
@@ -125,8 +126,8 @@ export function IncomeBreakdownModal({
                       <p className={`text-[10px] ${muted}`}>{entry.category} · {entry.date}</p>
                     </div>
                   </div>
-                  <p className={`text-[16px] font-bold shrink-0 mr-3 ${darkMode ? 'text-cyan-300/70' : 'text-cyan-500'}`}>
-                    +{formatCurrency(entry.amount)}
+                  <p className={`text-[16px] font-bold shrink-0 mr-3 ${darkMode ? 'text-purple-300/70' : 'text-violet-500'}`}>
+                    -{formatCurrency(entry.amount)}
                   </p>
                 </div>
               ))}

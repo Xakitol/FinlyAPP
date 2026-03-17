@@ -5,7 +5,7 @@ function sumAmounts(entries: FinanceEntry[]) {
 }
 
 export function getRecordedIncome(entries: FinanceEntry[]) {
-  return sumAmounts(entries.filter((entry) => entry.type === 'income' && (entry.status === 'recorded' || entry.status === 'upcoming')));
+  return sumAmounts(entries.filter((entry) => entry.type === 'income' && entry.status === 'recorded'));
 }
 
 export function getRecordedExpenses(entries: FinanceEntry[]) {
@@ -17,6 +17,10 @@ export function getRecordedExpenses(entries: FinanceEntry[]) {
         entry.countsTowardRemaining !== false,
     ),
   );
+}
+
+export function getUpcomingIncome(entries: FinanceEntry[]) {
+  return sumAmounts(entries.filter((entry) => entry.type === 'income' && entry.status === 'upcoming'));
 }
 
 export function getUpcomingObligations(entries: FinanceEntry[]) {
@@ -40,8 +44,7 @@ export function getUpcomingDisplayItems(entries: FinanceEntry[]) {
 export function getRemainingThisMonth(entries: FinanceEntry[]) {
   const income = getRecordedIncome(entries);
   const expenses = getRecordedExpenses(entries);
-  const upcoming = getUpcomingObligations(entries);
-  return income - expenses - upcoming;
+  return income - expenses;
 }
 
 export function getMonthlyStatus(remaining: number) {
@@ -60,6 +63,7 @@ export function getHomeSnapshot(data: HomeMonthData) {
   const income = getRecordedIncome(data.entries);
   const expenses = getRecordedExpenses(data.entries);
   const upcoming = getUpcomingObligations(data.entries);
+  const pendingIncome = getUpcomingIncome(data.entries);
   const remaining = getRemainingThisMonth(data.entries);
   const upcomingItems = getUpcomingDisplayItems(data.entries);
 
@@ -72,17 +76,25 @@ export function getHomeSnapshot(data: HomeMonthData) {
   const today = new Date();
   const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const daysLeftInMonth = Math.max(lastDayOfMonth - today.getDate(), 0);
+  const daysIntoMonth = today.getDate();
+
+  const previousMonthRemaining = data.previousMonthEntries
+    ? getRemainingThisMonth(data.previousMonthEntries)
+    : undefined;
 
   return {
     monthLabel: data.monthLabel,
     income,
     expenses,
     upcoming,
+    pendingIncome,
     remaining,
     upcomingItems,
     savingsTarget: data.savingsGoal.targetAmount,
     savingsProgress,
     daysLeftInMonth,
+    daysIntoMonth,
+    previousMonthRemaining,
     statusLabel: getMonthlyStatus(remaining),
   };
 }

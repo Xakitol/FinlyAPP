@@ -1,6 +1,7 @@
-import type { CSSProperties } from 'react';
-import { Plus, List, PiggyBank } from 'lucide-react';
+import { useState, useRef, type CSSProperties } from 'react';
+import { Plus, List, PiggyBank, Sparkles } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
+import { getInsightCards } from '../../../utils/finlyInsights';
 
 interface HomeSnapshot {
   statusLabel: string;
@@ -8,9 +9,12 @@ interface HomeSnapshot {
   income: number;
   expenses: number;
   upcoming: number;
+  pendingIncome: number;
   savingsTarget: number;
   savingsProgress: number;
   daysLeftInMonth: number;
+  daysIntoMonth: number;
+  previousMonthRemaining?: number;
 }
 
 interface FloatingCirclesHomeProps {
@@ -21,11 +25,15 @@ interface FloatingCirclesHomeProps {
   onOpenSavingsGoal: () => void;
   onOpenUpcoming: () => void;
   onOpenIncome: () => void;
+  onOpenExpenses: () => void;
 }
 
 const KEYFRAMES = `
   @keyframes coinFloat1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
   @keyframes coinFloat7 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes insightFromRight { 0%{opacity:0;transform:translateX(-28px)} 100%{opacity:1;transform:translateX(0)} }
+  @keyframes insightFromLeft  { 0%{opacity:0;transform:translateX(28px)}  100%{opacity:1;transform:translateX(0)} }
+  @keyframes insightFadeIn    { 0%{opacity:0}                              100%{opacity:1} }
 `;
 
 function glassStyle(darkMode: boolean): CSSProperties {
@@ -67,21 +75,64 @@ const PRESS_DOWN = {
     e.currentTarget.style.transform = 'translateY(4px)';
     e.currentTarget.style.boxShadow = tactileBoxPressed(dm);
   },
-  onPointerUp(e: React.PointerEvent<HTMLButtonElement>) {
+  onPointerUp(e: React.PointerEvent<HTMLButtonElement>, dm: boolean) {
     e.currentTarget.style.transform = '';
-    e.currentTarget.style.boxShadow = '';
+    e.currentTarget.style.boxShadow = tactileBox(dm);
   },
-  onPointerLeave(e: React.PointerEvent<HTMLButtonElement>) {
+  onPointerLeave(e: React.PointerEvent<HTMLButtonElement>, dm: boolean) {
     e.currentTarget.style.transform = '';
-    e.currentTarget.style.boxShadow = '';
+    e.currentTarget.style.boxShadow = tactileBox(dm);
   },
 };
 
-export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTransactions, onOpenSavingsGoal, onOpenUpcoming, onOpenIncome }: FloatingCirclesHomeProps) {
+export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTransactions, onOpenSavingsGoal, onOpenUpcoming, onOpenIncome, onOpenExpenses }: FloatingCirclesHomeProps) {
   const text = darkMode ? 'text-white' : 'text-gray-800';
   const muted = darkMode ? 'text-white/55' : 'text-gray-500';
   const accent = darkMode ? 'text-cyan-300' : 'text-violet-600';
   const glass = glassStyle(darkMode);
+
+  const [cardIdx, setCardIdx] = useState(0);
+  const [swipeAnim, setSwipeAnim] = useState<'fromRight' | 'fromLeft' | null>(null);
+  const touchStartX = useRef<number | null>(null);
+
+  const insights = getInsightCards({
+    remaining: snapshot.remaining,
+    income: snapshot.income,
+    expenses: snapshot.expenses,
+    pendingIncome: snapshot.pendingIncome,
+    upcomingExpenses: snapshot.upcoming,
+    savingsTarget: snapshot.savingsTarget,
+    daysIntoMonth: snapshot.daysIntoMonth,
+    daysLeftInMonth: snapshot.daysLeftInMonth,
+    previousMonthRemaining: snapshot.previousMonthRemaining,
+  });
+
+  function goToCard(next: number) {
+    if (next === cardIdx) return;
+    setSwipeAnim(next > cardIdx ? 'fromLeft' : 'fromRight');
+    setCardIdx(next);
+    setTimeout(() => setSwipeAnim(null), 320);
+  }
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(delta) < 40) return;
+    // In RTL: swipe left (delta < 0) = next card; swipe right (delta > 0) = prev card
+    if (delta < 0 && cardIdx < 2) goToCard(cardIdx + 1);
+    else if (delta > 0 && cardIdx > 0) goToCard(cardIdx - 1);
+  }
+
+  const insightAnimStyle: CSSProperties = swipeAnim === 'fromRight'
+    ? { animation: 'insightFromRight 0.28s ease' }
+    : swipeAnim === 'fromLeft'
+    ? { animation: 'insightFromLeft 0.28s ease' }
+    : {};
 
   return (
     <>
@@ -91,7 +142,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
 
         {/* ── Main balance card — wide rounded hero ─────────────── */}
         <div
-          className="w-full rounded-3xl p-6 flex flex-col items-center"
+          className="w-full rounded-3xl px-5 pt-4 pb-5 flex flex-col items-center"
           style={{
             ...glass,
             boxShadow: glassBox(darkMode),
@@ -99,12 +150,78 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
           }}
         >
           <p className={`text-[11px] font-semibold ${accent}`}>{snapshot.statusLabel}</p>
-          <p className={`mt-2 text-[44px] font-bold leading-tight tracking-tight ${text}`}>
-            {formatCurrency(snapshot.remaining)}
-          </p>
-          <p className={`mt-2 text-center text-[12px] leading-relaxed ${muted}`}>
+
+          {/* Three-column balance row */}
+          <div className="flex w-full items-center mt-2">
+            {/* Income — right side in RTL */}
+            <div className="flex-1 text-right">
+              <p className={`text-[9px] ${muted}`}>הכנסות</p>
+              <p className={`text-[17px] font-bold ${darkMode ? 'text-cyan-300' : 'text-cyan-600'}`}>
+                +{formatCurrency(snapshot.income)}
+              </p>
+            </div>
+            {/* Main remaining — center */}
+            <div className="flex flex-col items-center px-3 shrink-0">
+              <p className={`text-[40px] font-bold leading-tight tracking-tight ${text}`}>
+                {formatCurrency(snapshot.remaining)}
+              </p>
+            </div>
+            {/* Expenses — left side in RTL */}
+            <div className="flex-1 text-left">
+              <p className={`text-[9px] ${muted}`}>הוצאות</p>
+              <p className={`text-[17px] font-bold ${darkMode ? 'text-purple-300' : 'text-violet-600'}`}>
+                -{formatCurrency(snapshot.expenses)}
+              </p>
+            </div>
+          </div>
+
+          <p className={`mt-2 text-center text-[11px] leading-relaxed ${muted}`}>
             מה נשאר לכם עד סוף החודש
           </p>
+        </div>
+
+        {/* ── Finly insight card — swipeable 3-card ──────────────── */}
+        <div
+          className="w-full rounded-2xl px-4 pt-3.5 pb-3 overflow-hidden"
+          style={{ ...glass, boxShadow: glassBox(darkMode) }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex-1 text-right min-w-0" style={insightAnimStyle}>
+              <p className={`text-[10px] font-semibold ${accent}`}>Finly אומר</p>
+              <p className={`mt-0.5 text-[13px] leading-relaxed ${text}`}>{insights[cardIdx]}</p>
+            </div>
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl mt-0.5"
+              style={{ background: 'linear-gradient(135deg, #06b6d4, #6366f1)' }}
+            >
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+          </div>
+          {/* Dot indicators */}
+          <div className="flex items-center justify-center gap-1.5 mt-2.5">
+            {([0, 1, 2] as const).map((i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`כרטיס ${i + 1}`}
+                onClick={() => goToCard(i)}
+                style={{
+                  height: 5,
+                  width: i === cardIdx ? 18 : 5,
+                  borderRadius: 99,
+                  background: i === cardIdx
+                    ? 'linear-gradient(90deg, #06b6d4, #6366f1)'
+                    : darkMode ? 'rgba(255,255,255,0.25)' : 'rgba(99,102,241,0.25)',
+                  transition: 'width 0.25s ease, background 0.25s ease',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         {/* ── Info cards — 2×2 glass grid ──────────────────────── */}
@@ -121,20 +238,32 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
             onPointerDown={(e) => PRESS_DOWN.onPointerDown(e, darkMode)}
-            onPointerUp={PRESS_DOWN.onPointerUp}
-            onPointerLeave={PRESS_DOWN.onPointerLeave}
+            onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
+            onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
           >
-            <p className={`text-[11px] ${muted}`}>הכנסות החודש</p>
-            <p className={`mt-1 text-[18px] font-bold ${text}`}>{formatCurrency(snapshot.income)}</p>
+            <p className={`text-[10px] leading-tight ${muted}`}>Finly צופה שייכנס החודש</p>
+            <p className={`mt-1 text-[18px] font-bold ${text}`}>{formatCurrency(snapshot.pendingIncome)}</p>
             <p className={`mt-0.5 text-[10px] ${muted}`}>לפירוט לחץ כאן</p>
           </button>
 
           {/* הוצאות */}
-          <div className="flex flex-col rounded-2xl p-4" style={{ ...glass, boxShadow: glassBox(darkMode) }}>
-            <p className={`text-[11px] ${muted}`}>הוצאות החודש</p>
-            <p className={`mt-1 text-[18px] font-bold ${text}`}>{formatCurrency(snapshot.expenses)}</p>
-            <p className={`mt-0.5 text-[10px] ${muted}`}>מה שכבר נרשם</p>
-          </div>
+          <button
+            type="button"
+            onClick={onOpenExpenses}
+            className="flex flex-col rounded-2xl p-4 text-right"
+            style={{
+              ...glass,
+              boxShadow: tactileBox(darkMode),
+              transition: 'transform 0.1s ease, box-shadow 0.1s ease',
+            }}
+            onPointerDown={(e) => PRESS_DOWN.onPointerDown(e, darkMode)}
+            onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
+            onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
+          >
+            <p className={`text-[10px] leading-tight ${muted}`}>Finly צופה שיצא החודש</p>
+            <p className={`mt-1 text-[18px] font-bold ${text}`}>{formatCurrency(snapshot.upcoming)}</p>
+            <p className={`mt-0.5 text-[10px] ${muted}`}>לפירוט לחץ כאן</p>
+          </button>
 
           {/* מה עוד צפוי לרדת — opens detail list */}
           <button
@@ -147,8 +276,8 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
             onPointerDown={(e) => PRESS_DOWN.onPointerDown(e, darkMode)}
-            onPointerUp={PRESS_DOWN.onPointerUp}
-            onPointerLeave={PRESS_DOWN.onPointerLeave}
+            onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
+            onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
           >
             <p className={`text-[11px] ${muted}`}>מה עוד צפוי לרדת</p>
             <p className={`mt-1 text-[18px] font-bold ${text}`}>{formatCurrency(snapshot.upcoming)}</p>
@@ -166,8 +295,8 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
             onPointerDown={(e) => PRESS_DOWN.onPointerDown(e, darkMode)}
-            onPointerUp={PRESS_DOWN.onPointerUp}
-            onPointerLeave={PRESS_DOWN.onPointerLeave}
+            onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
+            onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
           >
             <div className="flex items-center justify-between mb-1">
               <PiggyBank className={`h-5 w-5 ${accent}`} />
@@ -214,7 +343,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
           onPointerLeave={PRESS_DOWN.onPointerLeave}
         >
           <List className={`h-4 w-4 ${accent}`} />
-          היסטוריית תנועות
+          התנועות החודשיות שלך עם Finly
         </button>
 
         {/* ── CTA button — galactic 3D tactile ─────────────────── */}

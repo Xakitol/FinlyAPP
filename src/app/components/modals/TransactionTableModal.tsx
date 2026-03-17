@@ -318,7 +318,7 @@ export function TransactionTableModal({
                         <div className="flex items-center justify-end gap-1.5">
                           {isUpcoming && (
                             <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-semibold ${darkMode ? 'bg-violet-500/20 text-violet-300' : 'bg-violet-100 text-violet-600'}`}>
-                              המשך החודש
+                              בהמשך החודש
                             </span>
                           )}
                           <p className={`text-[13px] font-semibold ${text}`}>{entry.title}</p>

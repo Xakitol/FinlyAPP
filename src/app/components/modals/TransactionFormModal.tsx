@@ -138,10 +138,10 @@ export function TransactionFormModal({
         boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
       }
     : {
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.97) 0%, rgba(245,240,255,0.98) 100%)',
-        border: '1.5px solid rgba(139,92,246,0.2)',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 24px 60px rgba(139,92,246,0.12)',
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.68) 0%, rgba(245,240,255,0.62) 100%)',
+        border: '1.5px solid rgba(255,255,255,0.85)',
+        backdropFilter: 'blur(24px)',
+        boxShadow: '0 24px 60px rgba(139,92,246,0.15)',
       };
 
   return (

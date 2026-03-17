@@ -6,6 +6,7 @@ import { TransactionFormModal } from './components/modals/TransactionFormModal';
 import { TransactionTableModal } from './components/modals/TransactionTableModal';
 import { UpcomingExpensesModal } from './components/modals/UpcomingExpensesModal';
 import { IncomeBreakdownModal } from './components/modals/IncomeBreakdownModal';
+import { ExpenseBreakdownModal } from './components/modals/ExpenseBreakdownModal';
 import { StarField } from './components/effects/StarField';
 import { HomeHeader } from './components/home/HomeHeader';
 import { FloatingCirclesHome } from './components/home/FloatingCirclesHome';
@@ -22,6 +23,7 @@ export default function App() {
   const [savingsGoalOpen, setSavingsGoalOpen] = useState(false);
   const [upcomingOpen, setUpcomingOpen] = useState(false);
   const [incomeOpen, setIncomeOpen] = useState(false);
+  const [expensesOpen, setExpensesOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [editingEntry, setEditingEntry] = useState<FinanceEntry | null>(null);
 
@@ -50,10 +52,13 @@ export default function App() {
     const baseEntries = monthEntriesMap[selectedMonthIndex] ?? [];
     const projected = projectRecurringRules(recurringRules, selectedMonthIndex, YEAR, baseEntries);
     const savingsGoal = savingsGoalsMap[selectedMonthIndex] ?? { currentAmount: 0, targetAmount: 0 };
+    const prevIndex = selectedMonthIndex === 0 ? 11 : selectedMonthIndex - 1;
+    const previousMonthEntries = monthEntriesMap[prevIndex] ?? [];
     return {
       monthLabel: HEBREW_MONTH_NAMES[selectedMonthIndex],
       entries: [...baseEntries, ...projected],
       savingsGoal,
+      previousMonthEntries,
     };
   }, [selectedMonthIndex, monthEntriesMap, savingsGoalsMap, recurringRules]);
 
@@ -182,6 +187,7 @@ export default function App() {
           onOpenSavingsGoal={() => setSavingsGoalOpen(true)}
           onOpenUpcoming={() => setUpcomingOpen(true)}
           onOpenIncome={() => setIncomeOpen(true)}
+          onOpenExpenses={() => setExpensesOpen(true)}
         />
       </div>
 
@@ -219,6 +225,14 @@ export default function App() {
         entries={homeData.entries.filter((e) => e.status === 'upcoming' && e.type === 'expense').sort((a, b) => a.date.localeCompare(b.date))}
         onMarkAsPaid={handleMarkAsPaid}
         onDeleteRule={handleDeleteRule}
+      />
+
+      <ExpenseBreakdownModal
+        open={expensesOpen}
+        onClose={() => setExpensesOpen(false)}
+        darkMode={darkMode}
+        entries={homeData.entries.filter((e) => e.type === 'expense').sort((a, b) => a.date.localeCompare(b.date))}
+        onMarkAsPaid={handleMarkAsPaid}
       />
 
       <IncomeBreakdownModal
