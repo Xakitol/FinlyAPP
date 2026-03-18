@@ -135,13 +135,18 @@ export function WelcomeScreen({ onLogin, onSignup, onDevReset }: WelcomeScreenPr
           הנתונים שלך נשמרים רק במכשיר שלך
         </p>
 
-        {/* Dev-only reset — invisible tap target, bottom center */}
+        {/* Dev-only reset — visible pill badge, easy to tap during testing */}
         {onDevReset && (
           <button
             onClick={onDevReset}
-            className="mt-6 text-violet-300/40 text-[10px] underline underline-offset-2"
+            className="mt-6 px-4 py-2 rounded-full text-xs font-medium active:scale-95 transition-transform"
+            style={{
+              background: 'rgba(124,58,237,0.12)',
+              border: '1px solid rgba(124,58,237,0.30)',
+              color: 'rgba(109,40,217,0.70)',
+            }}
           >
-            [dev] reset onboarding
+            ← חזרה למסך פתיחה (dev)
           </button>
         )}
       </div>
