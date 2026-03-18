@@ -153,8 +153,7 @@ export default function App() {
     setRecurringRules((prev) => prev.filter((r) => !(r.type === entry.type && r.title === entry.title)));
   }
 
-  function handleImport(rows: ParsedRow[]) {
-    // Always import into the currently viewed month so entries are immediately visible
+  function handleImport(rows: ParsedRow[], targetMonth: number) {
     const ts = Date.now();
     let memory = loadDescMemory();
     const newEntries: FinanceEntry[] = rows.map((row, i) => {
@@ -176,8 +175,17 @@ export default function App() {
     saveDescMemory(memory);
     setMonthEntriesMap((prev) => ({
       ...prev,
-      [selectedMonthIndex]: [...(prev[selectedMonthIndex] ?? []), ...newEntries],
+      [targetMonth]: [...(prev[targetMonth] ?? []), ...newEntries],
     }));
+  }
+
+  function handleDeleteMultiple(ids: string[]) {
+    const idSet = new Set(ids);
+    setMonthEntriesMap((prev) => ({
+      ...prev,
+      [selectedMonthIndex]: (prev[selectedMonthIndex] ?? []).filter((e) => !idSet.has(e.id)),
+    }));
+    setRecurringRules((prev) => prev.filter((r) => !ids.some((id) => r.id === `rule-${id}`)));
   }
 
   function handleSaveSavingsGoal(targetAmount: number) {
@@ -255,6 +263,7 @@ export default function App() {
         entries={homeData.entries}
         onEdit={handleEditEntry}
         onDelete={handleDeleteEntry}
+        onDeleteMultiple={handleDeleteMultiple}
         onMarkAsPaid={handleMarkAsPaid}
         onDeleteRule={handleDeleteRule}
         onOpenImport={() => setImportOpen(true)}

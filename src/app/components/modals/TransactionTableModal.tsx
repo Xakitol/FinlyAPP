@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
-import { X, Search, Pencil, Trash2, FileSpreadsheet, FileText, ArrowUpDown, RotateCcw, TrendingUp, TrendingDown, Upload, Download } from 'lucide-react';
+import { X, Search, Pencil, Trash2, FileSpreadsheet, FileText, ArrowUpDown, RotateCcw, TrendingUp, TrendingDown, Upload, Download, CheckSquare, Square } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 import type { FinanceEntry } from '../../../types/finance';
 
@@ -13,6 +13,7 @@ interface TransactionTableModalProps {
   entries: FinanceEntry[];
   onEdit: (entry: FinanceEntry) => void;
   onDelete: (id: string) => void;
+  onDeleteMultiple: (ids: string[]) => void;
   onMarkAsPaid: (entry: FinanceEntry) => void;
   onDeleteRule: (entry: FinanceEntry) => void;
   onOpenImport?: () => void;
@@ -22,9 +23,7 @@ function exportToExcel(entries: FinanceEntry[]) {
   const rows = [
     ['תאריך', 'תיאור', 'קטגוריה', 'סוג', 'שיטת תשלום', 'סכום', 'סטטוס'],
     ...entries.map((e) => [
-      e.date,
-      e.title,
-      e.category,
+      e.date, e.title, e.category,
       e.type === 'income' ? 'הכנסה' : 'הוצאה',
       e.paymentMethod === 'bank' ? 'בנק' : e.paymentMethod === 'credit' ? 'אשראי' : 'מזומן',
       e.type === 'income' ? e.amount : -e.amount,
@@ -32,7 +31,6 @@ function exportToExcel(entries: FinanceEntry[]) {
     ]),
   ];
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  // Right-to-left column widths
   ws['!cols'] = [{ wch: 12 }, { wch: 30 }, { wch: 14 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 8 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'תנועות');
@@ -42,106 +40,95 @@ function exportToExcel(entries: FinanceEntry[]) {
 function exportToPrintPDF(entries: FinanceEntry[]) {
   const win = window.open('', '_blank', 'width=820,height=680');
   if (!win) return;
-  const rowsHtml = entries
-    .map(
-      (e) => `<tr>
-        <td>${e.date}</td>
-        <td>${e.title}</td>
-        <td>${e.category}</td>
-        <td style="color:${e.type === 'income' ? '#0284c7' : '#9333ea'}">${e.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
-        <td style="font-weight:600;color:${e.type === 'income' ? '#0284c7' : '#9333ea'}">${e.type === 'income' ? '+' : '-'}${e.amount.toLocaleString('he-IL')} ₪</td>
-        <td>${e.status === 'upcoming' ? 'צפוי' : 'מאושר'}</td>
-      </tr>`,
-    )
-    .join('');
+  const rowsHtml = entries.map((e) => `<tr>
+    <td>${e.date}</td><td>${e.title}</td><td>${e.category}</td>
+    <td style="color:${e.type === 'income' ? '#0284c7' : '#9333ea'}">${e.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
+    <td style="font-weight:600;color:${e.type === 'income' ? '#0284c7' : '#9333ea'}">${e.type === 'income' ? '+' : '-'}${e.amount.toLocaleString('he-IL')} ₪</td>
+    <td>${e.status === 'upcoming' ? 'צפוי' : 'מאושר'}</td>
+  </tr>`).join('');
   win.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>Finly — תנועות</title>
-    <style>
-      body{font-family:Arial,sans-serif;direction:rtl;padding:24px;color:#111}
-      h1{font-size:22px;color:#7c3aed;margin-bottom:4px}
-      p{color:#6b7280;font-size:12px;margin-bottom:16px}
-      table{width:100%;border-collapse:collapse;font-size:13px}
-      th{background:#7c3aed;color:#fff;padding:8px 10px;text-align:right}
-      td{padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right}
-      tr:nth-child(even) td{background:#f9fafb}
-    </style></head><body>
-    <h1>Finly — ייצוא תנועות</h1>
-    <p>${entries.length} תנועות · ${new Date().toLocaleDateString('he-IL')}</p>
-    <table><thead><tr><th>תאריך</th><th>תיאור</th><th>קטגוריה</th><th>סוג</th><th>סכום</th><th>סטטוס</th></tr></thead>
-    <tbody>${rowsHtml}</tbody></table>
-    <script>window.onload=()=>{window.print();}<\/script>
-    </body></html>`);
+  <style>body{font-family:Arial,sans-serif;direction:rtl;padding:24px;color:#111}h1{font-size:22px;color:#7c3aed;margin-bottom:4px}p{color:#6b7280;font-size:12px;margin-bottom:16px}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#7c3aed;color:#fff;padding:8px 10px;text-align:right}td{padding:7px 10px;border-bottom:1px solid #e5e7eb;text-align:right}tr:nth-child(even) td{background:#f9fafb}</style></head><body>
+  <h1>Finly — ייצוא תנועות</h1><p>${entries.length} תנועות · ${new Date().toLocaleDateString('he-IL')}</p>
+  <table><thead><tr><th>תאריך</th><th>תיאור</th><th>קטגוריה</th><th>סוג</th><th>סכום</th><th>סטטוס</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+  <script>window.onload=()=>{window.print();}<\/script></body></html>`);
   win.document.close();
 }
 
-const tactileBtn: React.CSSProperties = {
-  transition: 'transform 0.1s ease, box-shadow 0.1s ease',
-};
-
-function onPress(e: React.PointerEvent<HTMLButtonElement>) {
-  e.currentTarget.style.transform = 'translateY(2px)';
-}
-function onRelease(e: React.PointerEvent<HTMLButtonElement>) {
-  e.currentTarget.style.transform = '';
-}
+const tactileBtn: React.CSSProperties = { transition: 'transform 0.1s ease, box-shadow 0.1s ease' };
+function onPress(e: React.PointerEvent<HTMLButtonElement>) { e.currentTarget.style.transform = 'translateY(2px)'; }
+function onRelease(e: React.PointerEvent<HTMLButtonElement>) { e.currentTarget.style.transform = ''; }
 
 export function TransactionTableModal({
-  open,
-  onClose,
-  darkMode = false,
-  entries,
-  onEdit,
-  onDelete,
-  onMarkAsPaid,
-  onDeleteRule,
-  onOpenImport,
+  open, onClose, darkMode = false, entries, onEdit, onDelete, onDeleteMultiple,
+  onMarkAsPaid, onDeleteRule, onOpenImport,
 }: TransactionTableModalProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortKey, setSortKey] = useState<SortKey>('date');
+  const [searchTerm, setSearchTerm]         = useState('');
+  const [sortKey, setSortKey]               = useState<SortKey>('date');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [importExpanded, setImportExpanded] = useState(false);
-  const [exportExpanded, setExportExpanded] = useState(false);
+  const [selectMode, setSelectMode]         = useState(false);
+  const [selectedIds, setSelectedIds]       = useState<Set<string>>(new Set());
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
 
-  // Light mode uses darker text for readability on bright glass
-  const text = darkMode ? 'text-white' : 'text-gray-900';
+  const text  = darkMode ? 'text-white' : 'text-gray-900';
   const muted = darkMode ? 'text-white/60' : 'text-gray-600';
 
-  // Modal surface: lighter in light mode for contrast, darker in dark mode
   const modalBg: React.CSSProperties = darkMode
-    ? {
-        background: 'linear-gradient(145deg, rgba(26,31,58,0.97) 0%, rgba(15,20,40,0.98) 100%)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        backdropFilter: 'blur(20px)',
-      }
-    : {
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.97) 0%, rgba(245,240,255,0.98) 100%)',
-        border: '1.5px solid rgba(200,190,255,0.6)',
-        backdropFilter: 'blur(20px)',
-      };
+    ? { background: 'linear-gradient(145deg, rgba(26,31,58,0.97) 0%, rgba(15,20,40,0.98) 100%)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)' }
+    : { background: 'linear-gradient(145deg, rgba(255,255,255,0.97) 0%, rgba(245,240,255,0.98) 100%)', border: '1.5px solid rgba(200,190,255,0.6)', backdropFilter: 'blur(20px)' };
 
   const filtered = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
-    return entries.filter(
-      (e) => !q || e.title.toLowerCase().includes(q) || e.category.toLowerCase().includes(q),
-    );
+    return entries.filter((e) => !q || e.title.toLowerCase().includes(q) || e.category.toLowerCase().includes(q));
   }, [entries, searchTerm]);
 
   const sorted = useMemo(
-    () =>
-      [...filtered].sort((a, b) => {
-        if (sortKey === 'date') return b.date.localeCompare(a.date);
-        if (sortKey === 'amount') return b.amount - a.amount;
-        if (sortKey === 'alpha') return a.title.localeCompare(b.title, 'he');
-        return 0;
-      }),
+    () => [...filtered].sort((a, b) => {
+      if (sortKey === 'date')   return b.date.localeCompare(a.date);
+      if (sortKey === 'amount') return b.amount - a.amount;
+      if (sortKey === 'alpha')  return a.title.localeCompare(b.title, 'he');
+      return 0;
+    }),
     [filtered, sortKey],
   );
 
   const isDirty = searchTerm !== '' || sortKey !== 'date';
 
+  // Selectable entries = recorded only (not upcoming)
+  const selectableIds = sorted.filter((e) => e.status !== 'upcoming').map((e) => e.id);
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selectedIds.has(id));
+
+  function toggleSelectMode() {
+    setSelectMode((v) => !v);
+    setSelectedIds(new Set());
+    setConfirmBulkDelete(false);
+  }
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(selectableIds));
+    }
+  }
+
+  function handleBulkDelete() {
+    onDeleteMultiple([...selectedIds]);
+    setSelectedIds(new Set());
+    setSelectMode(false);
+    setConfirmBulkDelete(false);
+  }
+
   if (!open) return null;
 
   return (
-    // No onClick on backdrop — X button is the only close path
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
       style={{ backdropFilter: 'blur(5px)' }}
@@ -152,146 +139,130 @@ export function TransactionTableModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pb-3 pt-5">
-          <button
-            type="button"
-            onClick={onClose}
-            className={`flex h-10 w-10 items-center justify-center rounded-full ${darkMode ? 'bg-white/15' : 'bg-gray-100'}`}
-            style={{
-              ...tactileBtn,
-              boxShadow: darkMode
-                ? '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
-                : '0 4px 0 rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)',
-            }}
-            onPointerDown={onPress}
-            onPointerUp={onRelease}
-            onPointerLeave={onRelease}
-          >
-            <X className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className={`flex h-10 w-10 items-center justify-center rounded-full ${darkMode ? 'bg-white/15' : 'bg-gray-100'}`}
+              style={{ ...tactileBtn, boxShadow: darkMode ? '0 4px 0 rgba(0,0,0,0.3)' : '0 4px 0 rgba(0,0,0,0.1)' }}
+              onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+            >
+              <X className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
+            </button>
+            {/* Select mode toggle */}
+            <button
+              type="button"
+              onClick={toggleSelectMode}
+              className={`flex items-center gap-1 rounded-xl px-3 py-2 text-[11px] font-semibold transition-colors ${
+                selectMode
+                  ? 'bg-red-500/20 text-red-500'
+                  : darkMode ? 'bg-white/10 text-white/60' : 'bg-gray-100 text-gray-500'
+              }`}
+              style={tactileBtn}
+              onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+            >
+              {selectMode ? <CheckSquare className="h-3.5 w-3.5" /> : <Square className="h-3.5 w-3.5" />}
+              {selectMode ? 'ביטול' : 'בחר'}
+            </button>
+          </div>
           <h2 className={`text-lg font-bold ${text}`}>רשימת תנועות</h2>
         </div>
 
-        {/* Import / Export controls */}
-        <div className="px-5 pb-3 relative">
-          {/* Click-outside overlay */}
-          {(importExpanded || exportExpanded) && (
-            <div
-              className="fixed inset-0 z-10"
-              onClick={() => { setImportExpanded(false); setExportExpanded(false); }}
-            />
-          )}
-          <div className="relative z-20 flex gap-3">
-            {/* ── Import ── */}
-            <div className="flex flex-1 flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => { setExportExpanded(false); setImportExpanded((v) => !v); }}
-                className="flex w-full items-center justify-center gap-1.5 rounded-2xl py-2.5 text-[12px] font-semibold text-white"
-                style={{
-                  ...tactileBtn,
-                  background: importExpanded
-                    ? 'linear-gradient(135deg, #4f46e5, #7c3aed)'
-                    : 'linear-gradient(135deg, #6366f1, #a855f7)',
-                  boxShadow: importExpanded
-                    ? '0 2px 0 rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.15)'
-                    : '0 4px 0 rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
-                  transform: importExpanded ? 'translateY(2px)' : '',
-                  transition: 'transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease',
-                }}
-                onPointerDown={onPress}
-                onPointerUp={onRelease}
-                onPointerLeave={onRelease}
-              >
-                <Upload className="h-3.5 w-3.5" />
-                ייבוא קבצים
-              </button>
-              {/* Expand panel */}
-              <div
-                style={{
-                  maxHeight: importExpanded ? 52 : 0,
-                  opacity: importExpanded ? 1 : 0,
-                  overflow: 'hidden',
-                  transition: 'max-height 0.22s ease, opacity 0.18s ease',
-                }}
-              >
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => { onOpenImport?.(); setImportExpanded(false); }}
-                    className="flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-semibold text-white"
-                    style={{ ...tactileBtn, background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', boxShadow: '0 3px 0 rgba(2,132,199,0.45)' }}
-                    onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-                  >
-                    <FileSpreadsheet className="h-3 w-3" /> Excel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { onOpenImport?.(); setImportExpanded(false); }}
-                    className="flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-semibold text-white"
-                    style={{ ...tactileBtn, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 3px 0 rgba(139,92,246,0.45)' }}
-                    onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-                  >
-                    <FileText className="h-3 w-3" /> PDF
-                  </button>
-                </div>
-              </div>
+        {/* Bulk delete bar */}
+        {selectMode && (
+          <div className="px-5 pb-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              {selectedIds.size > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setConfirmBulkDelete(true)}
+                  className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold text-white"
+                  style={{ ...tactileBtn, background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 3px 0 rgba(185,28,28,0.5)' }}
+                  onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  מחק {selectedIds.size}
+                </button>
+              )}
             </div>
+            <button
+              type="button"
+              onClick={toggleSelectAll}
+              className={`text-[11px] font-medium ${darkMode ? 'text-white/60' : 'text-gray-500'}`}
+            >
+              {allSelected ? 'בטל הכל' : 'בחר הכל'}
+            </button>
+          </div>
+        )}
 
-            {/* ── Export ── */}
-            <div className="flex flex-1 flex-col gap-2">
+        {/* Bulk delete confirm */}
+        {confirmBulkDelete && (
+          <div className="mx-5 mb-3 flex items-center justify-between rounded-xl bg-red-500/15 px-4 py-3">
+            <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => { setImportExpanded(false); setExportExpanded((v) => !v); }}
-                className="flex w-full items-center justify-center gap-1.5 rounded-2xl py-2.5 text-[12px] font-semibold text-white"
-                style={{
-                  ...tactileBtn,
-                  background: exportExpanded
-                    ? 'linear-gradient(135deg, #4f46e5, #7c3aed)'
-                    : 'linear-gradient(135deg, #6366f1, #a855f7)',
-                  boxShadow: exportExpanded
-                    ? '0 2px 0 rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.15)'
-                    : '0 4px 0 rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
-                  transform: exportExpanded ? 'translateY(2px)' : '',
-                  transition: 'transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease',
-                }}
-                onPointerDown={onPress}
-                onPointerUp={onRelease}
-                onPointerLeave={onRelease}
+                onClick={handleBulkDelete}
+                className="rounded-lg bg-red-500 px-4 py-1.5 text-[12px] font-semibold text-white"
+                style={{ ...tactileBtn, boxShadow: '0 3px 0 rgba(185,28,28,0.5)' }}
+                onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
               >
-                <Download className="h-3.5 w-3.5" />
-                ייצוא קבצים
+                מחק {selectedIds.size} תנועות
               </button>
-              {/* Expand panel */}
-              <div
-                style={{
-                  maxHeight: exportExpanded ? 52 : 0,
-                  opacity: exportExpanded ? 1 : 0,
-                  overflow: 'hidden',
-                  transition: 'max-height 0.22s ease, opacity 0.18s ease',
-                }}
+              <button
+                type="button"
+                onClick={() => setConfirmBulkDelete(false)}
+                className={`rounded-lg px-3 py-1.5 text-[12px] ${darkMode ? 'bg-white/10 text-white/70' : 'bg-gray-200 text-gray-700'}`}
+                style={tactileBtn}
+                onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
               >
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => { exportToExcel(sorted); setExportExpanded(false); }}
-                    className="flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-semibold text-white"
-                    style={{ ...tactileBtn, background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', boxShadow: '0 3px 0 rgba(2,132,199,0.45)' }}
-                    onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-                  >
-                    <FileSpreadsheet className="h-3 w-3" /> Excel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { exportToPrintPDF(sorted); setExportExpanded(false); }}
-                    className="flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-semibold text-white"
-                    style={{ ...tactileBtn, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 3px 0 rgba(139,92,246,0.45)' }}
-                    onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-                  >
-                    <FileText className="h-3 w-3" /> PDF
-                  </button>
-                </div>
-              </div>
+                ביטול
+              </button>
             </div>
+            <p className={`text-[11px] ${darkMode ? 'text-red-400' : 'text-red-500'}`}>למחוק את הנבחרים?</p>
+          </div>
+        )}
+
+        {/* Import / Export — two compact static buttons */}
+        <div className="px-5 pb-3 flex gap-3">
+          {/* Import */}
+          <div className="flex-1 flex flex-col items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onOpenImport?.()}
+              className="flex w-full items-center justify-center gap-1.5 rounded-2xl py-2.5 text-[12px] font-semibold text-white"
+              style={{ ...tactileBtn, background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', boxShadow: '0 4px 0 rgba(2,132,199,0.45)' }}
+              onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+            >
+              <Upload className="h-3.5 w-3.5" />
+              ייבוא
+            </button>
+            <p className={`text-[9px] ${darkMode ? 'text-white/30' : 'text-gray-400'}`}>.xlsx · .csv · .pdf</p>
+          </div>
+          {/* Export */}
+          <div className="flex-1 flex flex-col items-center gap-1">
+            <div className="flex w-full gap-1.5">
+              <button
+                type="button"
+                onClick={() => exportToExcel(sorted)}
+                className="flex flex-1 items-center justify-center gap-1 rounded-2xl py-2.5 text-[11px] font-semibold text-white"
+                style={{ ...tactileBtn, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 4px 0 rgba(139,92,246,0.4)' }}
+                onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+              >
+                <FileSpreadsheet className="h-3 w-3" /> Excel
+              </button>
+              <button
+                type="button"
+                onClick={() => exportToPrintPDF(sorted)}
+                className="flex flex-1 items-center justify-center gap-1 rounded-2xl py-2.5 text-[11px] font-semibold text-white"
+                style={{ ...tactileBtn, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 4px 0 rgba(139,92,246,0.4)' }}
+                onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+              >
+                <FileText className="h-3 w-3" /> PDF
+              </button>
+            </div>
+            <p className={`text-[9px] ${darkMode ? 'text-white/30' : 'text-gray-400'}`}>
+              <Download className="inline h-2.5 w-2.5 mr-0.5" />ייצוא
+            </p>
           </div>
         </div>
 
@@ -312,7 +283,6 @@ export function TransactionTableModal({
               dir="rtl"
             />
           </div>
-
           <div className="flex items-center gap-1">
             <ArrowUpDown className={`h-3.5 w-3.5 ${darkMode ? 'text-white/30' : 'text-gray-400'}`} />
             {(['date', 'amount', 'alpha'] as SortKey[]).map((key) => {
@@ -324,15 +294,9 @@ export function TransactionTableModal({
                   onClick={() => setSortKey(key)}
                   style={tactileBtn}
                   className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium ${
-                    sortKey === key
-                      ? 'bg-violet-600 text-white'
-                      : darkMode
-                        ? 'bg-white/10 text-white/60'
-                        : 'bg-gray-100 text-gray-600'
+                    sortKey === key ? 'bg-violet-600 text-white' : darkMode ? 'bg-white/10 text-white/60' : 'bg-gray-100 text-gray-600'
                   }`}
-                  onPointerDown={onPress}
-                  onPointerUp={onRelease}
-                  onPointerLeave={onRelease}
+                  onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
                 >
                   {labels[key]}
                 </button>
@@ -361,141 +325,142 @@ export function TransactionTableModal({
             <div className="flex flex-col gap-0.5">
               {sorted.map((entry) => {
                 const isUpcoming = entry.status === 'upcoming';
+                const isSelectable = !isUpcoming && selectMode;
+                const isSelected = selectedIds.has(entry.id);
                 return (
-                <div key={entry.id}>
-                  <div
-                    className={`flex items-center rounded-xl px-3 py-3 ${
-                      isUpcoming
-                        ? darkMode ? 'bg-white/3 opacity-75' : 'bg-violet-50/60 opacity-85'
-                        : ''
-                    }`}
-                  >
-                    {/* Actions */}
-                    <div className="flex shrink-0 items-center gap-1.5 pl-3">
-                      {isUpcoming ? (
-                        // Upcoming entry — mark-as-done + delete-rule
-                        <div className="flex items-center gap-1">
+                  <div key={entry.id}>
+                    <div
+                      className={`flex items-center rounded-xl px-3 py-3 transition-colors ${
+                        isSelected
+                          ? (darkMode ? 'bg-red-500/10' : 'bg-red-50')
+                          : isUpcoming
+                          ? (darkMode ? 'bg-white/3 opacity-75' : 'bg-violet-50/60 opacity-85')
+                          : ''
+                      }`}
+                    >
+                      {/* Actions / select */}
+                      <div className="flex shrink-0 items-center gap-1.5 pl-3">
+                        {selectMode && !isUpcoming ? (
                           <button
                             type="button"
-                            onClick={() => onMarkAsPaid(entry)}
-                            className="flex h-8 items-center justify-center rounded-xl px-2 text-[10px] font-semibold text-white leading-tight text-center"
-                            style={{
-                              ...tactileBtn,
-                              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                              boxShadow: '0 3px 0 rgba(99,102,241,0.45)',
-                              maxWidth: 72,
-                            }}
-                            onPointerDown={onPress}
-                            onPointerUp={onRelease}
-                            onPointerLeave={onRelease}
-                          >
-                            {entry.type === 'income' ? 'סמן אם כבר נכנס' : 'סמן אם כבר יצא'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onDeleteRule(entry)}
-                            className={`flex h-7 w-7 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
-                            style={{ ...tactileBtn, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
-                            onPointerDown={onPress}
-                            onPointerUp={onRelease}
-                            onPointerLeave={onRelease}
-                            title="מחק קבוע"
-                          >
-                            <Trash2 className={`h-3 w-3 ${darkMode ? 'text-red-400/70' : 'text-red-400'}`} />
-                          </button>
-                        </div>
-                      ) : (
-                        // Recorded entry — edit + delete
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => onEdit(entry)}
+                            onClick={() => toggleSelect(entry.id)}
                             className={`flex h-8 w-8 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
-                            style={{ ...tactileBtn, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
-                            onPointerDown={onPress}
-                            onPointerUp={onRelease}
-                            onPointerLeave={onRelease}
+                            style={tactileBtn}
+                            onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
                           >
-                            <Pencil className={`h-3 w-3 ${darkMode ? 'text-white/60' : 'text-gray-500'}`} />
+                            {isSelected
+                              ? <CheckSquare className="h-4 w-4 text-red-500" />
+                              : <Square className={`h-4 w-4 ${darkMode ? 'text-white/40' : 'text-gray-400'}`} />
+                            }
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => setConfirmDeleteId(entry.id)}
-                            className={`flex h-8 w-8 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
-                            style={{ ...tactileBtn, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
-                            onPointerDown={onPress}
-                            onPointerUp={onRelease}
-                            onPointerLeave={onRelease}
-                          >
-                            <Trash2 className={`h-3 w-3 ${darkMode ? 'text-white/60' : 'text-red-400'}`} />
-                          </button>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Entry info */}
-                    <div className="flex flex-1 items-center justify-between text-right">
-                      <div className="flex items-center gap-1.5">
-                        {entry.type === 'income' ? (
-                          <TrendingUp className="h-3.5 w-3.5 shrink-0 text-sky-500" />
+                        ) : isUpcoming ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => onMarkAsPaid(entry)}
+                              className="flex h-8 items-center justify-center rounded-xl px-2 text-[10px] font-semibold text-white leading-tight text-center"
+                              style={{ ...tactileBtn, background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', boxShadow: '0 3px 0 rgba(99,102,241,0.45)', maxWidth: 72 }}
+                              onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                            >
+                              {entry.type === 'income' ? 'סמן אם כבר נכנס' : 'סמן אם כבר יצא'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => onDeleteRule(entry)}
+                              className={`flex h-7 w-7 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
+                              style={{ ...tactileBtn, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
+                              onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                              title="מחק קבוע"
+                            >
+                              <Trash2 className={`h-3 w-3 ${darkMode ? 'text-red-400/70' : 'text-red-400'}`} />
+                            </button>
+                          </div>
                         ) : (
-                          <TrendingDown className="h-3.5 w-3.5 shrink-0 text-violet-500" />
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => onEdit(entry)}
+                              className={`flex h-8 w-8 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
+                              style={{ ...tactileBtn, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
+                              onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                            >
+                              <Pencil className={`h-3 w-3 ${darkMode ? 'text-white/60' : 'text-gray-500'}`} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDeleteId(entry.id)}
+                              className={`flex h-8 w-8 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
+                              style={{ ...tactileBtn, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
+                              onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                            >
+                              <Trash2 className={`h-3 w-3 ${darkMode ? 'text-white/60' : 'text-red-400'}`} />
+                            </button>
+                          </>
                         )}
-                        <span className={`text-[14px] font-bold ${entry.type === 'income' ? (darkMode ? 'text-sky-300' : 'text-sky-600') : (darkMode ? 'text-purple-300' : 'text-violet-600')}`}>
-                          {entry.type === 'income' ? '+' : '-'}{formatCurrency(entry.amount)}
-                        </span>
                       </div>
 
-                      <div>
-                        <div className="flex items-center justify-end gap-1.5">
-                          {isUpcoming && (
-                            <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-semibold ${darkMode ? 'bg-violet-500/20 text-violet-300' : 'bg-violet-100 text-violet-600'}`}>
-                              בהמשך החודש
-                            </span>
+                      {/* Entry info */}
+                      <div
+                        className="flex flex-1 items-center justify-between text-right"
+                        onClick={isSelectable ? () => toggleSelect(entry.id) : undefined}
+                        style={isSelectable ? { cursor: 'pointer' } : undefined}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          {entry.type === 'income' ? (
+                            <TrendingUp className="h-3.5 w-3.5 shrink-0 text-sky-500" />
+                          ) : (
+                            <TrendingDown className="h-3.5 w-3.5 shrink-0 text-violet-500" />
                           )}
-                          <p className={`text-[13px] font-semibold ${text}`}>{entry.title}</p>
+                          <span className={`text-[14px] font-bold ${entry.type === 'income' ? (darkMode ? 'text-sky-300' : 'text-sky-600') : (darkMode ? 'text-purple-300' : 'text-violet-600')}`}>
+                            {entry.type === 'income' ? '+' : '-'}{formatCurrency(entry.amount)}
+                          </span>
                         </div>
-                        <p className={`text-[11px] ${muted}`}>
-                          {entry.category} · {entry.date}
-                          {entry.recurring && (
-                            <span className={`mr-1 ${darkMode ? 'text-violet-300' : 'text-violet-500'}`}>· קבוע</span>
-                          )}
-                        </p>
+                        <div>
+                          <div className="flex items-center justify-end gap-1.5">
+                            {isUpcoming && (
+                              <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-semibold ${darkMode ? 'bg-violet-500/20 text-violet-300' : 'bg-violet-100 text-violet-600'}`}>
+                                בהמשך החודש
+                              </span>
+                            )}
+                            <p className={`text-[13px] font-semibold ${text}`}>{entry.title}</p>
+                          </div>
+                          <p className={`text-[11px] ${muted}`}>
+                            {entry.category} · {entry.date}
+                            {entry.recurring && (
+                              <span className={`mr-1 ${darkMode ? 'text-violet-300' : 'text-violet-500'}`}>· קבוע</span>
+                            )}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Inline delete confirm — recorded only */}
-                  {!isUpcoming && confirmDeleteId === entry.id && (
-                    <div className="mx-2 mb-1 flex items-center justify-between rounded-xl bg-red-500/20 px-3 py-2">
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => { onDelete(entry.id); setConfirmDeleteId(null); }}
-                          className="rounded-lg bg-red-500 px-3 py-1.5 text-[11px] font-semibold text-white"
-                          style={{ ...tactileBtn, boxShadow: '0 3px 0 rgba(185,28,28,0.5)' }}
-                          onPointerDown={onPress}
-                          onPointerUp={onRelease}
-                          onPointerLeave={onRelease}
-                        >
-                          מחק
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setConfirmDeleteId(null)}
-                          className={`rounded-lg px-3 py-1.5 text-[11px] ${darkMode ? 'bg-white/10 text-white/70' : 'bg-gray-200 text-gray-700'}`}
-                          style={tactileBtn}
-                          onPointerDown={onPress}
-                          onPointerUp={onRelease}
-                          onPointerLeave={onRelease}
-                        >
-                          ביטול
-                        </button>
+                    {/* Single delete confirm */}
+                    {!isUpcoming && !selectMode && confirmDeleteId === entry.id && (
+                      <div className="mx-2 mb-1 flex items-center justify-between rounded-xl bg-red-500/20 px-3 py-2">
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => { onDelete(entry.id); setConfirmDeleteId(null); }}
+                            className="rounded-lg bg-red-500 px-3 py-1.5 text-[11px] font-semibold text-white"
+                            style={{ ...tactileBtn, boxShadow: '0 3px 0 rgba(185,28,28,0.5)' }}
+                            onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                          >
+                            מחק
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeleteId(null)}
+                            className={`rounded-lg px-3 py-1.5 text-[11px] ${darkMode ? 'bg-white/10 text-white/70' : 'bg-gray-200 text-gray-700'}`}
+                            style={tactileBtn}
+                            onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                          >
+                            ביטול
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-red-400">למחוק את הרשומה?</p>
                       </div>
-                      <p className="text-[11px] text-red-400">למחוק את הרשומה?</p>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
