@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-import { X, Search, Pencil, Trash2, FileSpreadsheet, FileText, ArrowUpDown, RotateCcw, TrendingUp, TrendingDown, Upload, Download, CheckSquare, Square } from 'lucide-react';
+import { X, Search, Pencil, Trash2, FileSpreadsheet, FileText, ArrowUpDown, RotateCcw, TrendingUp, TrendingDown, Upload, CheckSquare, Square } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 import type { FinanceEntry } from '../../../types/finance';
 
@@ -42,8 +42,8 @@ function exportToPrintPDF(entries: FinanceEntry[]) {
   if (!win) return;
   const rowsHtml = entries.map((e) => `<tr>
     <td>${e.date}</td><td>${e.title}</td><td>${e.category}</td>
-    <td style="color:${e.type === 'income' ? '#0284c7' : '#9333ea'}">${e.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
-    <td style="font-weight:600;color:${e.type === 'income' ? '#0284c7' : '#9333ea'}">${e.type === 'income' ? '+' : '-'}${e.amount.toLocaleString('he-IL')} ₪</td>
+    <td style="color:${e.type === 'income' ? '#0284c7' : '#7c3aed'}">${e.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
+    <td style="font-weight:600;color:${e.type === 'income' ? '#0284c7' : '#7c3aed'}">${e.type === 'income' ? '+' : '-'}${e.amount.toLocaleString('he-IL')} ₪</td>
     <td>${e.status === 'upcoming' ? 'צפוי' : 'מאושר'}</td>
   </tr>`).join('');
   win.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>Finly — תנועות</title>
@@ -54,7 +54,7 @@ function exportToPrintPDF(entries: FinanceEntry[]) {
   win.document.close();
 }
 
-const tactileBtn: React.CSSProperties = { transition: 'transform 0.1s ease, box-shadow 0.1s ease' };
+const tb: React.CSSProperties = { transition: 'transform 0.1s ease' };
 function onPress(e: React.PointerEvent<HTMLButtonElement>) { e.currentTarget.style.transform = 'translateY(2px)'; }
 function onRelease(e: React.PointerEvent<HTMLButtonElement>) { e.currentTarget.style.transform = ''; }
 
@@ -62,12 +62,23 @@ export function TransactionTableModal({
   open, onClose, darkMode = false, entries, onEdit, onDelete, onDeleteMultiple,
   onMarkAsPaid, onDeleteRule, onOpenImport,
 }: TransactionTableModalProps) {
-  const [searchTerm, setSearchTerm]         = useState('');
-  const [sortKey, setSortKey]               = useState<SortKey>('date');
+  const [searchTerm, setSearchTerm]     = useState('');
+  const [sortKey, setSortKey]           = useState<SortKey>('date');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [selectMode, setSelectMode]         = useState(false);
-  const [selectedIds, setSelectedIds]       = useState<Set<string>>(new Set());
-  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
+  const [selectMode, setSelectMode]     = useState(false);
+  const [selectedIds, setSelectedIds]   = useState<Set<string>>(new Set());
+  const [confirmBulk, setConfirmBulk]   = useState(false);
+
+  // Reset selection state every time the modal opens
+  useEffect(() => {
+    if (!open) return;
+    setSelectMode(false);
+    setSelectedIds(new Set());
+    setConfirmBulk(false);
+    setConfirmDeleteId(null);
+    setSearchTerm('');
+    setSortKey('date');
+  }, [open]);
 
   const text  = darkMode ? 'text-white' : 'text-gray-900';
   const muted = darkMode ? 'text-white/60' : 'text-gray-600';
@@ -92,16 +103,8 @@ export function TransactionTableModal({
   );
 
   const isDirty = searchTerm !== '' || sortKey !== 'date';
-
-  // Selectable entries = recorded only (not upcoming)
   const selectableIds = sorted.filter((e) => e.status !== 'upcoming').map((e) => e.id);
   const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selectedIds.has(id));
-
-  function toggleSelectMode() {
-    setSelectMode((v) => !v);
-    setSelectedIds(new Set());
-    setConfirmBulkDelete(false);
-  }
 
   function toggleSelect(id: string) {
     setSelectedIds((prev) => {
@@ -109,21 +112,25 @@ export function TransactionTableModal({
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+    setConfirmBulk(false);
   }
 
   function toggleSelectAll() {
-    if (allSelected) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(selectableIds));
-    }
+    setSelectedIds(allSelected ? new Set() : new Set(selectableIds));
+    setConfirmBulk(false);
   }
 
   function handleBulkDelete() {
     onDeleteMultiple([...selectedIds]);
     setSelectedIds(new Set());
     setSelectMode(false);
-    setConfirmBulkDelete(false);
+    setConfirmBulk(false);
+  }
+
+  function exitSelectMode() {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+    setConfirmBulk(false);
   }
 
   if (!open) return null;
@@ -137,106 +144,35 @@ export function TransactionTableModal({
         className="flex w-full max-w-lg flex-col rounded-t-3xl sm:max-w-2xl sm:rounded-3xl animate-in fade-in slide-in-from-bottom-4 duration-300 overflow-hidden shadow-2xl"
         style={{ ...modalBg, maxHeight: '92vh' }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 pb-3 pt-5">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className={`flex h-10 w-10 items-center justify-center rounded-full ${darkMode ? 'bg-white/15' : 'bg-gray-100'}`}
-              style={{ ...tactileBtn, boxShadow: darkMode ? '0 4px 0 rgba(0,0,0,0.3)' : '0 4px 0 rgba(0,0,0,0.1)' }}
-              onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-            >
-              <X className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
-            </button>
-            {/* Select mode toggle */}
-            <button
-              type="button"
-              onClick={toggleSelectMode}
-              className={`flex items-center gap-1 rounded-xl px-3 py-2 text-[11px] font-semibold transition-colors ${
-                selectMode
-                  ? 'bg-red-500/20 text-red-500'
-                  : darkMode ? 'bg-white/10 text-white/60' : 'bg-gray-100 text-gray-500'
-              }`}
-              style={tactileBtn}
-              onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-            >
-              {selectMode ? <CheckSquare className="h-3.5 w-3.5" /> : <Square className="h-3.5 w-3.5" />}
-              {selectMode ? 'ביטול' : 'בחר'}
-            </button>
-          </div>
+        {/* ── Header ──────────────────────────────────────────────── */}
+        <div className="flex items-center justify-between px-5 pb-3 pt-5 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${darkMode ? 'bg-white/15' : 'bg-gray-100'}`}
+            style={{ ...tb, boxShadow: darkMode ? '0 4px 0 rgba(0,0,0,0.3)' : '0 4px 0 rgba(0,0,0,0.1)' }}
+            onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+          >
+            <X className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
+          </button>
           <h2 className={`text-lg font-bold ${text}`}>רשימת תנועות</h2>
         </div>
 
-        {/* Bulk delete bar */}
-        {selectMode && (
-          <div className="px-5 pb-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              {selectedIds.size > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setConfirmBulkDelete(true)}
-                  className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold text-white"
-                  style={{ ...tactileBtn, background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: '0 3px 0 rgba(185,28,28,0.5)' }}
-                  onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  מחק {selectedIds.size}
-                </button>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={toggleSelectAll}
-              className={`text-[11px] font-medium ${darkMode ? 'text-white/60' : 'text-gray-500'}`}
-            >
-              {allSelected ? 'בטל הכל' : 'בחר הכל'}
-            </button>
-          </div>
-        )}
-
-        {/* Bulk delete confirm */}
-        {confirmBulkDelete && (
-          <div className="mx-5 mb-3 flex items-center justify-between rounded-xl bg-red-500/15 px-4 py-3">
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleBulkDelete}
-                className="rounded-lg bg-red-500 px-4 py-1.5 text-[12px] font-semibold text-white"
-                style={{ ...tactileBtn, boxShadow: '0 3px 0 rgba(185,28,28,0.5)' }}
-                onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-              >
-                מחק {selectedIds.size} תנועות
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmBulkDelete(false)}
-                className={`rounded-lg px-3 py-1.5 text-[12px] ${darkMode ? 'bg-white/10 text-white/70' : 'bg-gray-200 text-gray-700'}`}
-                style={tactileBtn}
-                onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-              >
-                ביטול
-              </button>
-            </div>
-            <p className={`text-[11px] ${darkMode ? 'text-red-400' : 'text-red-500'}`}>למחוק את הנבחרים?</p>
-          </div>
-        )}
-
-        {/* Import / Export — two compact static buttons */}
-        <div className="px-5 pb-3 flex gap-3">
+        {/* ── Import / Export — two static compact sections ───────── */}
+        <div className="px-5 pb-3 flex gap-3 shrink-0">
           {/* Import */}
           <div className="flex-1 flex flex-col items-center gap-1">
             <button
               type="button"
               onClick={() => onOpenImport?.()}
               className="flex w-full items-center justify-center gap-1.5 rounded-2xl py-2.5 text-[12px] font-semibold text-white"
-              style={{ ...tactileBtn, background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', boxShadow: '0 4px 0 rgba(2,132,199,0.45)' }}
+              style={{ ...tb, background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', boxShadow: '0 4px 0 rgba(2,132,199,0.4)' }}
               onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
             >
               <Upload className="h-3.5 w-3.5" />
               ייבוא
             </button>
-            <p className={`text-[9px] ${darkMode ? 'text-white/30' : 'text-gray-400'}`}>.xlsx · .csv · .pdf</p>
+            <p className={`text-[9px] ${darkMode ? 'text-white/30' : 'text-gray-400'}`}>.xlsx · .csv</p>
           </div>
           {/* Export */}
           <div className="flex-1 flex flex-col items-center gap-1">
@@ -245,7 +181,7 @@ export function TransactionTableModal({
                 type="button"
                 onClick={() => exportToExcel(sorted)}
                 className="flex flex-1 items-center justify-center gap-1 rounded-2xl py-2.5 text-[11px] font-semibold text-white"
-                style={{ ...tactileBtn, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 4px 0 rgba(139,92,246,0.4)' }}
+                style={{ ...tb, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 4px 0 rgba(139,92,246,0.35)' }}
                 onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
               >
                 <FileSpreadsheet className="h-3 w-3" /> Excel
@@ -254,20 +190,18 @@ export function TransactionTableModal({
                 type="button"
                 onClick={() => exportToPrintPDF(sorted)}
                 className="flex flex-1 items-center justify-center gap-1 rounded-2xl py-2.5 text-[11px] font-semibold text-white"
-                style={{ ...tactileBtn, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 4px 0 rgba(139,92,246,0.4)' }}
+                style={{ ...tb, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 4px 0 rgba(139,92,246,0.35)' }}
                 onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
               >
                 <FileText className="h-3 w-3" /> PDF
               </button>
             </div>
-            <p className={`text-[9px] ${darkMode ? 'text-white/30' : 'text-gray-400'}`}>
-              <Download className="inline h-2.5 w-2.5 mr-0.5" />ייצוא
-            </p>
+            <p className={`text-[9px] ${darkMode ? 'text-white/30' : 'text-gray-400'}`}>ייצוא</p>
           </div>
         </div>
 
-        {/* Search + Sort */}
-        <div className="flex flex-wrap gap-2 px-5 pb-3">
+        {/* ── Search + Sort ────────────────────────────────────────── */}
+        <div className="flex flex-wrap gap-2 px-5 pb-3 shrink-0">
           <div className="relative min-w-0 flex-1">
             <Search className={`absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 ${darkMode ? 'text-white/40' : 'text-gray-400'}`} />
             <input
@@ -275,9 +209,7 @@ export function TransactionTableModal({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full rounded-xl border py-2 pl-3 pr-9 text-[13px] outline-none focus:border-violet-400 ${
-                darkMode
-                  ? 'border-white/20 bg-white/10 text-white placeholder-white/30'
-                  : 'border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400'
+                darkMode ? 'border-white/20 bg-white/10 text-white placeholder-white/30' : 'border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400'
               }`}
               placeholder="חפש תנועה"
               dir="rtl"
@@ -292,7 +224,7 @@ export function TransactionTableModal({
                   key={key}
                   type="button"
                   onClick={() => setSortKey(key)}
-                  style={tactileBtn}
+                  style={tb}
                   className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium ${
                     sortKey === key ? 'bg-violet-600 text-white' : darkMode ? 'bg-white/10 text-white/60' : 'bg-gray-100 text-gray-600'
                   }`}
@@ -306,7 +238,7 @@ export function TransactionTableModal({
               <button
                 type="button"
                 onClick={() => { setSearchTerm(''); setSortKey('date'); }}
-                className={`flex items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] ${darkMode ? 'text-white/40' : 'text-gray-400'}`}
+                className={`flex items-center rounded-lg px-2 py-1.5 text-[11px] ${darkMode ? 'text-white/40' : 'text-gray-400'}`}
                 title="איפוס"
               >
                 <RotateCcw className="h-3 w-3" />
@@ -315,7 +247,113 @@ export function TransactionTableModal({
           </div>
         </div>
 
-        {/* Transaction list */}
+        {/* ── List header row: count + select toggle ───────────────── */}
+        <div className="flex items-center justify-between px-5 pb-2 shrink-0">
+          <p className={`text-[11px] ${muted}`}>
+            {selectMode && selectedIds.size > 0
+              ? `${selectedIds.size} נבחרו`
+              : `${sorted.length} תנועות`}
+          </p>
+          <button
+            type="button"
+            onClick={() => selectMode ? exitSelectMode() : setSelectMode(true)}
+            className={`flex items-center gap-1 text-[11px] font-semibold transition-colors ${
+              selectMode
+                ? darkMode ? 'text-red-400' : 'text-red-500'
+                : darkMode ? 'text-white/45' : 'text-gray-400'
+            }`}
+          >
+            {selectMode
+              ? <><X className="h-3 w-3" /> ביטול בחירה</>
+              : <><Square className="h-3 w-3" /> בחר</>
+            }
+          </button>
+        </div>
+
+        {/* ── Selection action bar — animated slide-in ─────────────── */}
+        <div
+          className="shrink-0 overflow-hidden"
+          style={{
+            maxHeight: selectMode ? 96 : 0,
+            opacity: selectMode ? 1 : 0,
+            transition: 'max-height 0.18s ease, opacity 0.16s ease',
+          }}
+        >
+          {/* Normal select bar */}
+          <div
+            className="overflow-hidden"
+            style={{
+              maxHeight: !confirmBulk ? 52 : 0,
+              opacity: !confirmBulk ? 1 : 0,
+              transition: 'max-height 0.14s ease, opacity 0.12s ease',
+            }}
+          >
+            <div className="flex items-center justify-between px-5 pb-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirmBulk(true)}
+                disabled={selectedIds.size === 0}
+                className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold text-white disabled:opacity-30"
+                style={{ ...tb, background: 'linear-gradient(135deg, #ef4444, #dc2626)', boxShadow: selectedIds.size > 0 ? '0 3px 0 rgba(185,28,28,0.45)' : 'none' }}
+                onPointerDown={selectedIds.size > 0 ? onPress : undefined}
+                onPointerUp={selectedIds.size > 0 ? onRelease : undefined}
+                onPointerLeave={selectedIds.size > 0 ? onRelease : undefined}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                מחק {selectedIds.size > 0 ? selectedIds.size : ''}
+              </button>
+              <button
+                type="button"
+                onClick={toggleSelectAll}
+                className={`text-[11px] font-medium ${darkMode ? 'text-white/55' : 'text-gray-500'}`}
+              >
+                {allSelected ? 'בטל הכל' : 'בחר הכל'}
+              </button>
+            </div>
+          </div>
+
+          {/* Confirm bar */}
+          <div
+            className="overflow-hidden"
+            style={{
+              maxHeight: confirmBulk ? 52 : 0,
+              opacity: confirmBulk ? 1 : 0,
+              transition: 'max-height 0.14s ease, opacity 0.12s ease',
+            }}
+          >
+            <div
+              className="mx-5 mb-3 flex items-center justify-between rounded-2xl px-4 py-2.5"
+              style={{
+                background: darkMode ? 'rgba(239,68,68,0.12)' : 'rgba(239,68,68,0.08)',
+                border: darkMode ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(239,68,68,0.2)',
+              }}
+            >
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  className="rounded-xl bg-red-500 px-3 py-1.5 text-[11px] font-semibold text-white"
+                  style={{ ...tb, boxShadow: '0 3px 0 rgba(185,28,28,0.45)' }}
+                  onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                >
+                  מחק {selectedIds.size}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmBulk(false)}
+                  className={`rounded-xl px-3 py-1.5 text-[11px] ${darkMode ? 'bg-white/10 text-white/70' : 'bg-gray-100 text-gray-600'}`}
+                  style={tb}
+                  onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                >
+                  ביטול
+                </button>
+              </div>
+              <p className={`text-[11px] ${darkMode ? 'text-red-400' : 'text-red-500'}`}>למחוק?</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Transaction list ─────────────────────────────────────── */}
         <div className="flex-1 overflow-y-auto px-3 pb-5">
           {sorted.length === 0 ? (
             <p className={`py-10 text-center text-sm ${muted}`}>
@@ -325,41 +363,45 @@ export function TransactionTableModal({
             <div className="flex flex-col gap-0.5">
               {sorted.map((entry) => {
                 const isUpcoming = entry.status === 'upcoming';
-                const isSelectable = !isUpcoming && selectMode;
                 const isSelected = selectedIds.has(entry.id);
+
+                // Income/expense color language for upcoming action buttons
+                const upcomingBg = entry.type === 'income'
+                  ? 'linear-gradient(135deg, #0ea5e9, #0284c7)'
+                  : 'linear-gradient(135deg, #8b5cf6, #ec4899)';
+                const upcomingShadow = entry.type === 'income'
+                  ? '0 3px 0 rgba(2,132,199,0.4)'
+                  : '0 3px 0 rgba(139,92,246,0.35)';
+
                 return (
                   <div key={entry.id}>
                     <div
-                      className={`flex items-center rounded-xl px-3 py-3 transition-colors ${
+                      className={`flex items-center rounded-xl px-3 py-3 transition-colors duration-100 ${
                         isSelected
-                          ? (darkMode ? 'bg-red-500/10' : 'bg-red-50')
+                          ? darkMode ? 'bg-red-500/10' : 'bg-red-50/70'
                           : isUpcoming
-                          ? (darkMode ? 'bg-white/3 opacity-75' : 'bg-violet-50/60 opacity-85')
+                          ? darkMode ? 'bg-white/3 opacity-75' : 'bg-violet-50/50 opacity-85'
                           : ''
                       }`}
+                      onClick={selectMode && !isUpcoming ? () => toggleSelect(entry.id) : undefined}
+                      style={selectMode && !isUpcoming ? { cursor: 'pointer' } : undefined}
                     >
-                      {/* Actions / select */}
+                      {/* Actions */}
                       <div className="flex shrink-0 items-center gap-1.5 pl-3">
                         {selectMode && !isUpcoming ? (
-                          <button
-                            type="button"
-                            onClick={() => toggleSelect(entry.id)}
-                            className={`flex h-8 w-8 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
-                            style={tactileBtn}
-                            onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
-                          >
+                          <div className={`flex h-7 w-7 items-center justify-center rounded-full ${darkMode ? 'bg-white/8' : 'bg-gray-100'}`}>
                             {isSelected
                               ? <CheckSquare className="h-4 w-4 text-red-500" />
-                              : <Square className={`h-4 w-4 ${darkMode ? 'text-white/40' : 'text-gray-400'}`} />
+                              : <Square className={`h-4 w-4 ${darkMode ? 'text-white/35' : 'text-gray-400'}`} />
                             }
-                          </button>
+                          </div>
                         ) : isUpcoming ? (
                           <div className="flex items-center gap-1">
                             <button
                               type="button"
                               onClick={() => onMarkAsPaid(entry)}
                               className="flex h-8 items-center justify-center rounded-xl px-2 text-[10px] font-semibold text-white leading-tight text-center"
-                              style={{ ...tactileBtn, background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', boxShadow: '0 3px 0 rgba(99,102,241,0.45)', maxWidth: 72 }}
+                              style={{ ...tb, background: upcomingBg, boxShadow: upcomingShadow, maxWidth: 72 }}
                               onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
                             >
                               {entry.type === 'income' ? 'סמן אם כבר נכנס' : 'סמן אם כבר יצא'}
@@ -368,7 +410,7 @@ export function TransactionTableModal({
                               type="button"
                               onClick={() => onDeleteRule(entry)}
                               className={`flex h-7 w-7 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
-                              style={{ ...tactileBtn, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
+                              style={{ ...tb, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
                               onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
                               title="מחק קבוע"
                             >
@@ -381,16 +423,16 @@ export function TransactionTableModal({
                               type="button"
                               onClick={() => onEdit(entry)}
                               className={`flex h-8 w-8 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
-                              style={{ ...tactileBtn, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
+                              style={{ ...tb, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
                               onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
                             >
                               <Pencil className={`h-3 w-3 ${darkMode ? 'text-white/60' : 'text-gray-500'}`} />
                             </button>
                             <button
                               type="button"
-                              onClick={() => setConfirmDeleteId(entry.id)}
+                              onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(entry.id); }}
                               className={`flex h-8 w-8 items-center justify-center rounded-full ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}
-                              style={{ ...tactileBtn, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
+                              style={{ ...tb, boxShadow: darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(0,0,0,0.08)' }}
                               onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
                             >
                               <Trash2 className={`h-3 w-3 ${darkMode ? 'text-white/60' : 'text-red-400'}`} />
@@ -400,18 +442,17 @@ export function TransactionTableModal({
                       </div>
 
                       {/* Entry info */}
-                      <div
-                        className="flex flex-1 items-center justify-between text-right"
-                        onClick={isSelectable ? () => toggleSelect(entry.id) : undefined}
-                        style={isSelectable ? { cursor: 'pointer' } : undefined}
-                      >
+                      <div className="flex flex-1 items-center justify-between text-right">
                         <div className="flex items-center gap-1.5">
-                          {entry.type === 'income' ? (
-                            <TrendingUp className="h-3.5 w-3.5 shrink-0 text-sky-500" />
-                          ) : (
-                            <TrendingDown className="h-3.5 w-3.5 shrink-0 text-violet-500" />
-                          )}
-                          <span className={`text-[14px] font-bold ${entry.type === 'income' ? (darkMode ? 'text-sky-300' : 'text-sky-600') : (darkMode ? 'text-purple-300' : 'text-violet-600')}`}>
+                          {entry.type === 'income'
+                            ? <TrendingUp className="h-3.5 w-3.5 shrink-0 text-sky-500" />
+                            : <TrendingDown className="h-3.5 w-3.5 shrink-0 text-violet-500" />
+                          }
+                          <span className={`text-[14px] font-bold ${
+                            entry.type === 'income'
+                              ? darkMode ? 'text-sky-300' : 'text-sky-700'
+                              : darkMode ? 'text-violet-300' : 'text-violet-600'
+                          }`}>
                             {entry.type === 'income' ? '+' : '-'}{formatCurrency(entry.amount)}
                           </span>
                         </div>
@@ -436,13 +477,13 @@ export function TransactionTableModal({
 
                     {/* Single delete confirm */}
                     {!isUpcoming && !selectMode && confirmDeleteId === entry.id && (
-                      <div className="mx-2 mb-1 flex items-center justify-between rounded-xl bg-red-500/20 px-3 py-2">
+                      <div className="mx-2 mb-1 flex items-center justify-between rounded-xl bg-red-500/15 px-3 py-2">
                         <div className="flex gap-2">
                           <button
                             type="button"
                             onClick={() => { onDelete(entry.id); setConfirmDeleteId(null); }}
                             className="rounded-lg bg-red-500 px-3 py-1.5 text-[11px] font-semibold text-white"
-                            style={{ ...tactileBtn, boxShadow: '0 3px 0 rgba(185,28,28,0.5)' }}
+                            style={{ ...tb, boxShadow: '0 3px 0 rgba(185,28,28,0.45)' }}
                             onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
                           >
                             מחק
@@ -451,13 +492,13 @@ export function TransactionTableModal({
                             type="button"
                             onClick={() => setConfirmDeleteId(null)}
                             className={`rounded-lg px-3 py-1.5 text-[11px] ${darkMode ? 'bg-white/10 text-white/70' : 'bg-gray-200 text-gray-700'}`}
-                            style={tactileBtn}
+                            style={tb}
                             onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
                           >
                             ביטול
                           </button>
                         </div>
-                        <p className="text-[11px] text-red-400">למחוק את הרשומה?</p>
+                        <p className="text-[11px] text-red-400">למחוק?</p>
                       </div>
                     )}
                   </div>

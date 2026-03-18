@@ -18,8 +18,9 @@ const HEBREW_MONTHS = [
   'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר',
 ];
 
+// Honest labels — no false certainty. "high" means strong parse/memory match, not guaranteed.
 const CONFIDENCE_LABELS: Record<ParsedRow['confidence'], string> = {
-  high: 'מובטח', suggestion: 'מוצע', ambiguous: 'לבחירה', inferred: 'ניחוש', unknown: 'לבדיקה',
+  high: 'זוהה בבטחה', suggestion: 'הצעה', ambiguous: 'לבחירה', inferred: 'ניחוש מבוסס', unknown: 'לבדיקה',
 };
 
 const CONFIDENCE_COLORS: Record<ParsedRow['confidence'], { badge: string; dot: string }> = {
@@ -186,9 +187,12 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
                 )}
 
                 <div className={`mt-4 rounded-xl px-4 py-3 text-right ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
-                  <p className={`text-[11px] font-semibold ${accent} mb-1`}>טיפ</p>
-                  <p className={`text-[11px] ${muted} leading-relaxed`}>
-                    Excel ו-CSV עובדים הכי טוב. PDF נתמך, אבל ייתכנו שגיאות הכרה שיש לאשר ידנית.
+                  <p className={`text-[11px] font-semibold ${accent} mb-1.5`}>מה עובד הכי טוב?</p>
+                  <p className={`text-[11px] ${muted} leading-relaxed mb-2`}>
+                    <span className="font-semibold">Excel ו-CSV</span> — פורמטים אמינים. הייבוא מדויק ומהיר.
+                  </p>
+                  <p className={`text-[11px] leading-relaxed ${darkMode ? 'text-amber-300/70' : 'text-amber-600/80'}`}>
+                    <span className="font-semibold">PDF</span> — עדיין לא אמין מספיק לשימוש יומיומי. עדיף לייצא מהבנק ישירות ל-Excel.
                   </p>
                 </div>
               </>

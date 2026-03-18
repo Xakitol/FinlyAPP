@@ -218,7 +218,6 @@ export default function App() {
           availableMonths={HEBREW_MONTH_NAMES}
           selectedMonthIndex={selectedMonthIndex}
           onMonthChange={handleMonthChange}
-          onOpenImport={() => setImportOpen(true)}
         />
 
         <FloatingCirclesHome

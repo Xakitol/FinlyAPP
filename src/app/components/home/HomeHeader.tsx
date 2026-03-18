@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Moon, Sparkles, Sun, Upload } from 'lucide-react';
+import { ChevronDown, Moon, Sparkles, Sun } from 'lucide-react';
 import { CircularButton } from '../buttons/CircularButton';
 import { GlassCard } from '../cards/GlassCard';
 
@@ -9,7 +9,6 @@ interface HomeHeaderProps {
   availableMonths: string[];
   selectedMonthIndex: number;
   onMonthChange: (index: number) => void;
-  onOpenImport?: () => void;
 }
 
 export function HomeHeader({
@@ -18,7 +17,6 @@ export function HomeHeader({
   availableMonths,
   selectedMonthIndex,
   onMonthChange,
-  onOpenImport,
 }: HomeHeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -42,17 +40,6 @@ export function HomeHeader({
             <Moon className="h-4 w-4 text-violet-600" />
           )}
         </CircularButton>
-
-        {onOpenImport && (
-          <CircularButton
-            size="sm"
-            variant="glass"
-            onClick={onOpenImport}
-            className="shrink-0"
-          >
-            <Upload className={`h-4 w-4 ${darkMode ? 'text-cyan-300' : 'text-violet-600'}`} />
-          </CircularButton>
-        )}
 
         {/* Month selector */}
         <div className="relative">

@@ -149,41 +149,51 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
             animation: 'coinFloat1 6s ease-in-out infinite',
           }}
         >
-          <p className={`text-[11px] font-semibold ${accent}`}>{snapshot.statusLabel}</p>
-
-          {/* Three-column balance row */}
-          <div className="flex w-full items-center mt-2">
+          {/* Three-column balance row — no status copy, no helper text */}
+          <div className="flex w-full items-center pt-1">
             {/* Income — right side in RTL */}
-            <div className="flex-1 text-right">
-              <p className={`text-[9px] ${muted}`}>הכנסות</p>
-              <p className={`text-[17px] font-bold ${darkMode ? 'text-sky-300' : 'text-sky-600'}`}>
+            <div className="flex-1 text-right min-w-0">
+              <p className={`text-[9px] font-medium mb-0.5 ${muted}`}>הכנסות</p>
+              <p
+                className={`font-bold leading-none ${darkMode ? 'text-sky-300' : 'text-sky-700'}`}
+                style={{ fontSize: formatCurrency(snapshot.income).length > 8 ? 13 : 15 }}
+              >
                 +{formatCurrency(snapshot.income)}
               </p>
             </div>
             {/* Main remaining — center */}
-            <div className="flex flex-col items-center px-3 shrink-0">
-              <p className={`text-[40px] font-bold leading-tight tracking-tight ${
-                snapshot.remaining > 50
-                  ? darkMode ? 'text-sky-300' : 'text-sky-600'
-                  : snapshot.remaining < -50
-                  ? darkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'
-                  : text
-              }`}>
+            <div className="flex flex-col items-center px-2 shrink-0">
+              <p className={`text-[9px] font-medium mb-1 ${muted}`}>נותר</p>
+              <p
+                className={`font-bold leading-none tracking-tight ${
+                  snapshot.remaining > 50
+                    ? darkMode ? 'text-sky-300' : 'text-sky-700'
+                    : snapshot.remaining < -50
+                    ? darkMode ? 'text-violet-300' : 'text-violet-700'
+                    : text
+                }`}
+                style={{
+                  fontSize: formatCurrency(snapshot.remaining).length > 10
+                    ? 26
+                    : formatCurrency(snapshot.remaining).length > 8
+                    ? 32
+                    : 40,
+                }}
+              >
                 {formatCurrency(snapshot.remaining)}
               </p>
             </div>
             {/* Expenses — left side in RTL */}
-            <div className="flex-1 text-left">
-              <p className={`text-[9px] ${muted}`}>הוצאות</p>
-              <p className={`text-[17px] font-bold ${darkMode ? 'text-fuchsia-400' : 'text-fuchsia-600'}`}>
+            <div className="flex-1 text-left min-w-0">
+              <p className={`text-[9px] font-medium mb-0.5 ${muted}`}>הוצאות</p>
+              <p
+                className={`font-bold leading-none ${darkMode ? 'text-violet-300' : 'text-violet-600'}`}
+                style={{ fontSize: formatCurrency(snapshot.expenses).length > 8 ? 13 : 15 }}
+              >
                 -{formatCurrency(snapshot.expenses)}
               </p>
             </div>
           </div>
-
-          <p className={`mt-2 text-center text-[11px] leading-relaxed ${muted}`}>
-            מה נשאר לכם עד סוף החודש
-          </p>
         </div>
 
         {/* ── Finly insight card — swipeable 3-card ──────────────── */}
