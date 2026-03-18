@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
+import { WelcomeScreen } from './components/WelcomeScreen';
 import { ChartModal } from './components/modals/ChartModal';
 import { InsightsModal } from './components/modals/InsightsModal';
 import { SavingsGoalModal } from './components/modals/SavingsGoalModal';
@@ -19,6 +20,12 @@ import type { ParsedRow } from '../utils/importParser';
 import type { FinanceEntry, RecurringRule, SavingsGoal } from '../types/finance';
 
 export default function App() {
+  // ── App screen routing ───────────────────────────────────────────────────────
+  // NOTE: must be declared before all other hooks — no early return allowed with hooks below
+  const [appScreen, setAppScreen] = useState<'welcome' | 'home'>(() =>
+    localStorage.getItem('finly_onboarded') ? 'home' : 'welcome'
+  );
+
   // ── Modal open state ────────────────────────────────────────────────────────
   const [insightsOpen, setInsightsOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
@@ -69,6 +76,18 @@ export default function App() {
   }, [selectedMonthIndex, monthEntriesMap, savingsGoalsMap, recurringRules]);
 
   const snapshot = useMemo(() => getHomeSnapshot(homeData), [homeData]);
+
+  // ── Routing handlers ─────────────────────────────────────────────────────────
+  function handleEnterApp() {
+    localStorage.setItem('finly_onboarded', '1');
+    setAppScreen('home');
+  }
+
+  // Dev-only: reset onboarding flag and return to Welcome without reload
+  function handleDevReset() {
+    localStorage.removeItem('finly_onboarded');
+    setAppScreen('welcome');
+  }
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -198,7 +217,18 @@ export default function App() {
     }));
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // ── Welcome screen ───────────────────────────────────────────────────────────
+  if (appScreen === 'welcome') {
+    return (
+      <WelcomeScreen
+        onLogin={handleEnterApp}
+        onSignup={handleEnterApp}
+        onDevReset={import.meta.env.DEV ? handleDevReset : undefined}
+      />
+    );
+  }
+
+  // ── Home screen ──────────────────────────────────────────────────────────────
   const backgroundGradient = darkMode
     ? 'linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #2a1f4a 100%)'
     : 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
