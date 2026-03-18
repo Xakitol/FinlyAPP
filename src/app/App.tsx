@@ -25,9 +25,13 @@ import type { FinanceEntry, RecurringRule, SavingsGoal } from '../types/finance'
 export default function App() {
   // ── App screen routing ───────────────────────────────────────────────────────
   // NOTE: must be declared before all other hooks — no early return allowed with hooks below
-  const [appScreen, setAppScreen] = useState<'welcome' | 'signup-method' | 'login-method' | 'phone-number' | 'home'>(() =>
-    localStorage.getItem('finly_onboarded') ? 'home' : 'welcome'
-  );
+  const [appScreen, setAppScreen] = useState<'welcome' | 'signup-method' | 'login-method' | 'phone-number' | 'login-phone' | 'home'>(() => {
+    if (!localStorage.getItem('finly_onboarded')) return 'welcome';
+    const lastActive = parseInt(localStorage.getItem('finly_last_active') ?? '0', 10);
+    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+    if (Date.now() - lastActive >= thirtyDaysMs) return 'login-method';
+    return 'home';
+  });
 
   // ── Modal open state ────────────────────────────────────────────────────────
   const [insightsOpen, setInsightsOpen] = useState(false);
@@ -81,18 +85,16 @@ export default function App() {
   const snapshot = useMemo(() => getHomeSnapshot(homeData), [homeData]);
 
   // ── Routing handlers ─────────────────────────────────────────────────────────
-  function handleEnterApp() {
+  function enterHome() {
     localStorage.setItem('finly_onboarded', '1');
+    localStorage.setItem('finly_last_active', String(Date.now()));
     setAppScreen('home');
   }
 
-  function handleSignupComplete() {
-    setAppScreen('phone-number');
-  }
-
-  // Dev-only: reset onboarding flag and return to Welcome without reload
+  // Dev-only: reset all auth state and return to Welcome without reload
   function handleDevReset() {
     localStorage.removeItem('finly_onboarded');
+    localStorage.removeItem('finly_last_active');
     setAppScreen('welcome');
   }
 
@@ -239,22 +241,19 @@ export default function App() {
     return (
       <SignupMethodScreen
         onBack={() => setAppScreen('welcome')}
-        onApple={handleSignupComplete}
-        onGoogle={handleSignupComplete}
-        onManual={handleSignupComplete}
+        onGoogle={() => setAppScreen('phone-number')}
+        onPhone={() => setAppScreen('phone-number')}
+        onApple={() => setAppScreen('phone-number')}
       />
     );
   }
 
-  // ── Phone number screen ───────────────────────────────────────────────────────
+  // ── Signup phone number screen ────────────────────────────────────────────────
   if (appScreen === 'phone-number') {
     return (
       <PhoneNumberScreen
         onBack={() => setAppScreen('signup-method')}
-        onContinue={() => {
-          localStorage.setItem('finly_onboarded', '1');
-          setAppScreen('home');
-        }}
+        onContinue={enterHome}
       />
     );
   }
@@ -264,9 +263,20 @@ export default function App() {
     return (
       <LoginMethodScreen
         onBack={() => setAppScreen('welcome')}
-        onApple={handleEnterApp}
-        onGoogle={handleEnterApp}
-        onManual={handleEnterApp}
+        onPhone={() => setAppScreen('login-phone')}
+        onBiometric={enterHome}
+        onGoogle={enterHome}
+        onApple={enterHome}
+      />
+    );
+  }
+
+  // ── Login phone number screen ─────────────────────────────────────────────────
+  if (appScreen === 'login-phone') {
+    return (
+      <PhoneNumberScreen
+        onBack={() => setAppScreen('login-method')}
+        onContinue={enterHome}
       />
     );
   }

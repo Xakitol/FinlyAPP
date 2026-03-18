@@ -1,12 +1,12 @@
 import { type CSSProperties } from 'react';
-import { ChevronRight, User } from 'lucide-react';
+import { ChevronRight, Phone } from 'lucide-react';
 import { StarField } from './effects/StarField';
 
 interface SignupMethodScreenProps {
   onBack: () => void;
-  onApple: () => void;
   onGoogle: () => void;
-  onManual: () => void;
+  onPhone: () => void;
+  onApple: () => void;
 }
 
 const KEYFRAMES = `
@@ -16,30 +16,14 @@ const KEYFRAMES = `
   }
 `;
 
-function glassOption(darkMode = false): CSSProperties {
-  return darkMode
-    ? {
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.14) 0%, rgba(180,160,255,0.06) 100%)',
-        border: '1px solid rgba(255,255,255,0.14)',
-        backdropFilter: 'blur(12px)',
-      }
-    : {
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(242,236,255,0.55) 100%)',
-        border: '1.5px solid rgba(255,255,255,0.90)',
-        backdropFilter: 'blur(14px)',
-      };
+function glassOption(): CSSProperties {
+  return {
+    background: 'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(242,236,255,0.55) 100%)',
+    border: '1.5px solid rgba(255,255,255,0.90)',
+    backdropFilter: 'blur(14px)',
+  };
 }
 
-// Apple icon SVG — inline to avoid dependency
-function AppleIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-    </svg>
-  );
-}
-
-// Google icon SVG — inline
 function GoogleIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24">
@@ -51,9 +35,20 @@ function GoogleIcon() {
   );
 }
 
-export function SignupMethodScreen({ onBack, onApple, onGoogle, onManual }: SignupMethodScreenProps) {
+function AppleIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+    </svg>
+  );
+}
+
+export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple }: SignupMethodScreenProps) {
   const backgroundGradient =
     'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
+
+  const shadowNeutral =
+    '0 6px 0 rgba(0,0,0,0.08), 0 10px 24px rgba(0,0,0,0.07), inset 0 1.5px 0 rgba(255,255,255,0.95)';
 
   return (
     <div
@@ -76,10 +71,9 @@ export function SignupMethodScreen({ onBack, onApple, onGoogle, onManual }: Sign
       </div>
 
       {/* Main content */}
-      <div
-        className="relative z-10 flex flex-col items-center w-full max-w-xs mx-auto px-6 pt-8 pb-10 flex-1"
-      >
-        {/* Title area */}
+      <div className="relative z-10 flex flex-col items-center w-full max-w-xs mx-auto px-6 pt-8 pb-10 flex-1">
+
+        {/* Title */}
         <div
           className="w-full text-right mb-8"
           style={{ animation: 'signupFadeUp 0.45s 0.05s cubic-bezier(0.22,1,0.36,1) both' }}
@@ -88,40 +82,21 @@ export function SignupMethodScreen({ onBack, onApple, onGoogle, onManual }: Sign
             ניצור לך חשבון
           </h2>
           <p className="mt-2 text-[14px] text-violet-500 leading-relaxed">
-            בחר איך להתחבר ל-Finly
+            בחר איך להירשם ל-Finly
           </p>
         </div>
 
-        {/* Options */}
+        {/* Options — Gmail → Phone → Apple */}
         <div className="w-full flex flex-col gap-3">
 
-          {/* Apple */}
-          <button
-            onClick={onApple}
-            className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform"
-            style={{
-              ...glassOption(),
-              boxShadow: '0 6px 0 rgba(0,0,0,0.08), 0 10px 24px rgba(0,0,0,0.07), inset 0 1.5px 0 rgba(255,255,255,0.95)',
-              animation: 'signupFadeUp 0.45s 0.14s cubic-bezier(0.22,1,0.36,1) both',
-            }}
-          >
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-gray-900"
-              style={{ background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.08)' }}
-            >
-              <AppleIcon />
-            </div>
-            <span className="flex-1 text-[15px] font-semibold text-gray-800">המשך עם Apple</span>
-          </button>
-
-          {/* Google */}
+          {/* Gmail */}
           <button
             onClick={onGoogle}
             className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform"
             style={{
               ...glassOption(),
-              boxShadow: '0 6px 0 rgba(0,0,0,0.08), 0 10px 24px rgba(0,0,0,0.07), inset 0 1.5px 0 rgba(255,255,255,0.95)',
-              animation: 'signupFadeUp 0.45s 0.22s cubic-bezier(0.22,1,0.36,1) both',
+              boxShadow: shadowNeutral,
+              animation: 'signupFadeUp 0.45s 0.14s cubic-bezier(0.22,1,0.36,1) both',
             }}
           >
             <div
@@ -130,31 +105,50 @@ export function SignupMethodScreen({ onBack, onApple, onGoogle, onManual }: Sign
             >
               <GoogleIcon />
             </div>
-            <span className="flex-1 text-[15px] font-semibold text-gray-800">המשך עם Google</span>
+            <span className="flex-1 text-[15px] font-semibold text-gray-800">הרשמה עם Gmail</span>
           </button>
 
-          {/* Manual */}
+          {/* Phone number */}
           <button
-            onClick={onManual}
+            onClick={onPhone}
             className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform"
             style={{
               ...glassOption(),
               boxShadow: '0 6px 0 rgba(109,40,217,0.14), 0 10px 24px rgba(139,92,246,0.10), inset 0 1.5px 0 rgba(255,255,255,0.95)',
-              animation: 'signupFadeUp 0.45s 0.30s cubic-bezier(0.22,1,0.36,1) both',
+              animation: 'signupFadeUp 0.45s 0.22s cubic-bezier(0.22,1,0.36,1) both',
             }}
           >
             <div
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
               style={{ background: 'rgba(124,58,237,0.10)', border: '1px solid rgba(124,58,237,0.16)' }}
             >
-              <User className="h-5 w-5 text-violet-600" strokeWidth={2} />
+              <Phone className="h-5 w-5 text-violet-600" strokeWidth={2} />
             </div>
-            <span className="flex-1 text-[15px] font-semibold text-gray-800">הרשמה ידנית</span>
+            <span className="flex-1 text-[15px] font-semibold text-gray-800">הרשמה עם מספר טלפון</span>
+          </button>
+
+          {/* Apple */}
+          <button
+            onClick={onApple}
+            className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform"
+            style={{
+              ...glassOption(),
+              boxShadow: shadowNeutral,
+              animation: 'signupFadeUp 0.45s 0.30s cubic-bezier(0.22,1,0.36,1) both',
+            }}
+          >
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-gray-900"
+              style={{ background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.08)' }}
+            >
+              <AppleIcon />
+            </div>
+            <span className="flex-1 text-[15px] font-semibold text-gray-800">הרשמה עם Apple</span>
           </button>
 
         </div>
 
-        {/* Footer note */}
+        {/* Footer */}
         <p
           className="mt-8 text-violet-400 text-xs text-center"
           style={{ animation: 'signupFadeUp 0.45s 0.40s cubic-bezier(0.22,1,0.36,1) both' }}
