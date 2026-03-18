@@ -5,7 +5,6 @@ import { StarField } from './effects/StarField';
 interface WelcomeScreenProps {
   onLogin: () => void;
   onSignup: () => void;
-  onDevReset?: () => void;
 }
 
 const KEYFRAMES = `
@@ -36,7 +35,7 @@ function glassBtn(primary: boolean): CSSProperties {
   };
 }
 
-export function WelcomeScreen({ onLogin, onSignup, onDevReset }: WelcomeScreenProps) {
+export function WelcomeScreen({ onLogin, onSignup }: WelcomeScreenProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -135,20 +134,6 @@ export function WelcomeScreen({ onLogin, onSignup, onDevReset }: WelcomeScreenPr
           הנתונים שלך נשמרים רק במכשיר שלך
         </p>
 
-        {/* Dev-only reset — visible pill badge, easy to tap during testing */}
-        {onDevReset && (
-          <button
-            onClick={onDevReset}
-            className="mt-6 px-4 py-2 rounded-full text-xs font-medium active:scale-95 transition-transform"
-            style={{
-              background: 'rgba(124,58,237,0.12)',
-              border: '1px solid rgba(124,58,237,0.30)',
-              color: 'rgba(109,40,217,0.70)',
-            }}
-          >
-            ← חזרה למסך פתיחה (dev)
-          </button>
-        )}
       </div>
     </div>
   );

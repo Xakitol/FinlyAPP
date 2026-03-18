@@ -1,5 +1,8 @@
 import { useMemo, useState, useEffect } from 'react';
 import { WelcomeScreen } from './components/WelcomeScreen';
+import { SignupMethodScreen } from './components/SignupMethodScreen';
+import { LoginMethodScreen } from './components/LoginMethodScreen';
+import { PhoneNumberScreen } from './components/PhoneNumberScreen';
 import { ChartModal } from './components/modals/ChartModal';
 import { InsightsModal } from './components/modals/InsightsModal';
 import { SavingsGoalModal } from './components/modals/SavingsGoalModal';
@@ -22,7 +25,7 @@ import type { FinanceEntry, RecurringRule, SavingsGoal } from '../types/finance'
 export default function App() {
   // ── App screen routing ───────────────────────────────────────────────────────
   // NOTE: must be declared before all other hooks — no early return allowed with hooks below
-  const [appScreen, setAppScreen] = useState<'welcome' | 'home'>(() =>
+  const [appScreen, setAppScreen] = useState<'welcome' | 'signup-method' | 'login-method' | 'phone-number' | 'home'>(() =>
     localStorage.getItem('finly_onboarded') ? 'home' : 'welcome'
   );
 
@@ -81,6 +84,10 @@ export default function App() {
   function handleEnterApp() {
     localStorage.setItem('finly_onboarded', '1');
     setAppScreen('home');
+  }
+
+  function handleSignupComplete() {
+    setAppScreen('phone-number');
   }
 
   // Dev-only: reset onboarding flag and return to Welcome without reload
@@ -221,9 +228,45 @@ export default function App() {
   if (appScreen === 'welcome') {
     return (
       <WelcomeScreen
-        onLogin={handleEnterApp}
-        onSignup={handleEnterApp}
-        onDevReset={import.meta.env.DEV ? handleDevReset : undefined}
+        onLogin={() => setAppScreen('login-method')}
+        onSignup={() => setAppScreen('signup-method')}
+      />
+    );
+  }
+
+  // ── Signup method screen ──────────────────────────────────────────────────────
+  if (appScreen === 'signup-method') {
+    return (
+      <SignupMethodScreen
+        onBack={() => setAppScreen('welcome')}
+        onApple={handleSignupComplete}
+        onGoogle={handleSignupComplete}
+        onManual={handleSignupComplete}
+      />
+    );
+  }
+
+  // ── Phone number screen ───────────────────────────────────────────────────────
+  if (appScreen === 'phone-number') {
+    return (
+      <PhoneNumberScreen
+        onBack={() => setAppScreen('signup-method')}
+        onContinue={() => {
+          localStorage.setItem('finly_onboarded', '1');
+          setAppScreen('home');
+        }}
+      />
+    );
+  }
+
+  // ── Login method screen ───────────────────────────────────────────────────────
+  if (appScreen === 'login-method') {
+    return (
+      <LoginMethodScreen
+        onBack={() => setAppScreen('welcome')}
+        onApple={handleEnterApp}
+        onGoogle={handleEnterApp}
+        onManual={handleEnterApp}
       />
     );
   }
@@ -240,6 +283,20 @@ export default function App() {
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={darkMode} />
+
+      {import.meta.env.DEV && (
+        <button
+          onClick={handleDevReset}
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-xs font-medium active:scale-95 transition-transform"
+          style={{
+            background: 'rgba(124,58,237,0.12)',
+            border: '1px solid rgba(124,58,237,0.30)',
+            color: 'rgba(109,40,217,0.70)',
+          }}
+        >
+          ← חזרה למסך פתיחה (dev)
+        </button>
+      )}
 
       <div className="relative z-10 mx-auto w-full max-w-md px-4 pt-4 pb-8 sm:px-5">
         <HomeHeader
@@ -259,6 +316,7 @@ export default function App() {
           onOpenUpcoming={() => setUpcomingOpen(true)}
           onOpenIncome={() => setIncomeOpen(true)}
           onOpenExpenses={() => setExpensesOpen(true)}
+          onOpenImport={() => setImportOpen(true)}
         />
       </div>
 

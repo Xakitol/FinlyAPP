@@ -26,6 +26,7 @@ interface FloatingCirclesHomeProps {
   onOpenUpcoming: () => void;
   onOpenIncome: () => void;
   onOpenExpenses: () => void;
+  onOpenImport: () => void;
 }
 
 const KEYFRAMES = `
@@ -85,7 +86,7 @@ const PRESS_DOWN = {
   },
 };
 
-export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTransactions, onOpenSavingsGoal, onOpenUpcoming, onOpenIncome, onOpenExpenses }: FloatingCirclesHomeProps) {
+export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTransactions, onOpenSavingsGoal, onOpenUpcoming, onOpenIncome, onOpenExpenses, onOpenImport }: FloatingCirclesHomeProps) {
   const text = darkMode ? 'text-white' : 'text-gray-800';
   const muted = darkMode ? 'text-white/55' : 'text-gray-500';
   const accent = darkMode ? 'text-sky-300' : 'text-violet-600';
