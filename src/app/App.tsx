@@ -3,6 +3,7 @@ import { ChartModal } from './components/modals/ChartModal';
 import { InsightsModal } from './components/modals/InsightsModal';
 import { SavingsGoalModal } from './components/modals/SavingsGoalModal';
 import { TransactionFormModal } from './components/modals/TransactionFormModal';
+import { AddTransactionModal } from './components/modals/AddTransactionModal';
 import { TransactionTableModal } from './components/modals/TransactionTableModal';
 import { UpcomingExpensesModal } from './components/modals/UpcomingExpensesModal';
 import { IncomeBreakdownModal } from './components/modals/IncomeBreakdownModal';
@@ -30,6 +31,7 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [editingEntry, setEditingEntry] = useState<FinanceEntry | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
 
   // ── Month selection ─────────────────────────────────────────────────────────
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(DEFAULT_MONTH_INDEX);
@@ -152,42 +154,30 @@ export default function App() {
   }
 
   function handleImport(rows: ParsedRow[]) {
+    // Always import into the currently viewed month so entries are immediately visible
+    const ts = Date.now();
     let memory = loadDescMemory();
-    const grouped: Record<number, FinanceEntry[]> = {};
-
-    for (const row of rows) {
-      // Determine month index from date, fallback to selectedMonthIndex
-      let monthIndex = selectedMonthIndex;
-      if (row.date) {
-        const m = parseInt(row.date.slice(5, 7), 10);
-        if (m >= 1 && m <= 12) monthIndex = m - 1;
-      }
-      if (!grouped[monthIndex]) grouped[monthIndex] = [];
-      const entry: FinanceEntry = {
-        id: `entry-${Date.now()}-${row.id}`,
+    const newEntries: FinanceEntry[] = rows.map((row, i) => {
+      memory = recordTransaction(memory, row.description, row.type, row.category);
+      return {
+        id: `entry-${ts}-${i}`,
         date: row.date || new Date().toISOString().slice(0, 10),
         title: row.description,
         amount: row.amount,
         type: row.type,
         category: row.category,
         paymentMethod: 'bank',
-        status: 'recorded',
-        source: 'manual',
+        status: 'recorded' as const,
+        source: 'manual' as const,
         recurring: false,
+        countsTowardRemaining: true,
       };
-      grouped[monthIndex].push(entry);
-      memory = recordTransaction(memory, row.description, row.type, row.category);
-    }
-
-    saveDescMemory(memory);
-    setMonthEntriesMap((prev) => {
-      const next = { ...prev };
-      for (const [idx, entries] of Object.entries(grouped)) {
-        const key = Number(idx);
-        next[key] = [...(prev[key] ?? []), ...entries];
-      }
-      return next;
     });
+    saveDescMemory(memory);
+    setMonthEntriesMap((prev) => ({
+      ...prev,
+      [selectedMonthIndex]: [...(prev[selectedMonthIndex] ?? []), ...newEntries],
+    }));
   }
 
   function handleSaveSavingsGoal(targetAmount: number) {
@@ -226,7 +216,7 @@ export default function App() {
         <FloatingCirclesHome
           darkMode={darkMode}
           snapshot={snapshot}
-          onAddClick={() => { setEditingEntry(null); setFormOpen(true); }}
+          onAddClick={() => setAddOpen(true)}
           onOpenTransactions={() => setTableOpen(true)}
           onOpenSavingsGoal={() => setSavingsGoalOpen(true)}
           onOpenUpcoming={() => setUpcomingOpen(true)}
@@ -251,6 +241,13 @@ export default function App() {
         onSave={handleSaveEntry}
       />
 
+      <AddTransactionModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        darkMode={darkMode}
+        onSave={handleSaveEntry}
+      />
+
       <TransactionTableModal
         open={tableOpen}
         onClose={() => setTableOpen(false)}
@@ -260,6 +257,7 @@ export default function App() {
         onDelete={handleDeleteEntry}
         onMarkAsPaid={handleMarkAsPaid}
         onDeleteRule={handleDeleteRule}
+        onOpenImport={() => setImportOpen(true)}
       />
 
       <UpcomingExpensesModal

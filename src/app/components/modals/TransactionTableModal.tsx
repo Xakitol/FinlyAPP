@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
-import { X, Search, Pencil, Trash2, FileSpreadsheet, FileText, ArrowUpDown, RotateCcw, TrendingUp, TrendingDown } from 'lucide-react';
+import { X, Search, Pencil, Trash2, FileSpreadsheet, FileText, ArrowUpDown, RotateCcw, TrendingUp, TrendingDown, Upload, Download } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 import type { FinanceEntry } from '../../../types/finance';
 
@@ -15,6 +15,7 @@ interface TransactionTableModalProps {
   onDelete: (id: string) => void;
   onMarkAsPaid: (entry: FinanceEntry) => void;
   onDeleteRule: (entry: FinanceEntry) => void;
+  onOpenImport?: () => void;
 }
 
 function exportToExcel(entries: FinanceEntry[]) {
@@ -92,10 +93,13 @@ export function TransactionTableModal({
   onDelete,
   onMarkAsPaid,
   onDeleteRule,
+  onOpenImport,
 }: TransactionTableModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('date');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [importExpanded, setImportExpanded] = useState(false);
+  const [exportExpanded, setExportExpanded] = useState(false);
 
   // Light mode uses darker text for readability on bright glass
   const text = darkMode ? 'text-white' : 'text-gray-900';
@@ -167,40 +171,128 @@ export function TransactionTableModal({
           <h2 className={`text-lg font-bold ${text}`}>רשימת תנועות</h2>
         </div>
 
-        {/* Export buttons */}
-        <div className="flex gap-2 px-5 pb-3">
-          <button
-            type="button"
-            onClick={() => exportToExcel(sorted)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12px] font-semibold text-white"
-            style={{
-              ...tactileBtn,
-              background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
-              boxShadow: '0 4px 0 rgba(2,132,199,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
-            }}
-            onPointerDown={onPress}
-            onPointerUp={onRelease}
-            onPointerLeave={onRelease}
-          >
-            <FileSpreadsheet className="h-3.5 w-3.5" />
-            ייצוא Excel
-          </button>
-          <button
-            type="button"
-            onClick={() => exportToPrintPDF(sorted)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12px] font-semibold text-white"
-            style={{
-              ...tactileBtn,
-              background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-              boxShadow: '0 4px 0 rgba(139,92,246,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
-            }}
-            onPointerDown={onPress}
-            onPointerUp={onRelease}
-            onPointerLeave={onRelease}
-          >
-            <FileText className="h-3.5 w-3.5" />
-            ייצוא PDF
-          </button>
+        {/* Import / Export controls */}
+        <div className="px-5 pb-3 relative">
+          {/* Click-outside overlay */}
+          {(importExpanded || exportExpanded) && (
+            <div
+              className="fixed inset-0 z-10"
+              onClick={() => { setImportExpanded(false); setExportExpanded(false); }}
+            />
+          )}
+          <div className="relative z-20 flex gap-3">
+            {/* ── Import ── */}
+            <div className="flex flex-1 flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => { setExportExpanded(false); setImportExpanded((v) => !v); }}
+                className="flex w-full items-center justify-center gap-1.5 rounded-2xl py-2.5 text-[12px] font-semibold text-white"
+                style={{
+                  ...tactileBtn,
+                  background: importExpanded
+                    ? 'linear-gradient(135deg, #4f46e5, #7c3aed)'
+                    : 'linear-gradient(135deg, #6366f1, #a855f7)',
+                  boxShadow: importExpanded
+                    ? '0 2px 0 rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.15)'
+                    : '0 4px 0 rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
+                  transform: importExpanded ? 'translateY(2px)' : '',
+                  transition: 'transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease',
+                }}
+                onPointerDown={onPress}
+                onPointerUp={onRelease}
+                onPointerLeave={onRelease}
+              >
+                <Upload className="h-3.5 w-3.5" />
+                ייבוא קבצים
+              </button>
+              {/* Expand panel */}
+              <div
+                style={{
+                  maxHeight: importExpanded ? 52 : 0,
+                  opacity: importExpanded ? 1 : 0,
+                  overflow: 'hidden',
+                  transition: 'max-height 0.22s ease, opacity 0.18s ease',
+                }}
+              >
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { onOpenImport?.(); setImportExpanded(false); }}
+                    className="flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-semibold text-white"
+                    style={{ ...tactileBtn, background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', boxShadow: '0 3px 0 rgba(2,132,199,0.45)' }}
+                    onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                  >
+                    <FileSpreadsheet className="h-3 w-3" /> Excel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { onOpenImport?.(); setImportExpanded(false); }}
+                    className="flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-semibold text-white"
+                    style={{ ...tactileBtn, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 3px 0 rgba(139,92,246,0.45)' }}
+                    onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                  >
+                    <FileText className="h-3 w-3" /> PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Export ── */}
+            <div className="flex flex-1 flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => { setImportExpanded(false); setExportExpanded((v) => !v); }}
+                className="flex w-full items-center justify-center gap-1.5 rounded-2xl py-2.5 text-[12px] font-semibold text-white"
+                style={{
+                  ...tactileBtn,
+                  background: exportExpanded
+                    ? 'linear-gradient(135deg, #4f46e5, #7c3aed)'
+                    : 'linear-gradient(135deg, #6366f1, #a855f7)',
+                  boxShadow: exportExpanded
+                    ? '0 2px 0 rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.15)'
+                    : '0 4px 0 rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
+                  transform: exportExpanded ? 'translateY(2px)' : '',
+                  transition: 'transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease',
+                }}
+                onPointerDown={onPress}
+                onPointerUp={onRelease}
+                onPointerLeave={onRelease}
+              >
+                <Download className="h-3.5 w-3.5" />
+                ייצוא קבצים
+              </button>
+              {/* Expand panel */}
+              <div
+                style={{
+                  maxHeight: exportExpanded ? 52 : 0,
+                  opacity: exportExpanded ? 1 : 0,
+                  overflow: 'hidden',
+                  transition: 'max-height 0.22s ease, opacity 0.18s ease',
+                }}
+              >
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { exportToExcel(sorted); setExportExpanded(false); }}
+                    className="flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-semibold text-white"
+                    style={{ ...tactileBtn, background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', boxShadow: '0 3px 0 rgba(2,132,199,0.45)' }}
+                    onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                  >
+                    <FileSpreadsheet className="h-3 w-3" /> Excel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { exportToPrintPDF(sorted); setExportExpanded(false); }}
+                    className="flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[11px] font-semibold text-white"
+                    style={{ ...tactileBtn, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', boxShadow: '0 3px 0 rgba(139,92,246,0.45)' }}
+                    onPointerDown={onPress} onPointerUp={onRelease} onPointerLeave={onRelease}
+                  >
+                    <FileText className="h-3 w-3" /> PDF
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Search + Sort */}
