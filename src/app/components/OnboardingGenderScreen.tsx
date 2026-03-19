@@ -1,3 +1,4 @@
+import { Mars, Venus } from 'lucide-react';
 import { StarField } from './effects/StarField';
 
 interface Props {
@@ -31,7 +32,7 @@ export function OnboardingGenderScreen({ onContinue }: Props) {
 
       <div className="relative z-10 w-full max-w-xs px-6 flex flex-col gap-8">
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-3xl font-bold text-violet-900">היי {name}!</h1>
+          <h1 className="text-3xl font-bold text-violet-900">באיזה לשון לפנות אליך?</h1>
           <p className="text-base font-medium text-violet-500">איך נוח לך שנפנה אליך?</p>
         </div>
 
@@ -39,16 +40,18 @@ export function OnboardingGenderScreen({ onContinue }: Props) {
           {/* RTL: right card = זכר, left card = נקבה */}
           <button
             onClick={() => handleSelect('male')}
-            className="flex-1 rounded-3xl py-12 flex items-center justify-center font-semibold text-lg text-violet-800 active:scale-[0.97] transition-transform"
+            className="flex-1 rounded-3xl py-10 flex flex-col items-center justify-center gap-3 font-semibold text-lg text-violet-800 active:scale-[0.97] transition-transform"
             style={cardStyle}
           >
+            <Mars size={28} style={{ color: '#7c3aed' }} strokeWidth={1.8} />
             בלשון זכר
           </button>
           <button
             onClick={() => handleSelect('female')}
-            className="flex-1 rounded-3xl py-12 flex items-center justify-center font-semibold text-lg text-violet-800 active:scale-[0.97] transition-transform"
+            className="flex-1 rounded-3xl py-10 flex flex-col items-center justify-center gap-3 font-semibold text-lg text-violet-800 active:scale-[0.97] transition-transform"
             style={cardStyle}
           >
+            <Venus size={28} style={{ color: '#ec4899' }} strokeWidth={1.8} />
             בלשון נקבה
           </button>
         </div>

@@ -8,7 +8,8 @@ export async function signInWithGoogle(): Promise<string | null> {
     const firstName = fullName.split(' ')[0] ?? '';
     localStorage.setItem('finly_user_name', firstName);
     return firstName;
-  } catch {
+  } catch (err) {
+    console.error('[authGoogle] signInWithPopup failed:', err);
     return null;
   }
 }

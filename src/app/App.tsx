@@ -9,6 +9,7 @@ import { OnboardingGenderScreen } from './components/OnboardingGenderScreen';
 import { OnboardingHouseholdScreen } from './components/OnboardingHouseholdScreen';
 import { OnboardingGoalsScreen } from './components/OnboardingGoalsScreen';
 import { OnboardingSuccessScreen } from './components/OnboardingSuccessScreen';
+import { OnboardingWelcomeScreen } from './components/OnboardingWelcomeScreen';
 import { ChartModal } from './components/modals/ChartModal';
 import { InsightsModal } from './components/modals/InsightsModal';
 import { SavingsGoalModal } from './components/modals/SavingsGoalModal';
@@ -24,6 +25,7 @@ import { HomeHeader } from './components/home/HomeHeader';
 import { FloatingCirclesHome } from './components/home/FloatingCirclesHome';
 import { HEBREW_MONTH_NAMES, YEAR, DEFAULT_MONTH_INDEX } from '../data/mockHome';
 import { getHomeSnapshot, projectRecurringRules } from '../utils/homeCalculations';
+import { signInWithGoogle } from '../utils/authGoogle';
 import { loadDescMemory, saveDescMemory, recordTransaction } from '../utils/descMemory';
 import type { ParsedRow } from '../utils/importParser';
 import type { FinanceEntry, RecurringRule, SavingsGoal } from '../types/finance';
@@ -33,7 +35,7 @@ export default function App() {
   // NOTE: must be declared before all other hooks — no early return allowed with hooks below
   const [appScreen, setAppScreen] = useState<
     'welcome' | 'signup-method' | 'login-method' | 'phone-number' | 'login-phone' | 'email-signup' | 'login-email' | 'home' |
-    'onboarding-name' | 'onboarding-gender' | 'onboarding-household' | 'onboarding-goals' | 'onboarding-success'
+    'onboarding-name' | 'onboarding-gender' | 'onboarding-household' | 'onboarding-goals' | 'onboarding-welcome' | 'onboarding-success'
   >(() => {
     if (!localStorage.getItem('finly_onboarded')) return 'welcome';
     const lastActive = parseInt(localStorage.getItem('finly_last_active') ?? '0', 10);
@@ -110,6 +112,14 @@ export default function App() {
     } else {
       setAppScreen('home');
     }
+  }
+
+  async function handleGoogleSignup() {
+    const name = await signInWithGoogle();
+    if (name) {
+      enterHomeAfterSignupSkipName();
+    }
+    // if null — do nothing, stay on signup screen
   }
 
   // Used by signup paths only — routes to onboarding if not yet completed
@@ -273,7 +283,7 @@ export default function App() {
     return (
       <SignupMethodScreen
         onBack={() => setAppScreen('welcome')}
-        onGoogle={enterHomeAfterSignupSkipName}
+        onGoogle={handleGoogleSignup}
         onPhone={() => setAppScreen('phone-number')}
         onApple={enterHomeAfterSignup}
         onEmail={() => setAppScreen('email-signup')}
@@ -315,7 +325,11 @@ export default function App() {
   }
 
   if (appScreen === 'onboarding-goals') {
-    return <OnboardingGoalsScreen onContinue={() => setAppScreen('onboarding-success')} />;
+    return <OnboardingGoalsScreen onContinue={() => setAppScreen('onboarding-welcome')} />;
+  }
+
+  if (appScreen === 'onboarding-welcome') {
+    return <OnboardingWelcomeScreen onContinue={() => setAppScreen('onboarding-success')} />;
   }
 
   if (appScreen === 'onboarding-success') {
@@ -340,6 +354,7 @@ export default function App() {
   if (appScreen === 'login-email') {
     return (
       <EmailSignupScreen
+        mode="login"
         onBack={() => setAppScreen('login-method')}
         onContinue={enterHome}
       />

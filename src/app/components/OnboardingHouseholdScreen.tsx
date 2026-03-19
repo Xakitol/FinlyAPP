@@ -1,3 +1,4 @@
+import { User, Users, Home, Baby, type LucideIcon } from 'lucide-react';
 import { StarField } from './effects/StarField';
 
 interface Props {
@@ -8,16 +9,16 @@ type HouseholdType = 'solo' | 'partner' | 'family' | 'single-parent';
 
 interface Option {
   value: HouseholdType;
-  emoji: string;
+  icon: LucideIcon;
   label: string;
   description: string;
 }
 
 const OPTIONS: Option[] = [
-  { value: 'solo', emoji: '🧍', label: 'רק אני', description: 'מנהל/ת את הכסף לבד' },
-  { value: 'partner', emoji: '👫', label: 'אני והשותף/ה שלי', description: 'מתנהלים ביחד' },
-  { value: 'family', emoji: '👨‍👩‍👧‍👦', label: 'משפחה עם ילדים', description: 'כלכלת בית מלאה' },
-  { value: 'single-parent', emoji: '🧑‍👧', label: 'הורה עם ילדים', description: 'מנהל/ת לבד עם ילדים' },
+  { value: 'solo',          icon: User,  label: 'רק אני',              description: 'מנהל/ת את הכסף לבד' },
+  { value: 'partner',       icon: Users, label: 'אני והשותף/ה שלי',    description: 'מתנהלים ביחד' },
+  { value: 'family',        icon: Home,  label: 'משפחה עם ילדים',      description: 'כלכלת בית מלאה' },
+  { value: 'single-parent', icon: Baby,  label: 'הורה עם ילדים',       description: 'מנהל/ת לבד עם ילדים' },
 ];
 
 export function OnboardingHouseholdScreen({ onContinue }: Props) {
@@ -35,6 +36,18 @@ export function OnboardingHouseholdScreen({ onContinue }: Props) {
     boxShadow: '0 4px 20px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.55)',
   };
 
+  const iconWrapStyle: React.CSSProperties = {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(236,72,153,0.10) 100%)',
+    border: '1px solid rgba(124,58,237,0.15)',
+  };
+
   return (
     <div
       dir="rtl"
@@ -50,20 +63,25 @@ export function OnboardingHouseholdScreen({ onContinue }: Props) {
         </div>
 
         <div className="flex flex-col gap-3">
-          {OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => handleSelect(opt.value)}
-              className="w-full rounded-2xl px-5 py-4 flex items-center gap-4 active:scale-[0.98] transition-transform text-right"
-              style={cardStyle}
-            >
-              <span className="text-3xl flex-shrink-0">{opt.emoji}</span>
-              <div className="flex flex-col items-start">
-                <span className="font-semibold text-base text-violet-900">{opt.label}</span>
-                <span className="text-sm text-violet-500 mt-0.5">{opt.description}</span>
-              </div>
-            </button>
-          ))}
+          {OPTIONS.map((opt) => {
+            const Icon = opt.icon;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => handleSelect(opt.value)}
+                className="w-full rounded-2xl px-5 py-4 flex items-center gap-4 active:scale-[0.98] transition-transform text-right"
+                style={cardStyle}
+              >
+                <div style={iconWrapStyle}>
+                  <Icon size={24} strokeWidth={1.8} style={{ color: '#7c3aed' }} />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="font-semibold text-base text-violet-900">{opt.label}</span>
+                  <span className="text-sm text-violet-500 mt-0.5">{opt.description}</span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { StarField } from './effects/StarField';
+import { signUpWithEmail } from '../utils/authEmail';
+import { signInWithEmail } from '../utils/authEmail';
 
 interface EmailSignupScreenProps {
   onBack: () => void;
-  onContinue: (name: string, email: string) => void;
+  onContinue: () => void;
+  mode?: 'signup' | 'login';
 }
 
 const KEYFRAMES = `
@@ -23,17 +26,46 @@ const inputStyle = {
   boxShadow: '0 4px 16px rgba(139,92,246,0.10), inset 0 1.5px 0 rgba(255,255,255,0.95)',
 };
 
-export function EmailSignupScreen({ onBack, onContinue }: EmailSignupScreenProps) {
+export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: EmailSignupScreenProps) {
+  const isLogin = mode === 'login';
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const nameValid = name.trim().length > 0;
+  const nameValid = isLogin || name.trim().length > 0;
   const emailValid = EMAIL_RE.test(email.trim());
-  const canContinue = nameValid && emailValid;
+  const passwordValid = password.length >= 6;
+  const canContinue = nameValid && emailValid && passwordValid;
 
-  function handleSubmit() {
-    if (!canContinue) return;
-    onContinue(name.trim(), email.trim().toLowerCase());
+  async function handleSubmit() {
+    if (!canContinue || loading) return;
+    setLoading(true);
+    setError('');
+
+    if (isLogin) {
+      const ok = await signInWithEmail(email.trim().toLowerCase(), password);
+      setLoading(false);
+      if (ok) {
+        onContinue();
+      } else {
+        setError('משהו השתבש, נסה שוב');
+      }
+    } else {
+      if (name.trim()) localStorage.setItem('finly_user_name', name.trim());
+      const result = await signUpWithEmail(email.trim().toLowerCase(), password);
+      setLoading(false);
+      if (result.ok) {
+        onContinue();
+      } else if (result.code === 'auth/email-already-in-use') {
+        setError('האימייל הזה כבר רשום — נסה להתחבר במקום');
+      } else {
+        setError('משהו השתבש, נסה שוב');
+      }
+    }
   }
 
   return (
@@ -65,10 +97,10 @@ export function EmailSignupScreen({ onBack, onContinue }: EmailSignupScreenProps
           style={{ animation: 'emailFadeUp 0.45s 0.05s cubic-bezier(0.22,1,0.36,1) both' }}
         >
           <h2 className="text-[24px] font-bold text-violet-900 leading-tight tracking-tight">
-            הרשמה עם אימייל
+            {isLogin ? 'כניסה עם אימייל' : 'הרשמה עם אימייל'}
           </h2>
           <p className="mt-2 text-[14px] text-violet-500 leading-relaxed">
-            מלא את הפרטים כדי ליצור את החשבון שלך
+            {isLogin ? 'הכנס את פרטי החשבון שלך' : 'מלא את הפרטים כדי ליצור את החשבון שלך'}
           </p>
         </div>
 
@@ -77,34 +109,63 @@ export function EmailSignupScreen({ onBack, onContinue }: EmailSignupScreenProps
           className="w-full flex flex-col gap-3 mb-5"
           style={{ animation: 'emailFadeUp 0.45s 0.14s cubic-bezier(0.22,1,0.36,1) both' }}
         >
-          {/* Full name */}
-          <input
-            type="text"
-            placeholder="שם מלא"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-violet-900 placeholder:text-violet-300 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
-            style={inputStyle}
-            autoComplete="name"
-          />
+          {/* Full name — signup only */}
+          {!isLogin && (
+            <input
+              type="text"
+              placeholder="שם מלא"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-violet-900 placeholder:text-violet-300 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
+              style={inputStyle}
+              autoComplete="name"
+            />
+          )}
+
           {/* Email */}
           <input
             type="email"
             inputMode="email"
             placeholder="כתובת אימייל"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            onChange={(e) => { setEmail(e.target.value); setError(''); }}
             className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-violet-900 placeholder:text-violet-300 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
             style={inputStyle}
             autoComplete="email"
           />
+
+          {/* Password with show/hide toggle */}
+          <div className="relative w-full">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="סיסמה (לפחות 6 תווים)"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setError(''); }}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-violet-900 placeholder:text-violet-300 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
+              style={inputStyle}
+              autoComplete={isLogin ? 'current-password' : 'new-password'}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-violet-400 active:opacity-60 transition-opacity"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          {/* Inline error */}
+          {error && (
+            <p className="text-[13px] text-rose-500 text-right font-medium px-1">{error}</p>
+          )}
         </div>
 
         {/* CTA */}
         <button
           onClick={handleSubmit}
-          disabled={!canContinue}
+          disabled={!canContinue || loading}
           className="w-full rounded-2xl py-4 font-semibold text-[16px] transition-all active:scale-[0.97]"
           style={{
             animation: 'emailFadeUp 0.45s 0.22s cubic-bezier(0.22,1,0.36,1) both',
@@ -119,7 +180,7 @@ export function EmailSignupScreen({ onBack, onContinue }: EmailSignupScreenProps
             color: canContinue ? 'white' : 'rgba(109,40,217,0.45)',
           }}
         >
-          המשך
+          {loading ? '...' : 'המשך'}
         </button>
 
         {/* Footer */}

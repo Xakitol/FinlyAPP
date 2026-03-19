@@ -70,7 +70,7 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
     setLoadingProvider('google');
     const result = await signInWithGoogle();
     setLoadingProvider(null);
-    if (result.success) onGoogle();
+    if (result !== null) onGoogle();
   }
 
   async function handleApple() {
