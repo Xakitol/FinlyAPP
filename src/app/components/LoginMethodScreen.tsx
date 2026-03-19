@@ -93,15 +93,17 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
       <StarField darkMode={false} />
 
       {/* Back button */}
-      <div className="relative z-10 px-4 pt-5">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1 text-violet-600 text-[14px] font-medium active:opacity-70 transition-opacity"
-        >
-          <ChevronRight className="h-4 w-4" />
-          חזרה
-        </button>
-      </div>
+      <button
+        onClick={onBack}
+        className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full flex items-center justify-center active:opacity-60 transition-opacity"
+        style={{
+          background: 'rgba(255,255,255,0.35)',
+          border: '1px solid rgba(255,255,255,0.50)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+      </button>
 
       {/* Main content */}
       <div className="relative z-10 flex flex-col w-full max-w-xs mx-auto px-6 pt-8 pb-10 flex-1">
