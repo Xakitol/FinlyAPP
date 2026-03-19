@@ -49,7 +49,7 @@ export function WelcomeScreen({ onLogin, onSignup }: WelcomeScreenProps) {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative flex flex-col items-center justify-center"
+      className="min-h-screen w-full relative flex flex-col items-center justify-center animate-in fade-in duration-500"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <style>{KEYFRAMES}</style>

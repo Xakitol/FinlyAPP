@@ -313,23 +313,23 @@ export default function App() {
 
   // ── Onboarding screens ────────────────────────────────────────────────────────
   if (appScreen === 'onboarding-name') {
-    return <OnboardingNameScreen onContinue={() => setAppScreen('onboarding-gender')} />;
+    return <OnboardingNameScreen onContinue={() => setAppScreen('onboarding-gender')} onBack={() => setAppScreen('signup-method')} />;
   }
 
   if (appScreen === 'onboarding-gender') {
-    return <OnboardingGenderScreen onContinue={() => setAppScreen('onboarding-household')} />;
+    return <OnboardingGenderScreen onContinue={() => setAppScreen('onboarding-household')} onBack={() => setAppScreen('onboarding-name')} />;
   }
 
   if (appScreen === 'onboarding-household') {
-    return <OnboardingHouseholdScreen onContinue={() => setAppScreen('onboarding-goals')} />;
+    return <OnboardingHouseholdScreen onContinue={() => setAppScreen('onboarding-goals')} onBack={() => setAppScreen('onboarding-gender')} />;
   }
 
   if (appScreen === 'onboarding-goals') {
-    return <OnboardingGoalsScreen onContinue={() => setAppScreen('onboarding-welcome')} />;
+    return <OnboardingGoalsScreen onContinue={() => setAppScreen('onboarding-welcome')} onBack={() => setAppScreen('onboarding-household')} />;
   }
 
   if (appScreen === 'onboarding-welcome') {
-    return <OnboardingWelcomeScreen onContinue={() => setAppScreen('onboarding-success')} />;
+    return <OnboardingWelcomeScreen onContinue={() => setAppScreen('onboarding-success')} onBack={() => setAppScreen('onboarding-goals')} />;
   }
 
   if (appScreen === 'onboarding-success') {

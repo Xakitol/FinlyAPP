@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
+  onBack: () => void;
 }
 
-export function OnboardingNameScreen({ onContinue }: Props) {
+export function OnboardingNameScreen({ onContinue, onBack }: Props) {
   const [name, setName] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,6 +33,19 @@ export function OnboardingNameScreen({ onContinue }: Props) {
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={false} />
+
+      {/* Back button */}
+      <button
+        onClick={onBack}
+        className="absolute top-4 right-4 z-20 flex items-center justify-center w-9 h-9 rounded-full active:opacity-60 transition-opacity"
+        style={{
+          background: 'rgba(255,255,255,0.35)',
+          border: '1px solid rgba(255,255,255,0.50)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+      </button>
 
       <div className="relative z-10 w-full max-w-xs px-6 flex flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-2 text-center">

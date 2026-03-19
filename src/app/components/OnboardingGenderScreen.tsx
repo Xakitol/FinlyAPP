@@ -1,11 +1,12 @@
-import { Mars, Venus } from 'lucide-react';
+import { Mars, Venus, ChevronRight } from 'lucide-react';
 import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
+  onBack: () => void;
 }
 
-export function OnboardingGenderScreen({ onContinue }: Props) {
+export function OnboardingGenderScreen({ onContinue, onBack }: Props) {
   const name = localStorage.getItem('finly_user_name') ?? '';
 
   function handleSelect(gender: 'male' | 'female') {
@@ -22,6 +23,12 @@ export function OnboardingGenderScreen({ onContinue }: Props) {
     boxShadow: '0 4px 20px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.55)',
   };
 
+  const backBtnStyle: React.CSSProperties = {
+    background: 'rgba(255,255,255,0.35)',
+    border: '1px solid rgba(255,255,255,0.50)',
+    backdropFilter: 'blur(8px)',
+  };
+
   return (
     <div
       dir="rtl"
@@ -30,6 +37,15 @@ export function OnboardingGenderScreen({ onContinue }: Props) {
     >
       <StarField darkMode={false} />
 
+      {/* Back button */}
+      <button
+        onClick={onBack}
+        className="absolute top-4 right-4 z-20 flex items-center justify-center w-9 h-9 rounded-full active:opacity-60 transition-opacity"
+        style={backBtnStyle}
+      >
+        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+      </button>
+
       <div className="relative z-10 w-full max-w-xs px-6 flex flex-col gap-8">
         <div className="flex flex-col gap-2 text-center">
           <h1 className="text-3xl font-bold text-violet-900">באיזה לשון לפנות אליך?</h1>
@@ -37,7 +53,6 @@ export function OnboardingGenderScreen({ onContinue }: Props) {
         </div>
 
         <div className="flex gap-3">
-          {/* RTL: right card = זכר, left card = נקבה */}
           <button
             onClick={() => handleSelect('male')}
             className="flex-1 rounded-3xl py-10 flex flex-col items-center justify-center gap-3 font-semibold text-lg text-violet-800 active:scale-[0.97] transition-transform"

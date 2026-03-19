@@ -1,8 +1,9 @@
-import { User, Users, Home, Baby, type LucideIcon } from 'lucide-react';
+import { User, Users, Home, Baby, ChevronRight, type LucideIcon } from 'lucide-react';
 import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
+  onBack: () => void;
 }
 
 type HouseholdType = 'solo' | 'partner' | 'family' | 'single-parent';
@@ -21,7 +22,7 @@ const OPTIONS: Option[] = [
   { value: 'single-parent', icon: Baby,  label: 'הורה עם ילדים',       description: 'מנהל/ת לבד עם ילדים' },
 ];
 
-export function OnboardingHouseholdScreen({ onContinue }: Props) {
+export function OnboardingHouseholdScreen({ onContinue, onBack }: Props) {
   function handleSelect(value: HouseholdType) {
     localStorage.setItem('finly_user_household', value);
     onContinue();
@@ -55,6 +56,19 @@ export function OnboardingHouseholdScreen({ onContinue }: Props) {
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={false} />
+
+      {/* Back button */}
+      <button
+        onClick={onBack}
+        className="absolute top-4 right-4 z-20 flex items-center justify-center w-9 h-9 rounded-full active:opacity-60 transition-opacity"
+        style={{
+          background: 'rgba(255,255,255,0.35)',
+          border: '1px solid rgba(255,255,255,0.50)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+      </button>
 
       <div className="relative z-10 w-full max-w-xs px-6 flex flex-col gap-6">
         <div className="flex flex-col gap-2 text-center">

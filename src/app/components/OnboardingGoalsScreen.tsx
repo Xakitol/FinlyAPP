@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Check, TrendingUp, PieChart, PiggyBank, BellOff, Heart, Eye, type LucideIcon } from 'lucide-react';
+import { Check, TrendingUp, PieChart, PiggyBank, BellOff, Heart, Eye, ChevronRight, type LucideIcon } from 'lucide-react';
 import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
+  onBack: () => void;
 }
 
 interface GoalOption {
@@ -24,7 +25,7 @@ const GOALS: GoalOption[] = [
 
 const iconColor = 'linear-gradient(135deg, #7c3aed, #ec4899)';
 
-export function OnboardingGoalsScreen({ onContinue }: Props) {
+export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   function toggleGoal(id: string) {
@@ -64,6 +65,19 @@ export function OnboardingGoalsScreen({ onContinue }: Props) {
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={false} />
+
+      {/* Back button */}
+      <button
+        onClick={onBack}
+        className="absolute top-4 right-4 z-20 flex items-center justify-center w-9 h-9 rounded-full active:opacity-60 transition-opacity"
+        style={{
+          background: 'rgba(255,255,255,0.35)',
+          border: '1px solid rgba(255,255,255,0.50)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+      </button>
 
       <div className="relative z-10 w-full max-w-xs mx-auto px-6 py-10 flex flex-col gap-6">
         <div className="flex flex-col gap-2 text-center">

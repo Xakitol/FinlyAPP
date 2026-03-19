@@ -72,7 +72,7 @@ export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative flex flex-col"
+      className="min-h-screen w-full relative flex flex-col animate-in fade-in duration-500"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <style>{KEYFRAMES}</style>

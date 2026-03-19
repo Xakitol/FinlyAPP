@@ -1,7 +1,9 @@
+import { ChevronRight } from 'lucide-react';
 import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
+  onBack: () => void;
 }
 
 const BLOCKS = [
@@ -32,7 +34,7 @@ const cardStyle: React.CSSProperties = {
   direction: 'rtl',
 };
 
-export function OnboardingWelcomeScreen({ onContinue }: Props) {
+export function OnboardingWelcomeScreen({ onContinue, onBack }: Props) {
   const backgroundGradient = 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
 
   return (
@@ -42,6 +44,19 @@ export function OnboardingWelcomeScreen({ onContinue }: Props) {
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient, textAlign: 'right', direction: 'rtl' }}
     >
       <StarField darkMode={false} />
+
+      {/* Back button */}
+      <button
+        onClick={onBack}
+        className="absolute top-4 right-4 z-20 flex items-center justify-center w-9 h-9 rounded-full active:opacity-60 transition-opacity"
+        style={{
+          background: 'rgba(255,255,255,0.35)',
+          border: '1px solid rgba(255,255,255,0.50)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+      </button>
 
       {/* Scrollable content with bottom padding for sticky CTA */}
       <div className="relative z-10 w-full max-w-xs mx-auto px-6 pt-10 pb-28 flex flex-col gap-5">
