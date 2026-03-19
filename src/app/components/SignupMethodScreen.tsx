@@ -59,7 +59,7 @@ export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail
     setLoadingProvider('google');
     const result = await signInWithGoogle();
     setLoadingProvider(null);
-    if (result.success) onGoogle();
+    if (result !== null) onGoogle();
   }
 
   async function handleApple() {

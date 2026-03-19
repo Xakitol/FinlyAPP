@@ -38,7 +38,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
 
         <div className="flex flex-col gap-3">
           <h1 className="text-3xl font-bold text-violet-900">הכל מוכן, {name}! 💜</h1>
-          <p className="text-base font-medium text-violet-500">Finly מותאם לך ומוכן לצד שלך</p>
+          <p className="text-base font-medium text-violet-500">Finly מוכן לצעוד איתך לחברות פיננסית</p>
         </div>
 
         <button

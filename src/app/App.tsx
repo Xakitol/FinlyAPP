@@ -101,6 +101,17 @@ export default function App() {
     setAppScreen('home');
   }
 
+  // Used by Google signup — name already saved, skip to gender screen
+  function enterHomeAfterSignupSkipName() {
+    localStorage.setItem('finly_onboarded', '1');
+    localStorage.setItem('finly_last_active', String(Date.now()));
+    if (!localStorage.getItem('finly_onboarded_complete')) {
+      setAppScreen('onboarding-gender');
+    } else {
+      setAppScreen('home');
+    }
+  }
+
   // Used by signup paths only — routes to onboarding if not yet completed
   function enterHomeAfterSignup() {
     localStorage.setItem('finly_onboarded', '1');
@@ -262,7 +273,7 @@ export default function App() {
     return (
       <SignupMethodScreen
         onBack={() => setAppScreen('welcome')}
-        onGoogle={enterHomeAfterSignup}
+        onGoogle={enterHomeAfterSignupSkipName}
         onPhone={() => setAppScreen('phone-number')}
         onApple={enterHomeAfterSignup}
         onEmail={() => setAppScreen('email-signup')}

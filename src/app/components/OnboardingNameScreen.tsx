@@ -34,8 +34,7 @@ export function OnboardingNameScreen({ onContinue }: Props) {
 
       <div className="relative z-10 w-full max-w-xs px-6 flex flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-3xl font-bold text-violet-900">מה השם שלך?</h1>
-          <p className="text-base font-medium text-violet-500">נפנה אליך בשם</p>
+          <h1 className="text-3xl font-bold text-violet-900">איך קוראים לך?</h1>
         </div>
 
         <input

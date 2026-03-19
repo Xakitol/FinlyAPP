@@ -46,7 +46,7 @@ export function OnboardingHouseholdScreen({ onContinue }: Props) {
       <div className="relative z-10 w-full max-w-xs px-6 flex flex-col gap-6">
         <div className="flex flex-col gap-2 text-center">
           <h1 className="text-3xl font-bold text-violet-900">מי מתנהל איתך?</h1>
-          <p className="text-base font-medium text-violet-500">כדי שנדע איך לדבר אתך על הכסף</p>
+          <p className="text-base font-medium text-violet-500">Finly יזהה איך מתנהל משק הבית שלך ויתאים את עצמו אליך</p>
         </div>
 
         <div className="flex flex-col gap-3">
