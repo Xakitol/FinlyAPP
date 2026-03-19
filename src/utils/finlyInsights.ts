@@ -418,9 +418,81 @@ function getSavingsCard(d: InsightInput): string {
   return pick(BANKS.savings_tight, d);
 }
 
+// ── Goal-specific message banks ───────────────────────────────────────────────
+
+const GOAL_BANKS = {
+  savings_focused: [
+    'יש יעד חיסכון פעיל — פיינלי עוקב ורוצה לוודא שאנחנו בכיוון הנכון.',
+    'החיסכון הוא עדיפות שלך — פיינלי שם לב שהמספרים עוזרים להגיע לשם.',
+    'יעד החיסכון שלך ממתין. פיינלי מציע לוודא שיש מרווח מהחודש הזה.',
+    'מחויבים לחיסכון — בואו נוודא שהחודש תורם לכיוון הנכון.',
+    'פיינלי עוקב אחרי יעד החיסכון שלך. עוד חודש עם מרווח — עוד צעד קדימה.',
+  ],
+  spending_breakdown: [
+    'הוצאות החודש מתגבשות. שווה לעשות בדיקת ביניים ולראות לאן הכסף הולך.',
+    'פיינלי מסתכל על ההוצאות שלך ומחפש דפוסים. שווה להציץ בפירוט.',
+    'הבנת ההוצאות מתחילה בצפייה בהן. פיינלי מציע לבדוק את הפירוט.',
+    'אם רוצים לדעת לאן הכסף הולך — הצעד הראשון הוא לפתוח את הפירוט.',
+    'פיינלי עוקב אחרי ההוצאות שלך. מה שנמדד — מנוהל.',
+  ],
+  end_plus: [
+    'הפנוי הנוכחי נמוך יחסית להכנסה. כדאי להאט קצת בהוצאות כדי לסיים בחיוב.',
+    'רוצים לסיים את החודש בפלוס? פיינלי מציין שהמרווח הנוכחי צמוד.',
+    'המרחק מהאפס קטן. שמירה על ריסון בהוצאות תעשה את ההבדל.',
+    'סיום חודש בפלוס מתחיל בהחלטות עכשיו. פיינלי שם לב.',
+    'כשהפנוי נמוך — כל הוצאה לא הכרחית היא הוצאה שלא צריך.',
+  ],
+  upcoming_alert: [
+    'יש הוצאות קרובות שממתינות. פיינלי מציע לא לפתוח חודש חדש בלי לראות אותן.',
+    'הוצאות צפויות בדרך — כדאי לוודא שיש מרווח לפניהן.',
+    'לפני שמחליטים מה לעשות עם הפנוי — בדקו מה מגיע בקרוב.',
+    'פיינלי מזכיר: יש התחייבויות קרובות. שמרו חלק מהמרווח בשבילן.',
+    'ההוצאות הקרובות הן אמיתיות ויגיעו. פיינלי שם אותן בחשבון.',
+  ],
+  feel_safe: [
+    'פיינלי כאן, עוקב בשקט, ושומר על סדר בכספים שלך.',
+    'אתם לא לבד עם הכסף. פיינלי עוקב בכל חודש ומחזיק אתכם מעודכנים.',
+    'שקט נפשי עם כסף מתחיל בידיעה. פיינלי כאן כדי שתמיד תדעו.',
+    'כל תנועה שתוסיפו עוזרת לפיינלי לתת לכם תמונה ברורה ורגועה יותר.',
+    'פיינלי שומר עין על המספרים — כדי שאתם לא צריכים לדאוג.',
+  ],
+};
+
+function pickGoal(bank: string[], d: InsightInput): string {
+  const idx = Math.abs(Math.round(d.income + d.expenses + d.remaining)) % bank.length;
+  return bank[idx];
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
-/** Returns [stateCard, timeCard, savingsCard] */
-export function getInsightCards(d: InsightInput): [string, string, string] {
-  return [getStateCard(d), getTimeCard(d), getSavingsCard(d)];
+/** Returns [stateCard, timeCard, savingsCard] optionally reordered by user goals */
+export function getInsightCards(d: InsightInput, goals: string[] = []): [string, string, string] {
+  const stateCard = getStateCard(d);
+  const timeCard = getTimeCard(d);
+  const savingsCard = getSavingsCard(d);
+
+  if (goals.length === 0) return [stateCard, timeCard, savingsCard];
+
+  // Goal-based prioritization: surface the most relevant goal insight first
+  if (goals.includes('build-savings') && d.savingsTarget > 0) {
+    return [pickGoal(GOAL_BANKS.savings_focused, d), stateCard, savingsCard];
+  }
+
+  if (goals.includes('no-surprises') && d.upcomingExpenses > 0) {
+    return [pickGoal(GOAL_BANKS.upcoming_alert, d), stateCard, savingsCard];
+  }
+
+  if (goals.includes('end-plus') && d.income > 0 && d.remaining < d.income * 0.2) {
+    return [pickGoal(GOAL_BANKS.end_plus, d), stateCard, timeCard];
+  }
+
+  if (goals.includes('understand-spending') && d.expenses > 0) {
+    return [pickGoal(GOAL_BANKS.spending_breakdown, d), stateCard, savingsCard];
+  }
+
+  if (goals.includes('feel-safe')) {
+    return [pickGoal(GOAL_BANKS.feel_safe, d), stateCard, timeCard];
+  }
+
+  return [stateCard, timeCard, savingsCard];
 }

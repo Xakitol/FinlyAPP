@@ -3,6 +3,12 @@ import { WelcomeScreen } from './components/WelcomeScreen';
 import { SignupMethodScreen } from './components/SignupMethodScreen';
 import { LoginMethodScreen } from './components/LoginMethodScreen';
 import { PhoneNumberScreen } from './components/PhoneNumberScreen';
+import { EmailSignupScreen } from './components/EmailSignupScreen';
+import { OnboardingNameScreen } from './components/OnboardingNameScreen';
+import { OnboardingGenderScreen } from './components/OnboardingGenderScreen';
+import { OnboardingHouseholdScreen } from './components/OnboardingHouseholdScreen';
+import { OnboardingGoalsScreen } from './components/OnboardingGoalsScreen';
+import { OnboardingSuccessScreen } from './components/OnboardingSuccessScreen';
 import { ChartModal } from './components/modals/ChartModal';
 import { InsightsModal } from './components/modals/InsightsModal';
 import { SavingsGoalModal } from './components/modals/SavingsGoalModal';
@@ -25,11 +31,15 @@ import type { FinanceEntry, RecurringRule, SavingsGoal } from '../types/finance'
 export default function App() {
   // ── App screen routing ───────────────────────────────────────────────────────
   // NOTE: must be declared before all other hooks — no early return allowed with hooks below
-  const [appScreen, setAppScreen] = useState<'welcome' | 'signup-method' | 'login-method' | 'phone-number' | 'login-phone' | 'home'>(() => {
+  const [appScreen, setAppScreen] = useState<
+    'welcome' | 'signup-method' | 'login-method' | 'phone-number' | 'login-phone' | 'email-signup' | 'login-email' | 'home' |
+    'onboarding-name' | 'onboarding-gender' | 'onboarding-household' | 'onboarding-goals' | 'onboarding-success'
+  >(() => {
     if (!localStorage.getItem('finly_onboarded')) return 'welcome';
     const lastActive = parseInt(localStorage.getItem('finly_last_active') ?? '0', 10);
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
     if (Date.now() - lastActive >= thirtyDaysMs) return 'login-method';
+    if (!localStorage.getItem('finly_onboarded_complete')) return 'onboarding-name';
     return 'home';
   });
 
@@ -89,6 +99,17 @@ export default function App() {
     localStorage.setItem('finly_onboarded', '1');
     localStorage.setItem('finly_last_active', String(Date.now()));
     setAppScreen('home');
+  }
+
+  // Used by signup paths only — routes to onboarding if not yet completed
+  function enterHomeAfterSignup() {
+    localStorage.setItem('finly_onboarded', '1');
+    localStorage.setItem('finly_last_active', String(Date.now()));
+    if (!localStorage.getItem('finly_onboarded_complete')) {
+      setAppScreen('onboarding-name');
+    } else {
+      setAppScreen('home');
+    }
   }
 
   // Dev-only: reset all auth state and return to Welcome without reload
@@ -241,9 +262,10 @@ export default function App() {
     return (
       <SignupMethodScreen
         onBack={() => setAppScreen('welcome')}
-        onGoogle={() => setAppScreen('phone-number')}
+        onGoogle={enterHomeAfterSignup}
         onPhone={() => setAppScreen('phone-number')}
-        onApple={() => setAppScreen('phone-number')}
+        onApple={enterHomeAfterSignup}
+        onEmail={() => setAppScreen('email-signup')}
       />
     );
   }
@@ -253,9 +275,40 @@ export default function App() {
     return (
       <PhoneNumberScreen
         onBack={() => setAppScreen('signup-method')}
-        onContinue={enterHome}
+        onContinue={enterHomeAfterSignup}
       />
     );
+  }
+
+  // ── Email signup screen ───────────────────────────────────────────────────────
+  if (appScreen === 'email-signup') {
+    return (
+      <EmailSignupScreen
+        onBack={() => setAppScreen('signup-method')}
+        onContinue={enterHomeAfterSignup}
+      />
+    );
+  }
+
+  // ── Onboarding screens ────────────────────────────────────────────────────────
+  if (appScreen === 'onboarding-name') {
+    return <OnboardingNameScreen onContinue={() => setAppScreen('onboarding-gender')} />;
+  }
+
+  if (appScreen === 'onboarding-gender') {
+    return <OnboardingGenderScreen onContinue={() => setAppScreen('onboarding-household')} />;
+  }
+
+  if (appScreen === 'onboarding-household') {
+    return <OnboardingHouseholdScreen onContinue={() => setAppScreen('onboarding-goals')} />;
+  }
+
+  if (appScreen === 'onboarding-goals') {
+    return <OnboardingGoalsScreen onContinue={() => setAppScreen('onboarding-success')} />;
+  }
+
+  if (appScreen === 'onboarding-success') {
+    return <OnboardingSuccessScreen onContinue={() => setAppScreen('home')} />;
   }
 
   // ── Login method screen ───────────────────────────────────────────────────────
@@ -267,6 +320,17 @@ export default function App() {
         onBiometric={enterHome}
         onGoogle={enterHome}
         onApple={enterHome}
+        onEmail={() => setAppScreen('login-email')}
+      />
+    );
+  }
+
+  // ── Login email screen ────────────────────────────────────────────────────────
+  if (appScreen === 'login-email') {
+    return (
+      <EmailSignupScreen
+        onBack={() => setAppScreen('login-method')}
+        onContinue={enterHome}
       />
     );
   }

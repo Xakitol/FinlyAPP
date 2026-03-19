@@ -1,6 +1,8 @@
 import { useState, type CSSProperties } from 'react';
-import { ChevronRight, Phone, ChevronDown } from 'lucide-react';
+import { ChevronRight, Phone, ChevronDown, Mail } from 'lucide-react';
 import { StarField } from './effects/StarField';
+import { signInWithGoogle } from '../utils/authGoogle';
+import { signInWithApple } from '../utils/authApple';
 
 interface LoginMethodScreenProps {
   onBack: () => void;
@@ -8,6 +10,7 @@ interface LoginMethodScreenProps {
   onBiometric: () => void;
   onGoogle: () => void;
   onApple: () => void;
+  onEmail: () => void;
 }
 
 const KEYFRAMES = `
@@ -59,8 +62,23 @@ function BiometricIcon() {
   );
 }
 
-export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onApple }: LoginMethodScreenProps) {
+export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onApple, onEmail }: LoginMethodScreenProps) {
   const [showMore, setShowMore] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState<'google' | 'apple' | null>(null);
+
+  async function handleGoogle() {
+    setLoadingProvider('google');
+    const result = await signInWithGoogle();
+    setLoadingProvider(null);
+    if (result.success) onGoogle();
+  }
+
+  async function handleApple() {
+    setLoadingProvider('apple');
+    const result = await signInWithApple();
+    setLoadingProvider(null);
+    if (result.success) onApple();
+  }
 
   const backgroundGradient =
     'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
@@ -170,7 +188,7 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
           {/* Animated reveal */}
           <div
             style={{
-              maxHeight: showMore ? 200 : 0,
+              maxHeight: showMore ? 280 : 0,
               opacity: showMore ? 1 : 0,
               overflow: 'hidden',
               transition: 'max-height 0.22s ease, opacity 0.18s ease',
@@ -180,8 +198,9 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
 
               {/* Gmail */}
               <button
-                onClick={onGoogle}
-                className="w-full flex items-center gap-4 rounded-2xl px-5 py-3.5 text-right active:scale-[0.97] transition-transform"
+                onClick={handleGoogle}
+                disabled={loadingProvider !== null}
+                className="w-full flex items-center gap-4 rounded-2xl px-5 py-3.5 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
                 style={{
                   ...glassOption(),
                   boxShadow: '0 4px 0 rgba(0,0,0,0.06), 0 8px 18px rgba(0,0,0,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)',
@@ -191,15 +210,18 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                   style={{ background: 'rgba(66,133,244,0.08)', border: '1px solid rgba(66,133,244,0.14)' }}
                 >
-                  <GoogleIcon />
+                  {loadingProvider === 'google'
+                    ? <div className="h-4 w-4 rounded-full border-2 border-blue-400 border-t-transparent animate-spin" />
+                    : <GoogleIcon />}
                 </div>
                 <span className="flex-1 text-[14px] font-semibold text-gray-800">כניסה עם Gmail</span>
               </button>
 
               {/* Apple */}
               <button
-                onClick={onApple}
-                className="w-full flex items-center gap-4 rounded-2xl px-5 py-3.5 text-right active:scale-[0.97] transition-transform"
+                onClick={handleApple}
+                disabled={loadingProvider !== null}
+                className="w-full flex items-center gap-4 rounded-2xl px-5 py-3.5 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
                 style={{
                   ...glassOption(),
                   boxShadow: '0 4px 0 rgba(0,0,0,0.06), 0 8px 18px rgba(0,0,0,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)',
@@ -209,9 +231,30 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-gray-900"
                   style={{ background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.08)' }}
                 >
-                  <AppleIcon />
+                  {loadingProvider === 'apple'
+                    ? <div className="h-4 w-4 rounded-full border-2 border-gray-500 border-t-transparent animate-spin" />
+                    : <AppleIcon />}
                 </div>
                 <span className="flex-1 text-[14px] font-semibold text-gray-800">כניסה עם Apple</span>
+              </button>
+
+              {/* Email */}
+              <button
+                onClick={onEmail}
+                disabled={loadingProvider !== null}
+                className="w-full flex items-center gap-4 rounded-2xl px-5 py-3.5 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
+                style={{
+                  ...glassOption(),
+                  boxShadow: '0 4px 0 rgba(0,0,0,0.06), 0 8px 18px rgba(0,0,0,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)',
+                }}
+              >
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                  style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.14)' }}
+                >
+                  <Mail className="h-4 w-4 text-indigo-500" strokeWidth={2} />
+                </div>
+                <span className="flex-1 text-[14px] font-semibold text-gray-800">כניסה עם אימייל</span>
               </button>
 
             </div>
