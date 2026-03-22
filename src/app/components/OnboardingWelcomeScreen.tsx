@@ -1,12 +1,10 @@
 import { ChevronRight } from 'lucide-react';
-import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
   onBack: () => void;
 }
 
-const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
 
 const BLOCKS = [
   {
@@ -41,10 +39,8 @@ export function OnboardingWelcomeScreen({ onContinue, onBack }: Props) {
     <div
       dir="rtl"
       className="h-screen w-full relative overflow-hidden finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: BG, textAlign: 'right', direction: 'rtl' }}
+      style={{ fontFamily: 'Rubik, sans-serif', textAlign: 'right', direction: 'rtl' }}
     >
-      <StarField darkMode={true} />
-
       {/* Back button */}
       <button
         onClick={onBack}

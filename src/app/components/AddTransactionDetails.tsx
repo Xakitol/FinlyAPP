@@ -4,7 +4,6 @@ import {
   UtensilsCrossed, Home, Car, Music, Shield, Tv, Zap, Heart, MoreHorizontal,
   Briefcase, Laptop, Gift, RotateCcw,
 } from 'lucide-react';
-import { StarField } from './effects/StarField';
 import type { FinanceEntry } from '../../types/finance';
 
 interface Props {
@@ -151,9 +150,8 @@ export function AddTransactionDetails({ type, amount, recurring, onBack, onSave 
     <div
       dir="rtl"
       className="fixed inset-0 z-50 flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}
+      style={{ fontFamily: 'Rubik, sans-serif' }}
     >
-      <StarField darkMode={true} />
 
       {/* Back button */}
       <button

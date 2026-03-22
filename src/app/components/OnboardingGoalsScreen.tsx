@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Check, TrendingUp, PieChart, PiggyBank, BellOff, Heart, Eye, ChevronRight, type LucideIcon } from 'lucide-react';
-import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
@@ -23,7 +22,6 @@ const GOALS: GoalOption[] = [
   { id: 'no-fear',            icon: Eye,        label: 'להסתכל לכסף שלי בלבן של העיניים בלי פחד', subtitle: 'להתיידד עם פיינלי ולהפסיק לברוח מהמספרים' },
 ];
 
-const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
 
 export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -60,9 +58,8 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
     <div
       dir="rtl"
       className="h-screen w-full relative overflow-hidden finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
+      style={{ fontFamily: 'Rubik, sans-serif' }}
     >
-      <StarField darkMode={true} />
 
       {/* Back button */}
       <button

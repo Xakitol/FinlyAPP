@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Sparkles } from 'lucide-react';
-import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
@@ -64,12 +63,10 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
       className="h-screen w-full relative flex flex-col items-center justify-center finly-safe"
       style={{
         fontFamily: 'Rubik, sans-serif',
-        background: BG,
         animation: isFading ? 'successFadeOut 0.4s ease-out forwards' : undefined,
       }}
     >
       <style>{KEYFRAMES}</style>
-      <StarField darkMode={true} />
 
       <div className="relative z-10 flex flex-col items-center gap-5 text-center px-6">
 

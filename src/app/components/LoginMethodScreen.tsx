@@ -1,6 +1,5 @@
 import { useState, type CSSProperties } from 'react';
 import { ChevronRight, Phone, ChevronDown, Mail } from 'lucide-react';
-import { StarField } from './effects/StarField';
 import { signInWithGoogle } from '../utils/authGoogle';
 import { signInWithApple } from '../utils/authApple';
 
@@ -13,7 +12,6 @@ interface LoginMethodScreenProps {
   onEmail: () => void;
 }
 
-const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
 
 const KEYFRAMES = `
   @keyframes loginFadeUp {
@@ -86,10 +84,9 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
+      style={{ fontFamily: 'Rubik, sans-serif' }}
     >
       <style>{KEYFRAMES}</style>
-      <StarField darkMode={true} />
 
       {/* Back button */}
       <button

@@ -21,7 +21,6 @@ import { UpcomingExpensesModal } from './components/modals/UpcomingExpensesModal
 import { IncomeBreakdownModal } from './components/modals/IncomeBreakdownModal';
 import { ExpenseBreakdownModal } from './components/modals/ExpenseBreakdownModal';
 import { ImportModal } from './components/modals/ImportModal';
-import { StarField } from './components/effects/StarField';
 import { HomeHeader } from './components/home/HomeHeader';
 import { FloatingCirclesHome } from './components/home/FloatingCirclesHome';
 import { HEBREW_MONTH_NAMES, YEAR, DEFAULT_MONTH_INDEX } from '../data/mockHome';
@@ -392,9 +391,8 @@ export default function App() {
       <div
         dir="rtl"
         className="h-screen overflow-hidden w-full relative finly-safe"
-        style={{ fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}
+        style={{ fontFamily: 'Rubik, sans-serif' }}
       >
-        <StarField darkMode={true} />
 
         {import.meta.env.DEV && (
           <button

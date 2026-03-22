@@ -1,5 +1,4 @@
 import { User, Users, Home, Baby, ChevronRight, type LucideIcon } from 'lucide-react';
-import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
@@ -22,7 +21,6 @@ const OPTIONS: Option[] = [
   { value: 'single-parent', icon: Baby,  label: 'הורה עם ילדים',       description: 'מנהל/ת לבד עם ילדים' },
 ];
 
-const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
 
 export function OnboardingHouseholdScreen({ onContinue, onBack }: Props) {
   function handleSelect(value: HouseholdType) {
@@ -53,9 +51,8 @@ export function OnboardingHouseholdScreen({ onContinue, onBack }: Props) {
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col items-center justify-center finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
+      style={{ fontFamily: 'Rubik, sans-serif' }}
     >
-      <StarField darkMode={true} />
 
       {/* Back button */}
       <button

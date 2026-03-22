@@ -1,12 +1,10 @@
 import { Mars, Venus, ChevronRight } from 'lucide-react';
-import { StarField } from './effects/StarField';
 
 interface Props {
   onContinue: () => void;
   onBack: () => void;
 }
 
-const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
 
 export function OnboardingGenderScreen({ onContinue, onBack }: Props) {
   const name = localStorage.getItem('finly_user_name') ?? '';
@@ -27,9 +25,8 @@ export function OnboardingGenderScreen({ onContinue, onBack }: Props) {
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col items-center justify-center finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
+      style={{ fontFamily: 'Rubik, sans-serif' }}
     >
-      <StarField darkMode={true} />
 
       {/* Back button */}
       <button

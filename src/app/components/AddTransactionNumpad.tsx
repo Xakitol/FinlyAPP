@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ChevronRight, X } from 'lucide-react';
-import { StarField } from './effects/StarField';
 
 interface Props {
   type: 'income' | 'expense';
@@ -60,9 +59,8 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
     <div
       dir="rtl"
       className="fixed inset-0 z-50 flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}
+      style={{ fontFamily: 'Rubik, sans-serif' }}
     >
-      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
