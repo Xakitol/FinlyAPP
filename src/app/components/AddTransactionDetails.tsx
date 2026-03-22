@@ -139,18 +139,19 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
     const status: 'recorded' | 'upcoming' = date > today ? 'upcoming' : 'recorded';
     const finalCategory = category || 'אחר';
     const title = description.trim() || finalCategory;
-    onSave({
+    const entryData = {
       type,
       amount,
       category: finalCategory,
       title,
       date,
-      paymentMethod: 'bank',
+      paymentMethod: 'bank' as const,
       recurring,
       status,
-      source: 'manual',
+      source: 'manual' as const,
       countsTowardRemaining: true,
-    });
+    };
+    setTimeout(() => onSave(entryData), 50);
   }
 
   const amountDisplay = amount.toLocaleString('he-IL', { maximumFractionDigits: 2 });
@@ -169,8 +170,18 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
       {/* Back button */}
       <button
         onClick={onBack}
-        className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full flex items-center justify-center active:opacity-60 transition-opacity"
+        className="active:opacity-60 transition-opacity"
         style={{
+          position: 'absolute',
+          top: 'calc(env(safe-area-inset-top) + 12px)',
+          right: '16px',
+          zIndex: 20,
+          width: 36,
+          height: 36,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           background: 'rgba(255,255,255,0.35)',
           border: '1px solid rgba(255,255,255,0.50)',
           backdropFilter: 'blur(8px)',

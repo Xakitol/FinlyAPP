@@ -140,7 +140,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
     <>
       <style>{KEYFRAMES}</style>
 
-      <div className="flex w-full flex-col items-center gap-4 pb-8">
+      <div className="flex w-full flex-col items-center gap-5 pb-10">
 
         {/* ── Main balance card — wide rounded hero ─────────────── */}
         <div

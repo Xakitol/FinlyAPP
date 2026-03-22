@@ -69,8 +69,18 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
       {/* Back button */}
       <button
         onClick={onBack}
-        className="absolute top-4 right-4 z-20 flex items-center justify-center w-9 h-9 rounded-full active:opacity-60 transition-opacity"
+        className="active:opacity-60 transition-opacity"
         style={{
+          position: 'absolute',
+          top: 'calc(env(safe-area-inset-top) + 12px)',
+          right: '16px',
+          zIndex: 20,
+          width: 36,
+          height: 36,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           background: 'rgba(255,255,255,0.35)',
           border: '1px solid rgba(255,255,255,0.50)',
           backdropFilter: 'blur(8px)',
