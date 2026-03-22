@@ -1,5 +1,5 @@
 import { useState, useRef, type CSSProperties } from 'react';
-import { Plus, List, PiggyBank, Sparkles } from 'lucide-react';
+import { List, PiggyBank, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 import { getInsightCards } from '../../../utils/finlyInsights';
 
@@ -20,7 +20,8 @@ interface HomeSnapshot {
 interface FloatingCirclesHomeProps {
   darkMode: boolean;
   snapshot: HomeSnapshot;
-  onAddClick: () => void;
+  onAddIncome: () => void;
+  onAddExpense: () => void;
   onOpenTransactions: () => void;
   onOpenSavingsGoal: () => void;
   onOpenUpcoming: () => void;
@@ -86,7 +87,7 @@ const PRESS_DOWN = {
   },
 };
 
-export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTransactions, onOpenSavingsGoal, onOpenUpcoming, onOpenIncome, onOpenExpenses, onOpenImport }: FloatingCirclesHomeProps) {
+export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpense, onOpenTransactions, onOpenSavingsGoal, onOpenUpcoming, onOpenIncome, onOpenExpenses, onOpenImport }: FloatingCirclesHomeProps) {
   const text = darkMode ? 'text-white' : 'text-gray-800';
   const muted = darkMode ? 'text-white/55' : 'text-gray-500';
   const accent = darkMode ? 'text-sky-300' : 'text-violet-600';
@@ -351,34 +352,57 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddClick, onOpenTran
           התנועות החודשיות שלך עם Finly
         </button>
 
-        {/* ── CTA button — galactic 3D tactile ─────────────────── */}
-        <div style={{ animation: 'coinFloat7 7s ease-in-out 0.5s infinite' }}>
+        {/* ── Add transaction buttons — income + expense ─────────── */}
+        <div className="flex w-full gap-3">
           <button
             type="button"
-            onClick={onAddClick}
-            className="flex flex-col items-center justify-center rounded-full"
+            onClick={onAddIncome}
+            className="flex-1 rounded-2xl py-4 text-white font-bold text-[15px] flex items-center justify-center gap-2"
             style={{
-              width: 116,
-              height: 116,
-              background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 40%, #a855f7 70%, #ec4899 100%)',
-              boxShadow: '0 8px 0 rgba(99,102,241,0.65), 0 16px 36px rgba(99,102,241,0.4), inset 0 1.5px 0 rgba(255,255,255,0.35), inset 0 -1.5px 0 rgba(0,0,0,0.2)',
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
+              boxShadow: '0 6px 0 rgba(6,182,212,0.45), 0 10px 24px rgba(14,165,233,0.30), inset 0 1.5px 0 rgba(255,255,255,0.30)',
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
             onPointerDown={(e) => {
-              e.currentTarget.style.transform = 'translateY(6px)';
-              e.currentTarget.style.boxShadow = '0 2px 0 rgba(99,102,241,0.65), 0 6px 16px rgba(99,102,241,0.3), inset 0 1.5px 0 rgba(255,255,255,0.35), inset 0 -1.5px 0 rgba(0,0,0,0.2)';
+              e.currentTarget.style.transform = 'translateY(5px)';
+              e.currentTarget.style.boxShadow = '0 1px 0 rgba(6,182,212,0.45), 0 3px 8px rgba(14,165,233,0.20), inset 0 1.5px 0 rgba(255,255,255,0.30)';
             }}
             onPointerUp={(e) => {
               e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '0 8px 0 rgba(99,102,241,0.65), 0 16px 36px rgba(99,102,241,0.4), inset 0 1.5px 0 rgba(255,255,255,0.35), inset 0 -1.5px 0 rgba(0,0,0,0.2)';
+              e.currentTarget.style.boxShadow = '0 6px 0 rgba(6,182,212,0.45), 0 10px 24px rgba(14,165,233,0.30), inset 0 1.5px 0 rgba(255,255,255,0.30)';
             }}
             onPointerLeave={(e) => {
               e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '0 8px 0 rgba(99,102,241,0.65), 0 16px 36px rgba(99,102,241,0.4), inset 0 1.5px 0 rgba(255,255,255,0.35), inset 0 -1.5px 0 rgba(0,0,0,0.2)';
+              e.currentTarget.style.boxShadow = '0 6px 0 rgba(6,182,212,0.45), 0 10px 24px rgba(14,165,233,0.30), inset 0 1.5px 0 rgba(255,255,255,0.30)';
             }}
           >
-            <Plus className="h-6 w-6 text-white" />
-            <span className="mt-1 text-[11px] font-medium text-white/90">בואו נעדכן</span>
+            <TrendingUp size={18} className="text-white" />
+            הכנסה
+          </button>
+          <button
+            type="button"
+            onClick={onAddExpense}
+            className="flex-1 rounded-2xl py-4 text-white font-bold text-[15px] flex items-center justify-center gap-2"
+            style={{
+              background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
+              boxShadow: '0 6px 0 rgba(124,58,237,0.45), 0 10px 24px rgba(124,58,237,0.30), inset 0 1.5px 0 rgba(255,255,255,0.25)',
+              transition: 'transform 0.1s ease, box-shadow 0.1s ease',
+            }}
+            onPointerDown={(e) => {
+              e.currentTarget.style.transform = 'translateY(5px)';
+              e.currentTarget.style.boxShadow = '0 1px 0 rgba(124,58,237,0.45), 0 3px 8px rgba(124,58,237,0.20), inset 0 1.5px 0 rgba(255,255,255,0.25)';
+            }}
+            onPointerUp={(e) => {
+              e.currentTarget.style.transform = '';
+              e.currentTarget.style.boxShadow = '0 6px 0 rgba(124,58,237,0.45), 0 10px 24px rgba(124,58,237,0.30), inset 0 1.5px 0 rgba(255,255,255,0.25)';
+            }}
+            onPointerLeave={(e) => {
+              e.currentTarget.style.transform = '';
+              e.currentTarget.style.boxShadow = '0 6px 0 rgba(124,58,237,0.45), 0 10px 24px rgba(124,58,237,0.30), inset 0 1.5px 0 rgba(255,255,255,0.25)';
+            }}
+          >
+            <TrendingDown size={18} className="text-white" />
+            הוצאה
           </button>
         </div>
 

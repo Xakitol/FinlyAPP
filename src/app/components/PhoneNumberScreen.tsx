@@ -30,7 +30,7 @@ export function PhoneNumberScreen({ onBack, onContinue }: PhoneNumberScreenProps
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative flex flex-col animate-in fade-in duration-500"
+      className="min-h-screen w-full relative flex flex-col finly-screen"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <style>{KEYFRAMES}</style>

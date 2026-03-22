@@ -40,7 +40,7 @@ export function OnboardingWelcomeScreen({ onContinue, onBack }: Props) {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative animate-in fade-in duration-500"
+      className="min-h-screen w-full relative finly-screen"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient, textAlign: 'right', direction: 'rtl' }}
     >
       <StarField darkMode={false} />

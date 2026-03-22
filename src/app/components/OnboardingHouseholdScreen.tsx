@@ -52,7 +52,7 @@ export function OnboardingHouseholdScreen({ onContinue, onBack }: Props) {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative flex flex-col items-center justify-center animate-in fade-in duration-500"
+      className="min-h-screen w-full relative flex flex-col items-center justify-center finly-screen"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={false} />

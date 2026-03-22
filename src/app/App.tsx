@@ -13,9 +13,9 @@ import { OnboardingWelcomeScreen } from './components/OnboardingWelcomeScreen';
 import { ChartModal } from './components/modals/ChartModal';
 import { InsightsModal } from './components/modals/InsightsModal';
 import { SavingsGoalModal } from './components/modals/SavingsGoalModal';
-import { TransactionFormModal } from './components/modals/TransactionFormModal';
-import { AddTransactionModal } from './components/modals/AddTransactionModal';
 import { TransactionTableModal } from './components/modals/TransactionTableModal';
+import { AddTransactionNumpad } from './components/AddTransactionNumpad';
+import { AddTransactionDetails } from './components/AddTransactionDetails';
 import { UpcomingExpensesModal } from './components/modals/UpcomingExpensesModal';
 import { IncomeBreakdownModal } from './components/modals/IncomeBreakdownModal';
 import { ExpenseBreakdownModal } from './components/modals/ExpenseBreakdownModal';
@@ -48,16 +48,19 @@ export default function App() {
   // ── Modal open state ────────────────────────────────────────────────────────
   const [insightsOpen, setInsightsOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
   const [tableOpen, setTableOpen] = useState(false);
   const [savingsGoalOpen, setSavingsGoalOpen] = useState(false);
   const [upcomingOpen, setUpcomingOpen] = useState(false);
   const [incomeOpen, setIncomeOpen] = useState(false);
   const [expensesOpen, setExpensesOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [editingEntry, setEditingEntry] = useState<FinanceEntry | null>(null);
   const [importOpen, setImportOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
+
+  // ── Add transaction flow ─────────────────────────────────────────────────────
+  const [addStep, setAddStep] = useState<'numpad-income' | 'numpad-expense' | 'details' | null>(null);
+  const [pendingType, setPendingType] = useState<'income' | 'expense'>('expense');
+  const [pendingAmount, setPendingAmount] = useState(0);
+  const [pendingRecurring, setPendingRecurring] = useState(false);
 
   // ── Month selection ─────────────────────────────────────────────────────────
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(DEFAULT_MONTH_INDEX);
@@ -177,8 +180,6 @@ export default function App() {
       setRecurringRules((prev) => prev.filter((r) => r.id !== ruleId));
     }
 
-    setEditingEntry(null);
-    setFormOpen(false);
   }
 
   function handleDeleteEntry(id: string) {
@@ -213,10 +214,25 @@ export default function App() {
     }
   }
 
-  function handleEditEntry(entry: FinanceEntry) {
-    setEditingEntry(entry);
-    setTableOpen(false);
-    setFormOpen(true);
+  function handleAddIncome() {
+    setPendingType('income');
+    setAddStep('numpad-income');
+  }
+
+  function handleAddExpense() {
+    setPendingType('expense');
+    setAddStep('numpad-expense');
+  }
+
+  function handleNumpadContinue(amount: number, recurring: boolean) {
+    setPendingAmount(amount);
+    setPendingRecurring(recurring);
+    setAddStep('details');
+  }
+
+  function handleDetailsSave(data: Omit<FinanceEntry, 'id'>) {
+    handleSaveEntry(data);
+    setAddStep(null);
   }
 
   function handleDeleteRule(entry: FinanceEntry) {
@@ -371,6 +387,31 @@ export default function App() {
     );
   }
 
+  // ── Add transaction screens ───────────────────────────────────────────────────
+  if (addStep === 'numpad-income' || addStep === 'numpad-expense') {
+    return (
+      <AddTransactionNumpad
+        type={addStep === 'numpad-income' ? 'income' : 'expense'}
+        darkMode={darkMode}
+        onBack={() => setAddStep(null)}
+        onContinue={handleNumpadContinue}
+      />
+    );
+  }
+
+  if (addStep === 'details') {
+    return (
+      <AddTransactionDetails
+        type={pendingType}
+        amount={pendingAmount}
+        recurring={pendingRecurring}
+        darkMode={darkMode}
+        onBack={() => setAddStep(pendingType === 'income' ? 'numpad-income' : 'numpad-expense')}
+        onSave={handleDetailsSave}
+      />
+    );
+  }
+
   // ── Home screen ──────────────────────────────────────────────────────────────
   const backgroundGradient = darkMode
     ? 'linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #2a1f4a 100%)'
@@ -379,7 +420,7 @@ export default function App() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative animate-in fade-in duration-700"
+      className="min-h-screen w-full relative finly-screen"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={darkMode} />
@@ -410,7 +451,8 @@ export default function App() {
         <FloatingCirclesHome
           darkMode={darkMode}
           snapshot={snapshot}
-          onAddClick={() => setAddOpen(true)}
+          onAddIncome={handleAddIncome}
+          onAddExpense={handleAddExpense}
           onOpenTransactions={() => setTableOpen(true)}
           onOpenSavingsGoal={() => setSavingsGoalOpen(true)}
           onOpenUpcoming={() => setUpcomingOpen(true)}
@@ -428,27 +470,12 @@ export default function App() {
       />
       <ChartModal open={chartOpen} onClose={() => setChartOpen(false)} darkMode={darkMode} />
 
-      <TransactionFormModal
-        open={formOpen}
-        onClose={() => { setFormOpen(false); setEditingEntry(null); }}
-        darkMode={darkMode}
-        initialEntry={editingEntry}
-        onSave={handleSaveEntry}
-      />
-
-      <AddTransactionModal
-        open={addOpen}
-        onClose={() => setAddOpen(false)}
-        darkMode={darkMode}
-        onSave={handleSaveEntry}
-      />
-
       <TransactionTableModal
         open={tableOpen}
         onClose={() => setTableOpen(false)}
         darkMode={darkMode}
         entries={homeData.entries}
-        onEdit={handleEditEntry}
+        onEdit={() => {}}
         onDelete={handleDeleteEntry}
         onDeleteMultiple={handleDeleteMultiple}
         onMarkAsPaid={handleMarkAsPaid}
@@ -495,6 +522,7 @@ export default function App() {
         currentGoal={savingsGoalsMap[selectedMonthIndex]?.targetAmount ?? 0}
         onSave={handleSaveSavingsGoal}
       />
+
     </div>
   );
 }

@@ -61,7 +61,7 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative animate-in fade-in duration-500"
+      className="min-h-screen w-full relative finly-screen"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={false} />
