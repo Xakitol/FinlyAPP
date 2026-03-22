@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { ScreenTransition } from './components/ScreenTransition';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { SignupMethodScreen } from './components/SignupMethodScreen';
 import { LoginMethodScreen } from './components/LoginMethodScreen';
@@ -284,19 +285,19 @@ export default function App() {
     }));
   }
 
-  // ── Welcome screen ───────────────────────────────────────────────────────────
+  // ── Screen routing ────────────────────────────────────────────────────────────
+  const screenKey = addStep ?? appScreen;
+  let screenContent: React.ReactNode;
+
   if (appScreen === 'welcome') {
-    return (
+    screenContent = (
       <WelcomeScreen
         onLogin={() => setAppScreen('login-method')}
         onSignup={() => setAppScreen('signup-method')}
       />
     );
-  }
-
-  // ── Signup method screen ──────────────────────────────────────────────────────
-  if (appScreen === 'signup-method') {
-    return (
+  } else if (appScreen === 'signup-method') {
+    screenContent = (
       <SignupMethodScreen
         onBack={() => setAppScreen('welcome')}
         onGoogle={handleGoogleSignup}
@@ -305,56 +306,34 @@ export default function App() {
         onEmail={() => setAppScreen('email-signup')}
       />
     );
-  }
-
-  // ── Signup phone number screen ────────────────────────────────────────────────
-  if (appScreen === 'phone-number') {
-    return (
+  } else if (appScreen === 'phone-number') {
+    screenContent = (
       <PhoneNumberScreen
         onBack={() => setAppScreen('signup-method')}
         onContinue={enterHomeAfterSignup}
       />
     );
-  }
-
-  // ── Email signup screen ───────────────────────────────────────────────────────
-  if (appScreen === 'email-signup') {
-    return (
+  } else if (appScreen === 'email-signup') {
+    screenContent = (
       <EmailSignupScreen
         onBack={() => setAppScreen('signup-method')}
         onContinue={enterHomeAfterSignup}
       />
     );
-  }
-
-  // ── Onboarding screens ────────────────────────────────────────────────────────
-  if (appScreen === 'onboarding-name') {
-    return <OnboardingNameScreen onContinue={() => setAppScreen('onboarding-gender')} onBack={() => setAppScreen('signup-method')} />;
-  }
-
-  if (appScreen === 'onboarding-gender') {
-    return <OnboardingGenderScreen onContinue={() => setAppScreen('onboarding-household')} onBack={() => setAppScreen('onboarding-name')} />;
-  }
-
-  if (appScreen === 'onboarding-household') {
-    return <OnboardingHouseholdScreen onContinue={() => setAppScreen('onboarding-goals')} onBack={() => setAppScreen('onboarding-gender')} />;
-  }
-
-  if (appScreen === 'onboarding-goals') {
-    return <OnboardingGoalsScreen onContinue={() => setAppScreen('onboarding-welcome')} onBack={() => setAppScreen('onboarding-household')} />;
-  }
-
-  if (appScreen === 'onboarding-welcome') {
-    return <OnboardingWelcomeScreen onContinue={() => setAppScreen('onboarding-success')} onBack={() => setAppScreen('onboarding-goals')} />;
-  }
-
-  if (appScreen === 'onboarding-success') {
-    return <OnboardingSuccessScreen onContinue={() => setAppScreen('home')} />;
-  }
-
-  // ── Login method screen ───────────────────────────────────────────────────────
-  if (appScreen === 'login-method') {
-    return (
+  } else if (appScreen === 'onboarding-name') {
+    screenContent = <OnboardingNameScreen onContinue={() => setAppScreen('onboarding-gender')} onBack={() => setAppScreen('signup-method')} />;
+  } else if (appScreen === 'onboarding-gender') {
+    screenContent = <OnboardingGenderScreen onContinue={() => setAppScreen('onboarding-household')} onBack={() => setAppScreen('onboarding-name')} />;
+  } else if (appScreen === 'onboarding-household') {
+    screenContent = <OnboardingHouseholdScreen onContinue={() => setAppScreen('onboarding-goals')} onBack={() => setAppScreen('onboarding-gender')} />;
+  } else if (appScreen === 'onboarding-goals') {
+    screenContent = <OnboardingGoalsScreen onContinue={() => setAppScreen('onboarding-welcome')} onBack={() => setAppScreen('onboarding-household')} />;
+  } else if (appScreen === 'onboarding-welcome') {
+    screenContent = <OnboardingWelcomeScreen onContinue={() => setAppScreen('onboarding-success')} onBack={() => setAppScreen('onboarding-goals')} />;
+  } else if (appScreen === 'onboarding-success') {
+    screenContent = <OnboardingSuccessScreen onContinue={() => setAppScreen('home')} />;
+  } else if (appScreen === 'login-method') {
+    screenContent = (
       <LoginMethodScreen
         onBack={() => setAppScreen('welcome')}
         onPhone={() => setAppScreen('login-phone')}
@@ -364,32 +343,23 @@ export default function App() {
         onEmail={() => setAppScreen('login-email')}
       />
     );
-  }
-
-  // ── Login email screen ────────────────────────────────────────────────────────
-  if (appScreen === 'login-email') {
-    return (
+  } else if (appScreen === 'login-email') {
+    screenContent = (
       <EmailSignupScreen
         mode="login"
         onBack={() => setAppScreen('login-method')}
         onContinue={enterHome}
       />
     );
-  }
-
-  // ── Login phone number screen ─────────────────────────────────────────────────
-  if (appScreen === 'login-phone') {
-    return (
+  } else if (appScreen === 'login-phone') {
+    screenContent = (
       <PhoneNumberScreen
         onBack={() => setAppScreen('login-method')}
         onContinue={enterHome}
       />
     );
-  }
-
-  // ── Add transaction screens ───────────────────────────────────────────────────
-  if (addStep === 'numpad-income' || addStep === 'numpad-expense') {
-    return (
+  } else if (addStep === 'numpad-income' || addStep === 'numpad-expense') {
+    screenContent = (
       <AddTransactionNumpad
         type={addStep === 'numpad-income' ? 'income' : 'expense'}
         darkMode={darkMode}
@@ -397,10 +367,8 @@ export default function App() {
         onContinue={handleNumpadContinue}
       />
     );
-  }
-
-  if (addStep === 'details') {
-    return (
+  } else if (addStep === 'details') {
+    screenContent = (
       <AddTransactionDetails
         type={pendingType}
         amount={pendingAmount}
@@ -410,122 +378,120 @@ export default function App() {
         onSave={handleDetailsSave}
       />
     );
-  }
+  } else {
+    // ── Home screen ────────────────────────────────────────────────────────────
+    const backgroundGradient = darkMode
+      ? 'linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #2a1f4a 100%)'
+      : 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
 
-  // ── Home screen ──────────────────────────────────────────────────────────────
-  const backgroundGradient = darkMode
-    ? 'linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #2a1f4a 100%)'
-    : 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
-  return (
-    <div
-      dir="rtl"
-      className="h-screen overflow-hidden w-full relative finly-screen finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
-    >
-      <StarField darkMode={darkMode} />
-
-      {import.meta.env.DEV && (
-        <button
-          onClick={handleDevReset}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-xs font-medium active:scale-95 transition-transform"
-          style={{
-            background: 'rgba(124,58,237,0.12)',
-            border: '1px solid rgba(124,58,237,0.30)',
-            color: 'rgba(109,40,217,0.70)',
-          }}
-        >
-          ← חזרה למסך פתיחה (dev)
-        </button>
-      )}
-
+    screenContent = (
       <div
-        className="relative z-10 mx-auto w-full max-w-md px-4 pt-4 sm:px-5 overflow-y-auto pb-safe"
-        style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+        dir="rtl"
+        className="h-screen overflow-hidden w-full relative finly-safe"
+        style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
       >
-        <HomeHeader
-          darkMode={darkMode}
-          onToggleDarkMode={() => setDarkMode(!darkMode)}
-          availableMonths={HEBREW_MONTH_NAMES}
-          selectedMonthIndex={selectedMonthIndex}
-          onMonthChange={handleMonthChange}
-        />
+        <StarField darkMode={darkMode} />
 
-        <FloatingCirclesHome
+        {import.meta.env.DEV && (
+          <button
+            onClick={handleDevReset}
+            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-xs font-medium active:scale-95 transition-transform"
+            style={{
+              background: 'rgba(124,58,237,0.12)',
+              border: '1px solid rgba(124,58,237,0.30)',
+              color: 'rgba(109,40,217,0.70)',
+            }}
+          >
+            ← חזרה למסך פתיחה (dev)
+          </button>
+        )}
+
+        <div
+          className="relative z-10 mx-auto w-full max-w-md px-4 pt-4 sm:px-5 overflow-y-auto pb-safe"
+          style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+        >
+          <HomeHeader
+            darkMode={darkMode}
+            onToggleDarkMode={() => setDarkMode(!darkMode)}
+            availableMonths={HEBREW_MONTH_NAMES}
+            selectedMonthIndex={selectedMonthIndex}
+            onMonthChange={handleMonthChange}
+          />
+          <FloatingCirclesHome
+            darkMode={darkMode}
+            snapshot={snapshot}
+            onAddIncome={handleAddIncome}
+            onAddExpense={handleAddExpense}
+            onOpenTransactions={() => setTableOpen(true)}
+            onOpenSavingsGoal={() => setSavingsGoalOpen(true)}
+            onOpenUpcoming={() => setUpcomingOpen(true)}
+            onOpenIncome={() => setIncomeOpen(true)}
+            onOpenExpenses={() => setExpensesOpen(true)}
+            onOpenImport={() => setImportOpen(true)}
+          />
+        </div>
+
+        <InsightsModal
+          open={insightsOpen}
+          onClose={() => setInsightsOpen(false)}
+          onOpenChart={() => setChartOpen(true)}
           darkMode={darkMode}
-          snapshot={snapshot}
-          onAddIncome={handleAddIncome}
-          onAddExpense={handleAddExpense}
-          onOpenTransactions={() => setTableOpen(true)}
-          onOpenSavingsGoal={() => setSavingsGoalOpen(true)}
-          onOpenUpcoming={() => setUpcomingOpen(true)}
-          onOpenIncome={() => setIncomeOpen(true)}
-          onOpenExpenses={() => setExpensesOpen(true)}
+        />
+        <ChartModal open={chartOpen} onClose={() => setChartOpen(false)} darkMode={darkMode} />
+        <TransactionTableModal
+          open={tableOpen}
+          onClose={() => setTableOpen(false)}
+          darkMode={darkMode}
+          entries={homeData.entries}
+          onEdit={() => {}}
+          onDelete={handleDeleteEntry}
+          onDeleteMultiple={handleDeleteMultiple}
+          onMarkAsPaid={handleMarkAsPaid}
+          onDeleteRule={handleDeleteRule}
           onOpenImport={() => setImportOpen(true)}
         />
+        <UpcomingExpensesModal
+          open={upcomingOpen}
+          onClose={() => setUpcomingOpen(false)}
+          darkMode={darkMode}
+          entries={homeData.entries.filter((e) => e.status === 'upcoming' && e.type === 'expense').sort((a, b) => a.date.localeCompare(b.date))}
+          onMarkAsPaid={handleMarkAsPaid}
+          onDeleteRule={handleDeleteRule}
+        />
+        <ExpenseBreakdownModal
+          open={expensesOpen}
+          onClose={() => setExpensesOpen(false)}
+          darkMode={darkMode}
+          entries={homeData.entries.filter((e) => e.type === 'expense').sort((a, b) => a.date.localeCompare(b.date))}
+          onMarkAsPaid={handleMarkAsPaid}
+        />
+        <IncomeBreakdownModal
+          open={incomeOpen}
+          onClose={() => setIncomeOpen(false)}
+          darkMode={darkMode}
+          entries={homeData.entries.filter((e) => e.type === 'income').sort((a, b) => a.date.localeCompare(b.date))}
+          onMarkAsPaid={handleMarkAsPaid}
+        />
+        <ImportModal
+          open={importOpen}
+          onClose={() => setImportOpen(false)}
+          darkMode={darkMode}
+          onImport={handleImport}
+        />
+        <SavingsGoalModal
+          open={savingsGoalOpen}
+          onClose={() => setSavingsGoalOpen(false)}
+          darkMode={darkMode}
+          currentGoal={savingsGoalsMap[selectedMonthIndex]?.targetAmount ?? 0}
+          onSave={handleSaveSavingsGoal}
+        />
       </div>
+    );
+  }
 
-      <InsightsModal
-        open={insightsOpen}
-        onClose={() => setInsightsOpen(false)}
-        onOpenChart={() => setChartOpen(true)}
-        darkMode={darkMode}
-      />
-      <ChartModal open={chartOpen} onClose={() => setChartOpen(false)} darkMode={darkMode} />
-
-      <TransactionTableModal
-        open={tableOpen}
-        onClose={() => setTableOpen(false)}
-        darkMode={darkMode}
-        entries={homeData.entries}
-        onEdit={() => {}}
-        onDelete={handleDeleteEntry}
-        onDeleteMultiple={handleDeleteMultiple}
-        onMarkAsPaid={handleMarkAsPaid}
-        onDeleteRule={handleDeleteRule}
-        onOpenImport={() => setImportOpen(true)}
-      />
-
-      <UpcomingExpensesModal
-        open={upcomingOpen}
-        onClose={() => setUpcomingOpen(false)}
-        darkMode={darkMode}
-        entries={homeData.entries.filter((e) => e.status === 'upcoming' && e.type === 'expense').sort((a, b) => a.date.localeCompare(b.date))}
-        onMarkAsPaid={handleMarkAsPaid}
-        onDeleteRule={handleDeleteRule}
-      />
-
-      <ExpenseBreakdownModal
-        open={expensesOpen}
-        onClose={() => setExpensesOpen(false)}
-        darkMode={darkMode}
-        entries={homeData.entries.filter((e) => e.type === 'expense').sort((a, b) => a.date.localeCompare(b.date))}
-        onMarkAsPaid={handleMarkAsPaid}
-      />
-
-      <IncomeBreakdownModal
-        open={incomeOpen}
-        onClose={() => setIncomeOpen(false)}
-        darkMode={darkMode}
-        entries={homeData.entries.filter((e) => e.type === 'income').sort((a, b) => a.date.localeCompare(b.date))}
-        onMarkAsPaid={handleMarkAsPaid}
-      />
-
-      <ImportModal
-        open={importOpen}
-        onClose={() => setImportOpen(false)}
-        darkMode={darkMode}
-        onImport={handleImport}
-      />
-
-      <SavingsGoalModal
-        open={savingsGoalOpen}
-        onClose={() => setSavingsGoalOpen(false)}
-        darkMode={darkMode}
-        currentGoal={savingsGoalsMap[selectedMonthIndex]?.targetAmount ?? 0}
-        onSave={handleSaveSavingsGoal}
-      />
-
-    </div>
+  return (
+    <ScreenTransition screenKey={screenKey}>
+      {screenContent}
+    </ScreenTransition>
   );
 }
