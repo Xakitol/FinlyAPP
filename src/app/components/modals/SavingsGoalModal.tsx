@@ -4,7 +4,6 @@ import { X, Check, PiggyBank } from 'lucide-react';
 interface SavingsGoalModalProps {
   open: boolean;
   onClose: () => void;
-  darkMode?: boolean;
   currentGoal?: number;
   onSave?: (goal: number) => void;
 }
@@ -22,10 +21,16 @@ function onRelease(e: React.PointerEvent<HTMLButtonElement>) {
   e.currentTarget.style.boxShadow = '';
 }
 
+const modalBg: React.CSSProperties = {
+  background: 'rgba(15,10,30,0.97)',
+  border: '1px solid rgba(255,255,255,0.12)',
+  backdropFilter: 'blur(20px)',
+  boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+};
+
 export function SavingsGoalModal({
   open,
   onClose,
-  darkMode = false,
   currentGoal = 0,
   onSave,
 }: SavingsGoalModalProps) {
@@ -46,26 +51,7 @@ export function SavingsGoalModal({
     }
   };
 
-  const text = darkMode ? 'text-white' : 'text-gray-900';
-  const muted = darkMode ? 'text-white/55' : 'text-gray-500';
-  const labelCls = `block mb-1.5 text-[12px] font-medium ${darkMode ? 'text-white/70' : 'text-gray-600'}`;
-
-  const modalBg: React.CSSProperties = darkMode
-    ? {
-        background: 'linear-gradient(145deg, rgba(26,31,58,0.97) 0%, rgba(15,20,40,0.98) 100%)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
-      }
-    : {
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.97) 0%, rgba(245,240,255,0.98) 100%)',
-        border: '1.5px solid rgba(200,190,255,0.6)',
-        backdropFilter: 'blur(20px)',
-        boxShadow: '0 24px 60px rgba(139,92,246,0.2)',
-      };
-
   return (
-    // No backdrop click — X button only
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-6"
       style={{ backdropFilter: 'blur(6px)', background: 'rgba(0,0,0,0.5)' }}
@@ -79,20 +65,18 @@ export function SavingsGoalModal({
           <button
             type="button"
             onClick={onClose}
-            className={`flex h-10 w-10 items-center justify-center rounded-full ${darkMode ? 'bg-white/15' : 'bg-gray-100'}`}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15"
             style={{
               ...tactileBtn,
-              boxShadow: darkMode
-                ? '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
-                : '0 4px 0 rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
+              boxShadow: '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
             }}
             onPointerDown={onPress}
             onPointerUp={onRelease}
             onPointerLeave={onRelease}
           >
-            <X className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-600'}`} />
+            <X className="h-4 w-4 text-white" />
           </button>
-          <h2 className={`text-lg font-bold ${text}`}>יעד חיסכון</h2>
+          <h2 className="text-lg font-bold text-white">יעד חיסכון</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="px-5 pb-6 pt-4 space-y-5">
@@ -111,23 +95,19 @@ export function SavingsGoalModal({
 
           {/* Current goal display */}
           {currentGoal > 0 && (
-            <p className={`text-center text-[12px] ${muted}`}>
+            <p className="text-center text-[12px] text-white/55">
               יעד נוכחי: ₪{currentGoal.toLocaleString()}
             </p>
           )}
 
           {/* Amount input */}
           <div className="text-right">
-            <label className={labelCls}>סכום יעד (₪)</label>
+            <label className="block mb-1.5 text-[12px] font-medium text-white/70">סכום יעד (₪)</label>
             <input
               type="number"
               value={goalAmount}
               onChange={(e) => setGoalAmount(e.target.value)}
-              className={`w-full rounded-2xl border px-5 py-4 text-center text-[22px] font-bold outline-none transition-all focus:ring-2 focus:ring-violet-400/40 ${
-                darkMode
-                  ? 'border-white/20 bg-white/10 text-white placeholder-white/30 focus:border-violet-400'
-                  : 'border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-300 focus:border-violet-400'
-              }`}
+              className="w-full rounded-2xl border px-5 py-4 text-center text-[22px] font-bold outline-none transition-all focus:ring-2 focus:ring-violet-400/40 border-white/20 bg-white/10 text-white placeholder-white/30 focus:border-violet-400"
               placeholder="0"
               required
               min="0"
@@ -136,7 +116,7 @@ export function SavingsGoalModal({
             />
           </div>
 
-          <p className={`text-center text-[11px] ${muted}`}>
+          <p className="text-center text-[11px] text-white/55">
             קבעו יעד ועקבו אחרי ההתקדמות שלכם
           </p>
 
@@ -146,9 +126,7 @@ export function SavingsGoalModal({
               <button
                 type="button"
                 onClick={() => { onSave?.(0); onClose(); }}
-                className={`rounded-xl px-4 py-2 text-[12px] font-medium ${
-                  darkMode ? 'bg-white/10 text-white/50' : 'bg-gray-100 text-gray-500'
-                }`}
+                className="rounded-xl px-4 py-2 text-[12px] font-medium bg-white/10 text-white/50"
                 style={{ ...tactileBtn, boxShadow: '0 3px 0 rgba(0,0,0,0.1)' }}
                 onPointerDown={onPress}
                 onPointerUp={onRelease}
@@ -159,7 +137,7 @@ export function SavingsGoalModal({
             </div>
           )}
 
-          {/* Save button — galactic 3D */}
+          {/* Save button */}
           <div className="flex justify-center pt-1">
             <button
               type="submit"

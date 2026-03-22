@@ -23,7 +23,7 @@ const GOALS: GoalOption[] = [
   { id: 'no-fear',            icon: Eye,        label: 'להסתכל לכסף שלי בלבן של העיניים בלי פחד', subtitle: 'להתיידד עם פיינלי ולהפסיק לברוח מהמספרים' },
 ];
 
-const iconColor = 'linear-gradient(135deg, #7c3aed, #ec4899)';
+const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
 
 export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -42,29 +42,27 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
     onContinue();
   }
 
-  const backgroundGradient = 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
   const baseCardStyle: React.CSSProperties = {
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.48) 0%, rgba(200,180,255,0.22) 100%)',
-    border: '1.5px solid rgba(255,255,255,0.65)',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.14)',
     backdropFilter: 'blur(12px)',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.55)',
+    boxShadow: '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)',
   };
 
   const selectedCardStyle: React.CSSProperties = {
-    background: 'linear-gradient(rgba(237,233,254,0.62), rgba(252,231,255,0.50)) padding-box, linear-gradient(135deg, #7c3aed, #ec4899) border-box',
+    background: 'linear-gradient(rgba(124,58,237,0.20), rgba(236,72,153,0.15)) padding-box, linear-gradient(135deg, #7c3aed, #ec4899) border-box',
     border: '2px solid transparent',
     backdropFilter: 'blur(12px)',
-    boxShadow: '0 4px 20px rgba(124,58,237,0.22), inset 0 1px 0 rgba(255,255,255,0.55)',
+    boxShadow: '0 4px 0 rgba(124,58,237,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
   };
 
   return (
     <div
       dir="rtl"
       className="h-screen w-full relative overflow-hidden finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
     >
-      <StarField darkMode={false} />
+      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
@@ -81,18 +79,18 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'rgba(255,255,255,0.35)',
-          border: '1px solid rgba(255,255,255,0.50)',
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.20)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+        <ChevronRight size={20} className="text-white/70" strokeWidth={2} />
       </button>
 
       <div className="relative z-10 w-full max-w-xs mx-auto px-6 py-10 flex flex-col gap-6 overflow-y-auto">
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-2xl font-bold text-violet-900">איזה מטרות תרצה להשיג איתי?</h1>
-          <p className="text-sm font-medium text-violet-500">בחר את המטרות שמדויקות לך</p>
+          <h1 className="text-2xl font-bold text-white">איזה מטרות תרצה להשיג איתי?</h1>
+          <p className="text-sm font-medium text-white/55">בחר את המטרות שמדויקות לך</p>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -111,25 +109,22 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
                   style={{
                     width: 40,
                     height: 40,
-                    background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(236,72,153,0.10) 100%)',
-                    border: '1px solid rgba(124,58,237,0.15)',
+                    background: 'rgba(124,58,237,0.20)',
+                    border: '1px solid rgba(124,58,237,0.25)',
                   }}
                 >
                   <Icon
                     size={22}
                     strokeWidth={1.8}
-                    style={{
-                      stroke: 'url(#goal-icon-grad)',
-                      color: '#7c3aed',
-                    }}
+                    style={{ stroke: 'url(#goal-icon-grad)', color: '#a78bfa' }}
                   />
                 </div>
                 <div className="flex-1 text-right">
-                  <p className="font-semibold text-[14px] text-violet-900 leading-snug">{goal.label}</p>
-                  <p className="text-[12px] text-violet-500 mt-0.5 leading-snug">{goal.subtitle}</p>
+                  <p className="font-semibold text-[14px] text-white leading-snug">{goal.label}</p>
+                  <p className="text-[12px] text-white/55 mt-0.5 leading-snug">{goal.subtitle}</p>
                 </div>
                 {isSelected && (
-                  <Check size={18} className="flex-shrink-0 text-violet-600" strokeWidth={2.5} />
+                  <Check size={18} className="flex-shrink-0 text-violet-400" strokeWidth={2.5} />
                 )}
               </button>
             );
@@ -140,8 +135,8 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
         <svg width="0" height="0" className="absolute">
           <defs>
             <linearGradient id="goal-icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#7c3aed" />
-              <stop offset="100%" stopColor="#ec4899" />
+              <stop offset="0%" stopColor="#a78bfa" />
+              <stop offset="100%" stopColor="#f472b6" />
             </linearGradient>
           </defs>
         </svg>

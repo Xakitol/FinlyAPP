@@ -11,7 +11,6 @@ interface Props {
   type: 'income' | 'expense';
   amount: number;
   recurring: boolean;
-  darkMode: boolean;
   onBack: () => void;
   onSave: (data: Omit<FinanceEntry, 'id'>) => void;
 }
@@ -44,14 +43,14 @@ const INCOME_CATS: CatDef[] = [
 
 function tactilePress(e: React.PointerEvent<HTMLButtonElement>) {
   e.currentTarget.style.transform = 'translateY(3px)';
-  e.currentTarget.style.boxShadow = '0 1px 0 rgba(0,0,0,0.25)';
+  e.currentTarget.style.boxShadow = '0 1px 0 rgba(0,0,0,0.5)';
 }
 function tactileRelease(e: React.PointerEvent<HTMLButtonElement>, shadow: string) {
   e.currentTarget.style.transform = '';
   e.currentTarget.style.boxShadow = shadow;
 }
 
-export function AddTransactionDetails({ type, amount, recurring, darkMode, onBack, onSave }: Props) {
+export function AddTransactionDetails({ type, amount, recurring, onBack, onSave }: Props) {
   const isIncome = type === 'income';
   const defaultCats = isIncome ? INCOME_CATS : EXPENSE_CATS;
 
@@ -59,16 +58,13 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
 
-  // Custom categories
   const [customCats, setCustomCats] = useState<string[]>([]);
   const [hiddenCats, setHiddenCats] = useState<Set<string>>(new Set());
 
-  // Add category panel
   const [showAddCat, setShowAddCat] = useState(false);
   const [customCatInput, setCustomCatInput] = useState('');
   const addCatRef = useRef<HTMLInputElement>(null);
 
-  // Manage panel
   const [showManage, setShowManage] = useState(false);
 
   const gradient = isIncome
@@ -79,27 +75,19 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
     ? '0 6px 0 rgba(6,182,212,0.50), 0 12px 28px rgba(14,165,233,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)'
     : '0 6px 0 rgba(124,58,237,0.50), 0 12px 28px rgba(124,58,237,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)';
 
-  const backgroundGradient = darkMode
-    ? 'linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #2a1f4a 100%)'
-    : 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
-  const textColor = darkMode ? 'rgba(255,255,255,0.90)' : '#111';
-  const mutedColor = darkMode ? 'rgba(255,255,255,0.50)' : '#6b7280';
-
   const glassCard: React.CSSProperties = {
-    background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.55)',
-    border: darkMode ? '1px solid rgba(255,255,255,0.10)' : '1.5px solid rgba(255,255,255,0.70)',
+    background: 'rgba(255,255,255,0.06)',
+    border: '1px solid rgba(255,255,255,0.10)',
     backdropFilter: 'blur(12px)',
   };
 
   const inputStyle: React.CSSProperties = {
-    background: darkMode ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.85)',
-    border: darkMode ? '1px solid rgba(255,255,255,0.15)' : '1.5px solid rgba(200,190,255,0.50)',
-    color: textColor,
+    background: 'rgba(255,255,255,0.10)',
+    border: '1px solid rgba(255,255,255,0.15)',
+    color: 'rgba(255,255,255,0.90)',
     fontFamily: 'Rubik, sans-serif',
   };
 
-  // Visible cats = default (non-hidden) + custom (non-hidden)
   const customCatDefs: CatDef[] = customCats
     .filter((l) => !hiddenCats.has(l))
     .map((l) => ({ id: l, label: l, Icon: MoreHorizontal }));
@@ -163,9 +151,9 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
     <div
       dir="rtl"
       className="fixed inset-0 z-50 flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}
     >
-      <StarField darkMode={darkMode} />
+      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
@@ -182,24 +170,24 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'rgba(255,255,255,0.35)',
-          border: '1px solid rgba(255,255,255,0.50)',
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.20)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+        <ChevronRight size={20} className="text-white/70" strokeWidth={2} />
       </button>
 
       <div className="relative z-10 flex flex-col flex-1 overflow-y-auto px-5 pt-16 pb-6 gap-4">
 
         {/* Summary line */}
-        <p className="text-[17px] font-bold text-center" style={{ color: textColor }}>
+        <p className="text-[17px] font-bold text-center text-white">
           {summaryText}
         </p>
 
         {/* Date picker */}
         <div className="rounded-2xl px-4 py-3" style={glassCard}>
-          <p className="text-[10px] font-semibold mb-1.5" style={{ color: mutedColor }}>תאריך</p>
+          <p className="text-[10px] font-semibold mb-1.5 text-white/50">תאריך</p>
           <input
             type="date"
             value={date}
@@ -211,7 +199,7 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
 
         {/* Category grid */}
         <div className="rounded-2xl px-4 py-3" style={glassCard}>
-          <p className="text-[10px] font-semibold mb-2.5" style={{ color: mutedColor }}>קטגוריה</p>
+          <p className="text-[10px] font-semibold mb-2.5 text-white/50">קטגוריה</p>
 
           <div className="grid grid-cols-3 gap-2">
             {visibleCats.map((cat) => {
@@ -228,13 +216,13 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
                       ? (isIncome
                           ? 'linear-gradient(135deg, rgba(14,165,233,0.22), rgba(6,182,212,0.18))'
                           : 'linear-gradient(135deg, rgba(124,58,237,0.22), rgba(236,72,153,0.18))')
-                      : darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.80)',
+                      : 'rgba(255,255,255,0.06)',
                     border: active
                       ? (isIncome ? '1.5px solid rgba(14,165,233,0.50)' : '1.5px solid rgba(124,58,237,0.50)')
-                      : darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(200,190,255,0.35)',
+                      : '1px solid rgba(255,255,255,0.08)',
                     boxShadow: active
                       ? (isIncome ? '0 4px 0 rgba(14,165,233,0.20)' : '0 4px 0 rgba(124,58,237,0.20)')
-                      : darkMode ? '0 4px 0 rgba(0,0,0,0.30)' : '0 4px 0 rgba(180,170,220,0.20)',
+                      : '0 4px 0 rgba(0,0,0,0.30)',
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -243,7 +231,7 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
                     style={{
                       color: active
                         ? (isIncome ? '#0ea5e9' : '#7c3aed')
-                        : darkMode ? 'rgba(255,255,255,0.55)' : '#6b7280',
+                        : 'rgba(255,255,255,0.55)',
                     }}
                     strokeWidth={1.8}
                   />
@@ -252,7 +240,7 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
                     style={{
                       color: active
                         ? (isIncome ? '#0ea5e9' : '#7c3aed')
-                        : darkMode ? 'rgba(255,255,255,0.80)' : '#374151',
+                        : 'rgba(255,255,255,0.80)',
                     }}
                   >
                     {cat.label}
@@ -264,7 +252,6 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
 
           {/* Action buttons row */}
           <div className="flex gap-2 mt-3">
-            {/* הוסף קטגוריה */}
             <button
               type="button"
               onClick={() => {
@@ -274,16 +261,15 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
               }}
               className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-[12px] font-semibold"
               style={{
-                background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(200,190,255,0.25)',
-                border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(200,190,255,0.40)',
-                color: darkMode ? 'rgba(255,255,255,0.60)' : '#7c3aed',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: 'rgba(255,255,255,0.60)',
               }}
             >
               <Plus size={13} />
               הוסף קטגוריה
             </button>
 
-            {/* ניהול קטגוריות */}
             <button
               type="button"
               onClick={() => {
@@ -292,9 +278,9 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
               }}
               className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-[12px] font-semibold"
               style={{
-                background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(200,190,255,0.25)',
-                border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(200,190,255,0.40)',
-                color: darkMode ? 'rgba(255,255,255,0.60)' : '#7c3aed',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: 'rgba(255,255,255,0.60)',
               }}
             >
               <Settings size={13} />
@@ -330,27 +316,26 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
           {/* Manage panel */}
           {showManage && (
             <div className="mt-2.5 flex flex-col gap-1.5">
-              {/* Custom cats — deletable */}
               {customCats.length > 0 && (
                 <>
-                  <p className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color: mutedColor }}>
+                  <p className="text-[9px] font-bold uppercase tracking-wider mb-1 text-white/50">
                     קטגוריות מותאמות
                   </p>
                   {customCats.map((label) => (
                     <div
                       key={label}
                       className="flex items-center gap-2 rounded-xl px-3 py-2"
-                      style={{ background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(200,190,255,0.15)' }}
+                      style={{ background: 'rgba(255,255,255,0.06)' }}
                     >
                       <button
                         type="button"
                         onClick={() => deleteCustomCat(label)}
                         className="flex h-6 w-6 items-center justify-center rounded-lg shrink-0"
-                        style={{ background: darkMode ? 'rgba(239,68,68,0.20)' : 'rgba(239,68,68,0.12)', color: '#ef4444' }}
+                        style={{ background: 'rgba(239,68,68,0.20)', color: '#ef4444' }}
                       >
                         <Trash2 size={12} />
                       </button>
-                      <span className="flex-1 text-right text-[13px] font-medium" style={{ color: textColor }}>
+                      <span className="flex-1 text-right text-[13px] font-medium text-white">
                         {label}
                       </span>
                     </div>
@@ -358,8 +343,7 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
                 </>
               )}
 
-              {/* Built-in cats — hide/show toggle */}
-              <p className="text-[9px] font-bold uppercase tracking-wider mb-1 mt-1" style={{ color: mutedColor }}>
+              <p className="text-[9px] font-bold uppercase tracking-wider mb-1 mt-1 text-white/50">
                 קטגוריות ברירת מחדל
               </p>
               {defaultCats.map((cat) => {
@@ -368,24 +352,22 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
                   <div
                     key={cat.id}
                     className="flex items-center gap-2 rounded-xl px-3 py-2"
-                    style={{ background: darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(200,190,255,0.10)' }}
+                    style={{ background: 'rgba(255,255,255,0.04)' }}
                   >
                     <button
                       type="button"
                       onClick={() => toggleHide(cat.id)}
                       className="rounded-lg px-2 py-1 text-[10px] font-semibold shrink-0"
                       style={{
-                        background: hidden
-                          ? (darkMode ? 'rgba(255,255,255,0.10)' : 'rgba(200,190,255,0.30)')
-                          : (darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.10)'),
-                        color: hidden ? (darkMode ? 'rgba(255,255,255,0.60)' : '#7c3aed') : '#ef4444',
+                        background: hidden ? 'rgba(255,255,255,0.10)' : 'rgba(239,68,68,0.15)',
+                        color: hidden ? 'rgba(255,255,255,0.60)' : '#ef4444',
                       }}
                     >
                       {hidden ? 'הצג' : 'הסתר'}
                     </button>
                     <span
                       className="flex-1 text-right text-[13px] font-medium"
-                      style={{ color: hidden ? mutedColor : textColor, opacity: hidden ? 0.5 : 1 }}
+                      style={{ color: hidden ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.90)', opacity: hidden ? 0.5 : 1 }}
                     >
                       {cat.label}
                     </span>
@@ -394,7 +376,7 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
               })}
 
               {customCats.length === 0 && (
-                <p className="text-center text-[11px] py-1" style={{ color: mutedColor }}>
+                <p className="text-center text-[11px] py-1 text-white/55">
                   אין קטגוריות מותאמות עדיין
                 </p>
               )}
@@ -404,14 +386,14 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
 
         {/* Description */}
         <div className="rounded-2xl px-4 py-3" style={glassCard}>
-          <p className="text-[10px] font-semibold mb-1.5" style={{ color: mutedColor }}>תיאור</p>
+          <p className="text-[10px] font-semibold mb-1.5 text-white/50">תיאור</p>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="תיאור (לא חובה)"
             dir="rtl"
             rows={3}
-            className="w-full rounded-xl px-3 py-2.5 text-[14px] outline-none resize-none"
+            className="w-full rounded-xl px-3 py-2.5 text-[14px] outline-none resize-none placeholder:text-white/30"
             style={inputStyle}
           />
         </div>

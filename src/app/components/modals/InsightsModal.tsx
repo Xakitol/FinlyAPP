@@ -5,10 +5,9 @@ interface InsightsModalProps {
   open: boolean;
   onClose: () => void;
   onOpenChart?: () => void;
-  darkMode?: boolean;
 }
 
-export function InsightsModal({ open, onClose, onOpenChart, darkMode = false }: InsightsModalProps) {
+export function InsightsModal({ open, onClose, onOpenChart }: InsightsModalProps) {
   if (!open) return null;
 
   return (
@@ -28,10 +27,10 @@ export function InsightsModal({ open, onClose, onOpenChart, darkMode = false }: 
           >
             <X className="w-5 h-5 text-white" />
           </button>
-          <h2 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>תובנות פיננסיות</h2>
+          <h2 className={`text-3xl font-bold text-white`}>תובנות פיננסיות</h2>
         </div>
 
-        <p className={`text-right ${darkMode ? 'text-cyan-200/70' : 'text-cyan-700/80'} mb-8`}>
+        <p className="text-right text-cyan-200/70 mb-8">
           בחרו את סוג הניתוח שתרצו לראות
         </p>
 
@@ -47,8 +46,8 @@ export function InsightsModal({ open, onClose, onOpenChart, darkMode = false }: 
               <TrendingUp className="w-8 h-8 text-white" />
             </CircularButton>
             <div>
-              <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-1`}>מגמות הכנסה</h3>
-              <p className={`text-sm ${darkMode ? 'text-cyan-200/60' : 'text-cyan-700/70'}`}>ניתוח הכנסות לאורך זמן</p>
+              <h3 className={`text-lg font-bold text-white mb-1`}>מגמות הכנסה</h3>
+              <p className="text-sm text-cyan-200/60">ניתוח הכנסות לאורך זמן</p>
             </div>
           </GlassCard>
 
@@ -57,8 +56,8 @@ export function InsightsModal({ open, onClose, onOpenChart, darkMode = false }: 
               <Wallet className="w-8 h-8 text-white" />
             </CircularButton>
             <div>
-              <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-1`}>פילוח הוצאות</h3>
-              <p className={`text-sm ${darkMode ? 'text-violet-200/60' : 'text-violet-700/70'}`}>לאן הכסף הולך</p>
+              <h3 className={`text-lg font-bold text-white mb-1`}>פילוח הוצאות</h3>
+              <p className="text-sm text-violet-200/60">לאן הכסף הולך</p>
             </div>
           </GlassCard>
 
@@ -67,8 +66,8 @@ export function InsightsModal({ open, onClose, onOpenChart, darkMode = false }: 
               <PiggyBank className="w-8 h-8 text-white" />
             </CircularButton>
             <div>
-              <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-1`}>פוטנציאל חיסכון</h3>
-              <p className={`text-sm ${darkMode ? 'text-purple-200/60' : 'text-purple-700/70'}`}>המלצות לחיסכון</p>
+              <h3 className={`text-lg font-bold text-white mb-1`}>פוטנציאל חיסכון</h3>
+              <p className="text-sm text-purple-200/60">המלצות לחיסכון</p>
             </div>
           </GlassCard>
         </div>

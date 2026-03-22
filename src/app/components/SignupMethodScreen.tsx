@@ -6,11 +6,13 @@ import { signInWithApple } from '../utils/authApple';
 
 interface SignupMethodScreenProps {
   onBack: () => void;
-  onGoogle: () => void;   // called on success
+  onGoogle: () => void;
   onPhone: () => void;
-  onApple: () => void;    // called on success
+  onApple: () => void;
   onEmail: () => void;
 }
+
+const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
 
 const KEYFRAMES = `
   @keyframes signupFadeUp {
@@ -21,9 +23,10 @@ const KEYFRAMES = `
 
 function glassOption(): CSSProperties {
   return {
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(242,236,255,0.55) 100%)',
-    border: '1.5px solid rgba(255,255,255,0.90)',
-    backdropFilter: 'blur(14px)',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.14)',
+    backdropFilter: 'blur(12px)',
+    boxShadow: '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)',
   };
 }
 
@@ -49,12 +52,6 @@ function AppleIcon() {
 export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail }: SignupMethodScreenProps) {
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'apple' | null>(null);
 
-  const backgroundGradient =
-    'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
-  const shadowNeutral =
-    '0 6px 0 rgba(0,0,0,0.08), 0 10px 24px rgba(0,0,0,0.07), inset 0 1.5px 0 rgba(255,255,255,0.95)';
-
   async function handleGoogle() {
     setLoadingProvider('google');
     const result = await signInWithGoogle();
@@ -73,10 +70,10 @@ export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
     >
       <style>{KEYFRAMES}</style>
-      <StarField darkMode={false} />
+      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
@@ -93,12 +90,12 @@ export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'rgba(255,255,255,0.35)',
-          border: '1px solid rgba(255,255,255,0.50)',
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.20)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+        <ChevronRight size={20} className="text-white/70" strokeWidth={2} />
       </button>
 
       {/* Main content */}
@@ -109,15 +106,15 @@ export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail
           className="w-full text-right mb-8"
           style={{ animation: 'signupFadeUp 0.45s 0.05s cubic-bezier(0.22,1,0.36,1) both' }}
         >
-          <h2 className="text-[24px] font-bold text-violet-900 leading-tight tracking-tight">
+          <h2 className="text-[24px] font-bold text-white leading-tight tracking-tight">
             ניצור לך חשבון
           </h2>
-          <p className="mt-2 text-[14px] text-violet-500 leading-relaxed">
+          <p className="mt-2 text-[14px] text-white/55 leading-relaxed">
             בחר איך להירשם ל-Finly
           </p>
         </div>
 
-        {/* Options — Gmail → Phone → Apple → Email */}
+        {/* Options */}
         <div className="w-full flex flex-col gap-3">
 
           {/* Gmail */}
@@ -125,14 +122,14 @@ export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail
             onClick={handleGoogle}
             disabled={loadingProvider !== null}
             className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
-            style={{ ...glassOption(), boxShadow: shadowNeutral, animation: 'signupFadeUp 0.45s 0.14s cubic-bezier(0.22,1,0.36,1) both' }}
+            style={{ ...glassOption(), animation: 'signupFadeUp 0.45s 0.14s cubic-bezier(0.22,1,0.36,1) both' }}
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(66,133,244,0.08)', border: '1px solid rgba(66,133,244,0.14)' }}>
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(66,133,244,0.12)', border: '1px solid rgba(66,133,244,0.20)' }}>
               {loadingProvider === 'google'
                 ? <div className="h-5 w-5 rounded-full border-2 border-blue-400 border-t-transparent animate-spin" />
                 : <GoogleIcon />}
             </div>
-            <span className="flex-1 text-[15px] font-semibold text-gray-800">הרשמה עם Gmail</span>
+            <span className="flex-1 text-[15px] font-semibold text-white">הרשמה עם Gmail</span>
           </button>
 
           {/* Phone */}
@@ -140,27 +137,27 @@ export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail
             onClick={onPhone}
             disabled={loadingProvider !== null}
             className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
-            style={{ ...glassOption(), boxShadow: '0 6px 0 rgba(109,40,217,0.14), 0 10px 24px rgba(139,92,246,0.10), inset 0 1.5px 0 rgba(255,255,255,0.95)', animation: 'signupFadeUp 0.45s 0.22s cubic-bezier(0.22,1,0.36,1) both' }}
+            style={{ ...glassOption(), animation: 'signupFadeUp 0.45s 0.22s cubic-bezier(0.22,1,0.36,1) both' }}
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(124,58,237,0.10)', border: '1px solid rgba(124,58,237,0.16)' }}>
-              <Phone className="h-5 w-5 text-violet-600" strokeWidth={2} />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.22)' }}>
+              <Phone className="h-5 w-5 text-violet-400" strokeWidth={2} />
             </div>
-            <span className="flex-1 text-[15px] font-semibold text-gray-800">טלפון</span>
+            <span className="flex-1 text-[15px] font-semibold text-white">טלפון</span>
           </button>
 
           {/* Apple */}
           <button
             onClick={handleApple}
             disabled={loadingProvider !== null}
-            className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
-            style={{ ...glassOption(), boxShadow: shadowNeutral, animation: 'signupFadeUp 0.45s 0.30s cubic-bezier(0.22,1,0.36,1) both' }}
+            className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform disabled:opacity-70 text-white"
+            style={{ ...glassOption(), animation: 'signupFadeUp 0.45s 0.30s cubic-bezier(0.22,1,0.36,1) both' }}
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-gray-900" style={{ background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.08)' }}>
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.16)' }}>
               {loadingProvider === 'apple'
-                ? <div className="h-5 w-5 rounded-full border-2 border-gray-500 border-t-transparent animate-spin" />
+                ? <div className="h-5 w-5 rounded-full border-2 border-white/50 border-t-transparent animate-spin" />
                 : <AppleIcon />}
             </div>
-            <span className="flex-1 text-[15px] font-semibold text-gray-800">הרשמה עם Apple</span>
+            <span className="flex-1 text-[15px] font-semibold text-white">הרשמה עם Apple</span>
           </button>
 
           {/* Email */}
@@ -168,19 +165,19 @@ export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail
             onClick={onEmail}
             disabled={loadingProvider !== null}
             className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
-            style={{ ...glassOption(), boxShadow: shadowNeutral, animation: 'signupFadeUp 0.45s 0.38s cubic-bezier(0.22,1,0.36,1) both' }}
+            style={{ ...glassOption(), animation: 'signupFadeUp 0.45s 0.38s cubic-bezier(0.22,1,0.36,1) both' }}
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.14)' }}>
-              <Mail className="h-5 w-5 text-indigo-500" strokeWidth={2} />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.20)' }}>
+              <Mail className="h-5 w-5 text-indigo-400" strokeWidth={2} />
             </div>
-            <span className="flex-1 text-[15px] font-semibold text-gray-800">הרשמה עם אימייל</span>
+            <span className="flex-1 text-[15px] font-semibold text-white">הרשמה עם אימייל</span>
           </button>
 
         </div>
 
         {/* Footer */}
         <p
-          className="mt-8 text-violet-400 text-xs text-center"
+          className="mt-8 text-white/35 text-xs text-center"
           style={{ animation: 'signupFadeUp 0.45s 0.48s cubic-bezier(0.22,1,0.36,1) both' }}
         >
           ההרשמה מאובטחת ופרטית

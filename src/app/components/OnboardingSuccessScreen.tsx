@@ -6,6 +6,8 @@ interface Props {
   onContinue: () => void;
 }
 
+const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
+
 const KEYFRAMES = `
   @keyframes successSpin {
     from { transform: rotate(0deg); }
@@ -38,8 +40,6 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
   const name = localStorage.getItem('finly_user_name') ?? '';
   const [stage, setStage] = useState<Stage>('loading');
 
-  const backgroundGradient = 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
   useEffect(() => {
     const t1 = setTimeout(() => setStage('logo'),     1800);
     const t2 = setTimeout(() => setStage('title'),    2700);
@@ -64,12 +64,12 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
       className="h-screen w-full relative flex flex-col items-center justify-center finly-safe"
       style={{
         fontFamily: 'Rubik, sans-serif',
-        background: backgroundGradient,
+        background: BG,
         animation: isFading ? 'successFadeOut 0.4s ease-out forwards' : undefined,
       }}
     >
       <style>{KEYFRAMES}</style>
-      <StarField darkMode={false} />
+      <StarField darkMode={true} />
 
       <div className="relative z-10 flex flex-col items-center gap-5 text-center px-6">
 
@@ -81,7 +81,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
                 width: 80,
                 height: 80,
                 borderRadius: '50%',
-                background: 'conic-gradient(from 0deg, #7c3aed 0%, #ec4899 55%, rgba(221,214,254,0.15) 100%)',
+                background: 'conic-gradient(from 0deg, #7c3aed 0%, #ec4899 55%, rgba(124,58,237,0.10) 100%)',
                 animation: 'successSpin 1.1s linear infinite',
               }}
             >
@@ -90,7 +90,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
                   position: 'absolute',
                   inset: 7,
                   borderRadius: '50%',
-                  background: backgroundGradient,
+                  background: BG,
                 }}
               />
             </div>
@@ -116,7 +116,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
         {/* Title */}
         {showTitle && (
           <h1
-            className="text-3xl font-bold text-violet-900"
+            className="text-3xl font-bold text-white"
             style={{ animation: 'successFadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both' }}
           >
             !הכל מוכן, {name}
@@ -126,7 +126,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
         {/* Subtitle */}
         {showSubtitle && (
           <p
-            className="text-base font-medium text-violet-500"
+            className="text-base font-medium text-white/60"
             style={{ animation: 'successFadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both' }}
           >
             Finly מוכן לצעוד איתך לחברות פיננסית

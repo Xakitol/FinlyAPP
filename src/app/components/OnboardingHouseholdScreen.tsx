@@ -22,19 +22,19 @@ const OPTIONS: Option[] = [
   { value: 'single-parent', icon: Baby,  label: 'הורה עם ילדים',       description: 'מנהל/ת לבד עם ילדים' },
 ];
 
+const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
+
 export function OnboardingHouseholdScreen({ onContinue, onBack }: Props) {
   function handleSelect(value: HouseholdType) {
     localStorage.setItem('finly_user_household', value);
     onContinue();
   }
 
-  const backgroundGradient = 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
   const cardStyle: React.CSSProperties = {
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.48) 0%, rgba(200,180,255,0.22) 100%)',
-    border: '1.5px solid rgba(255,255,255,0.65)',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.14)',
     backdropFilter: 'blur(12px)',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.55)',
+    boxShadow: '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)',
   };
 
   const iconWrapStyle: React.CSSProperties = {
@@ -45,17 +45,17 @@ export function OnboardingHouseholdScreen({ onContinue, onBack }: Props) {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(236,72,153,0.10) 100%)',
-    border: '1px solid rgba(124,58,237,0.15)',
+    background: 'rgba(124,58,237,0.20)',
+    border: '1px solid rgba(124,58,237,0.25)',
   };
 
   return (
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col items-center justify-center finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
     >
-      <StarField darkMode={false} />
+      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
@@ -72,18 +72,18 @@ export function OnboardingHouseholdScreen({ onContinue, onBack }: Props) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'rgba(255,255,255,0.35)',
-          border: '1px solid rgba(255,255,255,0.50)',
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.20)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+        <ChevronRight size={20} className="text-white/70" strokeWidth={2} />
       </button>
 
       <div className="relative z-10 w-full max-w-xs px-6 flex flex-col gap-6">
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-3xl font-bold text-violet-900">מי מתנהל איתך?</h1>
-          <p className="text-base font-medium text-violet-500">Finly יזהה איך מתנהל משק הבית שלך ויתאים את עצמו אליך</p>
+          <h1 className="text-3xl font-bold text-white">מי מתנהל איתך?</h1>
+          <p className="text-base font-medium text-white/55">Finly יזהה איך מתנהל משק הבית שלך ויתאים את עצמו אליך</p>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -97,11 +97,11 @@ export function OnboardingHouseholdScreen({ onContinue, onBack }: Props) {
                 style={cardStyle}
               >
                 <div style={iconWrapStyle}>
-                  <Icon size={24} strokeWidth={1.8} style={{ color: '#7c3aed' }} />
+                  <Icon size={24} strokeWidth={1.8} style={{ color: '#a78bfa' }} />
                 </div>
                 <div className="flex flex-col items-start">
-                  <span className="font-semibold text-base text-violet-900">{opt.label}</span>
-                  <span className="text-sm text-violet-500 mt-0.5">{opt.description}</span>
+                  <span className="font-semibold text-base text-white">{opt.label}</span>
+                  <span className="text-sm text-white/55 mt-0.5">{opt.description}</span>
                 </div>
               </button>
             );

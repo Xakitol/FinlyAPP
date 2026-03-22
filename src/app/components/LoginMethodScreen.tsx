@@ -13,6 +13,8 @@ interface LoginMethodScreenProps {
   onEmail: () => void;
 }
 
+const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
+
 const KEYFRAMES = `
   @keyframes loginFadeUp {
     0%  { opacity: 0; transform: translateY(20px); }
@@ -22,9 +24,10 @@ const KEYFRAMES = `
 
 function glassOption(): CSSProperties {
   return {
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(242,236,255,0.55) 100%)',
-    border: '1.5px solid rgba(255,255,255,0.90)',
-    backdropFilter: 'blur(14px)',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.14)',
+    backdropFilter: 'blur(12px)',
+    boxShadow: '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)',
   };
 }
 
@@ -47,7 +50,6 @@ function AppleIcon() {
   );
 }
 
-// Biometric icon — fingerprint SVG
 function BiometricIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -80,17 +82,14 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
     if (result.success) onApple();
   }
 
-  const backgroundGradient =
-    'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
   return (
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
     >
       <style>{KEYFRAMES}</style>
-      <StarField darkMode={false} />
+      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
@@ -107,12 +106,12 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'rgba(255,255,255,0.35)',
-          border: '1px solid rgba(255,255,255,0.50)',
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.20)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+        <ChevronRight size={20} className="text-white/70" strokeWidth={2} />
       </button>
 
       {/* Main content */}
@@ -123,10 +122,10 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
           className="w-full text-right mb-8"
           style={{ animation: 'loginFadeUp 0.45s 0.05s cubic-bezier(0.22,1,0.36,1) both' }}
         >
-          <h2 className="text-[24px] font-bold text-violet-900 leading-tight tracking-tight">
+          <h2 className="text-[24px] font-bold text-white leading-tight tracking-tight">
             ברוך הבא חזרה
           </h2>
-          <p className="mt-2 text-[14px] text-violet-500 leading-relaxed">
+          <p className="mt-2 text-[14px] text-white/55 leading-relaxed">
             התחבר כדי להמשיך
           </p>
         </div>
@@ -162,20 +161,17 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
           <button
             onClick={onBiometric}
             className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform"
-            style={{
-              ...glassOption(),
-              boxShadow: '0 6px 0 rgba(109,40,217,0.12), 0 10px 24px rgba(139,92,246,0.10), inset 0 1.5px 0 rgba(255,255,255,0.95)',
-            }}
+            style={glassOption()}
           >
             <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-violet-600"
-              style={{ background: 'rgba(124,58,237,0.10)', border: '1px solid rgba(124,58,237,0.16)' }}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-violet-400"
+              style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.22)' }}
             >
               <BiometricIcon />
             </div>
             <div className="flex-1 text-right">
-              <p className="text-[15px] font-semibold text-gray-800 leading-tight">מזהה פנים / טביעת אצבע</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">אם הופעל בעבר במכשיר זה</p>
+              <p className="text-[15px] font-semibold text-white leading-tight">מזהה פנים / טביעת אצבע</p>
+              <p className="text-[11px] text-white/45 mt-0.5">אם הופעל בעבר במכשיר זה</p>
             </div>
           </button>
         </div>
@@ -187,7 +183,7 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
         >
           <button
             onClick={() => setShowMore((v) => !v)}
-            className="flex items-center gap-1.5 text-violet-500 text-[13px] font-medium active:opacity-70 transition-opacity mx-auto"
+            className="flex items-center gap-1.5 text-violet-400 text-[13px] font-medium active:opacity-70 transition-opacity mx-auto"
             style={{ display: 'flex' }}
           >
             <span>עוד אפשרויות</span>
@@ -213,41 +209,35 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
                 onClick={handleGoogle}
                 disabled={loadingProvider !== null}
                 className="w-full flex items-center gap-4 rounded-2xl px-5 py-3.5 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
-                style={{
-                  ...glassOption(),
-                  boxShadow: '0 4px 0 rgba(0,0,0,0.06), 0 8px 18px rgba(0,0,0,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)',
-                }}
+                style={glassOption()}
               >
                 <div
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                  style={{ background: 'rgba(66,133,244,0.08)', border: '1px solid rgba(66,133,244,0.14)' }}
+                  style={{ background: 'rgba(66,133,244,0.12)', border: '1px solid rgba(66,133,244,0.20)' }}
                 >
                   {loadingProvider === 'google'
                     ? <div className="h-4 w-4 rounded-full border-2 border-blue-400 border-t-transparent animate-spin" />
                     : <GoogleIcon />}
                 </div>
-                <span className="flex-1 text-[14px] font-semibold text-gray-800">כניסה עם Gmail</span>
+                <span className="flex-1 text-[14px] font-semibold text-white">כניסה עם Gmail</span>
               </button>
 
               {/* Apple */}
               <button
                 onClick={handleApple}
                 disabled={loadingProvider !== null}
-                className="w-full flex items-center gap-4 rounded-2xl px-5 py-3.5 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
-                style={{
-                  ...glassOption(),
-                  boxShadow: '0 4px 0 rgba(0,0,0,0.06), 0 8px 18px rgba(0,0,0,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)',
-                }}
+                className="w-full flex items-center gap-4 rounded-2xl px-5 py-3.5 text-right active:scale-[0.97] transition-transform disabled:opacity-70 text-white"
+                style={glassOption()}
               >
                 <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-gray-900"
-                  style={{ background: 'rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.08)' }}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.16)' }}
                 >
                   {loadingProvider === 'apple'
-                    ? <div className="h-4 w-4 rounded-full border-2 border-gray-500 border-t-transparent animate-spin" />
+                    ? <div className="h-4 w-4 rounded-full border-2 border-white/50 border-t-transparent animate-spin" />
                     : <AppleIcon />}
                 </div>
-                <span className="flex-1 text-[14px] font-semibold text-gray-800">כניסה עם Apple</span>
+                <span className="flex-1 text-[14px] font-semibold text-white">כניסה עם Apple</span>
               </button>
 
               {/* Email */}
@@ -255,18 +245,15 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
                 onClick={onEmail}
                 disabled={loadingProvider !== null}
                 className="w-full flex items-center gap-4 rounded-2xl px-5 py-3.5 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
-                style={{
-                  ...glassOption(),
-                  boxShadow: '0 4px 0 rgba(0,0,0,0.06), 0 8px 18px rgba(0,0,0,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)',
-                }}
+                style={glassOption()}
               >
                 <div
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                  style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.14)' }}
+                  style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.20)' }}
                 >
-                  <Mail className="h-4 w-4 text-indigo-500" strokeWidth={2} />
+                  <Mail className="h-4 w-4 text-indigo-400" strokeWidth={2} />
                 </div>
-                <span className="flex-1 text-[14px] font-semibold text-gray-800">כניסה עם אימייל</span>
+                <span className="flex-1 text-[14px] font-semibold text-white">כניסה עם אימייל</span>
               </button>
 
             </div>
@@ -275,7 +262,7 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
 
         {/* Footer */}
         <p
-          className="mt-8 text-violet-400 text-xs text-center"
+          className="mt-8 text-white/35 text-xs text-center"
           style={{ animation: 'loginFadeUp 0.45s 0.36s cubic-bezier(0.22,1,0.36,1) both' }}
         >
           מתחבר לחשבון הקיים שלך ב-Finly

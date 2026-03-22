@@ -7,7 +7,6 @@ import { parseFile, type ParsedRow } from '../../../utils/importParser';
 interface ImportModalProps {
   open: boolean;
   onClose: () => void;
-  darkMode?: boolean;
   onImport: (rows: ParsedRow[], targetMonth: number) => void;
 }
 
@@ -18,20 +17,11 @@ const HEBREW_MONTHS = [
   'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר',
 ];
 
-// Honest labels — no false certainty. "high" means strong parse/memory match, not guaranteed.
 const CONFIDENCE_LABELS: Record<ParsedRow['confidence'], string> = {
   high: 'זוהה בבטחה', suggestion: 'הצעה', ambiguous: 'לבחירה', inferred: 'ניחוש מבוסס', unknown: 'לבדיקה',
 };
 
-const CONFIDENCE_COLORS: Record<ParsedRow['confidence'], { badge: string; dot: string }> = {
-  high:       { badge: 'bg-sky-500/20 text-sky-600',     dot: 'bg-sky-500' },
-  suggestion: { badge: 'bg-violet-500/20 text-violet-600', dot: 'bg-violet-400' },
-  ambiguous:  { badge: 'bg-amber-500/20 text-amber-600',  dot: 'bg-amber-400' },
-  inferred:   { badge: 'bg-orange-400/20 text-orange-600', dot: 'bg-orange-400' },
-  unknown:    { badge: 'bg-gray-400/20 text-gray-500',    dot: 'bg-gray-400' },
-};
-
-const CONFIDENCE_COLORS_DARK: Record<ParsedRow['confidence'], { badge: string }> = {
+const CONFIDENCE_COLORS: Record<ParsedRow['confidence'], { badge: string }> = {
   high:       { badge: 'bg-sky-500/20 text-sky-300' },
   suggestion: { badge: 'bg-violet-500/20 text-violet-300' },
   ambiguous:  { badge: 'bg-amber-500/20 text-amber-300' },
@@ -45,7 +35,6 @@ function ConfidenceIcon({ confidence }: { confidence: ParsedRow['confidence'] })
   return <AlertCircle className="h-3.5 w-3.5 text-violet-400" />;
 }
 
-/** Finds the most common calendar month (0-11) from parsed row dates */
 function detectMostCommonMonth(rows: ParsedRow[]): number {
   const counts: Record<number, number> = {};
   for (const row of rows) {
@@ -59,7 +48,14 @@ function detectMostCommonMonth(rows: ParsedRow[]): number {
   return parseInt(entries.sort((a, b) => Number(b[1]) - Number(a[1]))[0][0]);
 }
 
-export function ImportModal({ open, onClose, darkMode = false, onImport }: ImportModalProps) {
+const modalBg: React.CSSProperties = {
+  background: 'rgba(15,10,30,0.97)',
+  border: '1px solid rgba(255,255,255,0.12)',
+  backdropFilter: 'blur(20px)',
+  boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+};
+
+export function ImportModal({ open, onClose, onImport }: ImportModalProps) {
   const [stage, setStage]           = useState<Stage>('idle');
   const [rows, setRows]             = useState<ParsedRow[]>([]);
   const [error, setError]           = useState('');
@@ -68,14 +64,6 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!open) return null;
-
-  const text   = darkMode ? 'text-white' : 'text-gray-900';
-  const muted  = darkMode ? 'text-white/60' : 'text-gray-500';
-  const accent = darkMode ? 'text-sky-300' : 'text-violet-600';
-
-  const modalBg: React.CSSProperties = darkMode
-    ? { background: 'linear-gradient(145deg, rgba(26,31,58,0.97) 0%, rgba(15,20,40,0.98) 100%)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', boxShadow: '0 24px 60px rgba(0,0,0,0.6)' }
-    : { background: 'linear-gradient(145deg, rgba(255,255,255,0.97) 0%, rgba(248,245,255,0.98) 100%)', border: '1.5px solid rgba(139,92,246,0.25)', backdropFilter: 'blur(20px)', boxShadow: '0 24px 60px rgba(139,92,246,0.15)' };
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -144,14 +132,14 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
             <button
               type="button"
               onClick={handleClose}
-              className={`flex h-10 w-10 items-center justify-center rounded-full ${darkMode ? 'bg-white/15' : 'bg-gray-100'}`}
-              style={{ boxShadow: darkMode ? '0 4px 0 rgba(0,0,0,0.3)' : '0 4px 0 rgba(0,0,0,0.1)' }}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15"
+              style={{ boxShadow: '0 4px 0 rgba(0,0,0,0.3)' }}
             >
-              <X className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
+              <X className="h-4 w-4 text-white" />
             </button>
             <div className="text-right">
-              <h2 className={`text-lg font-bold ${text}`}>ייבוא תנועות</h2>
-              <p className={`text-[11px] ${muted}`}>Excel, CSV או PDF מהבנק</p>
+              <h2 className="text-lg font-bold text-white">ייבוא תנועות</h2>
+              <p className="text-[11px] text-white/60">Excel, CSV או PDF מהבנק</p>
             </div>
           </div>
 
@@ -159,39 +147,35 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
             {stage === 'parsing' ? (
               <div className="flex flex-col items-center gap-3 py-10">
                 <div className="h-10 w-10 animate-spin rounded-full" style={{ border: '3px solid rgba(99,102,241,0.2)', borderTopColor: '#6366f1' }} />
-                <p className={`text-[13px] ${muted}`}>מנתח את {fileName}…</p>
+                <p className="text-[13px] text-white/60">מנתח את {fileName}…</p>
               </div>
             ) : (
               <>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className={`w-full rounded-2xl border-2 border-dashed py-10 flex flex-col items-center gap-3 transition-colors ${
-                    darkMode
-                      ? 'border-white/20 hover:border-violet-400/60 hover:bg-white/5'
-                      : 'border-gray-200 hover:border-violet-300 hover:bg-violet-50/30'
-                  }`}
+                  className="w-full rounded-2xl border-2 border-dashed py-10 flex flex-col items-center gap-3 transition-colors border-white/20 hover:border-violet-400/60 hover:bg-white/5"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}>
                     <Upload className="h-6 w-6 text-white" />
                   </div>
                   <div className="text-center">
-                    <p className={`text-[14px] font-semibold ${text}`}>בחרו קובץ לייבוא</p>
-                    <p className={`mt-0.5 text-[11px] ${muted}`}>.xlsx, .csv, .pdf</p>
+                    <p className="text-[14px] font-semibold text-white">בחרו קובץ לייבוא</p>
+                    <p className="mt-0.5 text-[11px] text-white/60">.xlsx, .csv, .pdf</p>
                   </div>
                 </button>
                 <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv,.pdf" className="hidden" onChange={handleFileChange} />
 
                 {error && (
-                  <p className={`mt-3 text-center text-[12px] ${darkMode ? 'text-fuchsia-300' : 'text-fuchsia-600'}`}>{error}</p>
+                  <p className="mt-3 text-center text-[12px] text-fuchsia-300">{error}</p>
                 )}
 
-                <div className={`mt-4 rounded-xl px-4 py-3 text-right ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
-                  <p className={`text-[11px] font-semibold ${accent} mb-1.5`}>מה עובד הכי טוב?</p>
-                  <p className={`text-[11px] ${muted} leading-relaxed mb-2`}>
+                <div className="mt-4 rounded-xl px-4 py-3 text-right bg-white/5">
+                  <p className="text-[11px] font-semibold text-sky-300 mb-1.5">מה עובד הכי טוב?</p>
+                  <p className="text-[11px] text-white/60 leading-relaxed mb-2">
                     <span className="font-semibold">Excel ו-CSV</span> — פורמטים אמינים. הייבוא מדויק ומהיר.
                   </p>
-                  <p className={`text-[11px] leading-relaxed ${darkMode ? 'text-amber-300/70' : 'text-amber-600/80'}`}>
+                  <p className="text-[11px] leading-relaxed text-amber-300/70">
                     <span className="font-semibold">PDF</span> — עדיין לא אמין מספיק לשימוש יומיומי. עדיף לייצא מהבנק ישירות ל-Excel.
                   </p>
                 </div>
@@ -219,14 +203,14 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
             <button
               type="button"
               onClick={handleClose}
-              className={`flex h-10 w-10 items-center justify-center rounded-full ${darkMode ? 'bg-white/15' : 'bg-gray-100'}`}
-              style={{ boxShadow: darkMode ? '0 4px 0 rgba(0,0,0,0.3)' : '0 4px 0 rgba(0,0,0,0.1)' }}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15"
+              style={{ boxShadow: '0 4px 0 rgba(0,0,0,0.3)' }}
             >
-              <X className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
+              <X className="h-4 w-4 text-white" />
             </button>
             <div className="text-right">
-              <h2 className={`text-lg font-bold ${text}`}>לאיזה חודש לייבא?</h2>
-              <p className={`text-[11px] ${muted}`}>{rows.length} תנועות זוהו · {fileName}</p>
+              <h2 className="text-lg font-bold text-white">לאיזה חודש לייבא?</h2>
+              <p className="text-[11px] text-white/60">{rows.length} תנועות זוהו · {fileName}</p>
             </div>
           </div>
 
@@ -235,13 +219,13 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
             <div
               className="mb-4 rounded-2xl px-4 py-3 text-right"
               style={{
-                background: darkMode ? 'rgba(14,165,233,0.12)' : 'rgba(14,165,233,0.08)',
-                border: darkMode ? '1px solid rgba(14,165,233,0.25)' : '1px solid rgba(14,165,233,0.2)',
+                background: 'rgba(14,165,233,0.12)',
+                border: '1px solid rgba(14,165,233,0.25)',
               }}
             >
-              <p className={`text-[11px] font-semibold mb-0.5 ${darkMode ? 'text-sky-300' : 'text-sky-600'}`}>חודש מזוהה מהקובץ</p>
-              <p className={`text-[15px] font-bold ${text}`}>{HEBREW_MONTHS[targetMonth]}</p>
-              <p className={`text-[10px] mt-0.5 ${muted}`}>אפשר לשנות למטה</p>
+              <p className="text-[11px] font-semibold mb-0.5 text-sky-300">חודש מזוהה מהקובץ</p>
+              <p className="text-[15px] font-bold text-white">{HEBREW_MONTHS[targetMonth]}</p>
+              <p className="text-[10px] mt-0.5 text-white/60">אפשר לשנות למטה</p>
             </div>
 
             {/* Month grid */}
@@ -253,17 +237,13 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
                     key={idx}
                     type="button"
                     onClick={() => setTargetMonth(idx)}
-                    className={`rounded-xl py-2 text-[12px] font-semibold transition-all ${active ? 'text-white' : (darkMode ? 'text-white/60' : 'text-gray-600')}`}
+                    className={`rounded-xl py-2 text-[12px] font-semibold transition-all ${active ? 'text-white' : 'text-white/60'}`}
                     style={{
                       background: active
                         ? 'linear-gradient(135deg, #0ea5e9, #6366f1)'
-                        : darkMode ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.8)',
-                      border: active
-                        ? 'none'
-                        : darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(200,190,255,0.4)',
-                      boxShadow: active
-                        ? '0 3px 0 rgba(99,102,241,0.4)'
-                        : darkMode ? '0 3px 0 rgba(0,0,0,0.3)' : '0 3px 0 rgba(180,170,220,0.2)',
+                        : 'rgba(255,255,255,0.07)',
+                      border: active ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                      boxShadow: active ? '0 3px 0 rgba(99,102,241,0.4)' : '0 3px 0 rgba(0,0,0,0.3)',
                     }}
                   >
                     {name}
@@ -305,8 +285,8 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: 'linear-gradient(135deg, #0ea5e9, #6366f1)' }}>
             <CheckCircle className="h-7 w-7 text-white" />
           </div>
-          <p className={`mt-4 text-[17px] font-bold ${text}`}>יובאו {rows.length} תנועות</p>
-          <p className={`mt-1 text-[12px] ${muted}`}>נשמרו לחודש {HEBREW_MONTHS[targetMonth]}</p>
+          <p className="mt-4 text-[17px] font-bold text-white">יובאו {rows.length} תנועות</p>
+          <p className="mt-1 text-[12px] text-white/60">נשמרו לחודש {HEBREW_MONTHS[targetMonth]}</p>
           <button
             type="button"
             onClick={handleClose}
@@ -335,14 +315,14 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
           <button
             type="button"
             onClick={() => setStage('month-confirm')}
-            className={`flex h-10 w-10 items-center justify-center rounded-full ${darkMode ? 'bg-white/15' : 'bg-gray-100'}`}
-            style={{ boxShadow: darkMode ? '0 4px 0 rgba(0,0,0,0.3)' : '0 4px 0 rgba(0,0,0,0.1)' }}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15"
+            style={{ boxShadow: '0 4px 0 rgba(0,0,0,0.3)' }}
           >
-            <ChevronRight className={`h-4 w-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
+            <ChevronRight className="h-4 w-4 text-white" />
           </button>
           <div className="text-right">
-            <h2 className={`text-lg font-bold ${text}`}>סקירה לפני ייבוא</h2>
-            <p className={`text-[11px] ${muted}`}>
+            <h2 className="text-lg font-bold text-white">סקירה לפני ייבוא</h2>
+            <p className="text-[11px] text-white/60">
               {rows.length} שורות · {HEBREW_MONTHS[targetMonth]}
               {reviewCount > 0 ? ` · ${reviewCount} לבדיקה` : ''}
               {ambiguousCount > 0 ? ` · ${ambiguousCount} דורשות בחירה` : ''}
@@ -352,8 +332,8 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
 
         {/* Summary badge */}
         {(reviewCount > 0 || ambiguousCount > 0) && (
-          <div className={`mx-5 mb-3 rounded-xl px-4 py-2.5 text-right shrink-0 ${darkMode ? 'bg-amber-500/10' : 'bg-amber-50'}`}>
-            <p className={`text-[11px] ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}>
+          <div className="mx-5 mb-3 rounded-xl px-4 py-2.5 text-right shrink-0 bg-amber-500/10">
+            <p className="text-[11px] text-amber-300">
               {ambiguousCount > 0
                 ? `${ambiguousCount} תנועות מסומנות כ"לבחירה" — בחרו כניסה או יציאה לפני הייבוא.`
                 : `${reviewCount} תנועות מסומנות לבדיקה — וודאו שהפרטים נכונים.`}
@@ -365,24 +345,22 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
         <div className="flex-1 overflow-y-auto px-4 pb-4">
           <div className="flex flex-col gap-2">
             {rows.map((row) => {
-              const confColor = darkMode
-                ? CONFIDENCE_COLORS_DARK[row.confidence].badge
-                : CONFIDENCE_COLORS[row.confidence].badge;
+              const confColor = CONFIDENCE_COLORS[row.confidence].badge;
               const isAmbiguous = row.confidence === 'ambiguous';
               return (
                 <div
                   key={row.id}
                   className={`rounded-2xl px-4 py-3 ${
                     isAmbiguous
-                      ? darkMode ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-amber-50 border border-amber-200/60'
-                      : darkMode ? 'bg-white/5' : 'bg-gray-50/60'
+                      ? 'bg-amber-500/10 border border-amber-500/20'
+                      : 'bg-white/5'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className={`text-[15px] font-bold shrink-0 ${row.type === 'income' ? (darkMode ? 'text-sky-300' : 'text-sky-600') : (darkMode ? 'text-fuchsia-400' : 'text-fuchsia-600')}`}>
+                    <p className={`text-[15px] font-bold shrink-0 ${row.type === 'income' ? 'text-sky-300' : 'text-fuchsia-400'}`}>
                       {row.type === 'income' ? '+' : '-'}{formatCurrency(row.amount)}
                     </p>
-                    <p className={`text-[13px] font-semibold text-right truncate flex-1 ${text}`}>{row.description}</p>
+                    <p className="text-[13px] font-semibold text-right truncate flex-1 text-white">{row.description}</p>
                   </div>
                   <div className="flex items-center justify-between mt-1.5 gap-2 flex-wrap">
                     <div className="flex items-center gap-1.5">
@@ -391,12 +369,12 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
                         {CONFIDENCE_LABELS[row.confidence]}
                       </span>
                       {row.isPdfRow && (
-                        <span className={`flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] ${darkMode ? 'bg-white/10 text-white/50' : 'bg-gray-100 text-gray-500'}`}>
+                        <span className="flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[9px] bg-white/10 text-white/50">
                           <FileText className="h-2.5 w-2.5" />PDF
                         </span>
                       )}
                     </div>
-                    <div className={`flex items-center gap-1.5 text-[10px] ${muted}`}>
+                    <div className="flex items-center gap-1.5 text-[10px] text-white/60">
                       {row.date && <span>{row.date}</span>}
                       {row.category && <span>· {row.category}</span>}
                     </div>
@@ -407,16 +385,16 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
                       <button
                         type="button"
                         onClick={() => updateRowType(row.id, 'expense')}
-                        className={`flex-1 rounded-xl py-1.5 text-[11px] font-semibold transition-all ${row.type === 'expense' ? 'text-white' : darkMode ? 'text-white/40' : 'text-gray-400'}`}
-                        style={{ background: row.type === 'expense' ? 'linear-gradient(135deg, #8b5cf6, #ec4899)' : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }}
+                        className={`flex-1 rounded-xl py-1.5 text-[11px] font-semibold transition-all ${row.type === 'expense' ? 'text-white' : 'text-white/40'}`}
+                        style={{ background: row.type === 'expense' ? 'linear-gradient(135deg, #8b5cf6, #ec4899)' : 'rgba(255,255,255,0.08)' }}
                       >
                         הוצאה
                       </button>
                       <button
                         type="button"
                         onClick={() => updateRowType(row.id, 'income')}
-                        className={`flex-1 rounded-xl py-1.5 text-[11px] font-semibold transition-all ${row.type === 'income' ? 'text-white' : darkMode ? 'text-white/40' : 'text-gray-400'}`}
-                        style={{ background: row.type === 'income' ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }}
+                        className={`flex-1 rounded-xl py-1.5 text-[11px] font-semibold transition-all ${row.type === 'income' ? 'text-white' : 'text-white/40'}`}
+                        style={{ background: row.type === 'income' ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : 'rgba(255,255,255,0.08)' }}
                       >
                         הכנסה
                       </button>
@@ -426,7 +404,7 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
                   <button
                     type="button"
                     onClick={() => removeRow(row.id)}
-                    className={`mt-2 text-[9px] ${darkMode ? 'text-white/30 hover:text-white/60' : 'text-gray-300 hover:text-gray-500'}`}
+                    className="mt-2 text-[9px] text-white/30 hover:text-white/60"
                   >
                     הסר שורה זו
                   </button>
@@ -439,7 +417,7 @@ export function ImportModal({ open, onClose, darkMode = false, onImport }: Impor
         {/* Confirm bar */}
         <div
           className="shrink-0 px-5 py-4"
-          style={{ borderTop: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(139,92,246,0.1)' }}
+          style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
         >
           <button
             type="button"

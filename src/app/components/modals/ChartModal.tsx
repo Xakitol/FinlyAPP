@@ -5,7 +5,6 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 interface ChartModalProps {
   open: boolean;
   onClose: () => void;
-  darkMode?: boolean;
 }
 
 const monthlyData = [
@@ -33,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function ChartModal({ open, onClose, darkMode = false }: ChartModalProps) {
+export function ChartModal({ open, onClose }: ChartModalProps) {
   if (!open) return null;
 
   return (
@@ -53,13 +52,13 @@ export function ChartModal({ open, onClose, darkMode = false }: ChartModalProps)
           >
             <X className="w-5 h-5 text-white" />
           </button>
-          <h2 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>גרפים פיננסיים</h2>
+          <h2 className={`text-3xl font-bold text-white`}>גרפים פיננסיים</h2>
         </div>
 
         <div className="space-y-8">
           {/* Line Chart */}
           <div>
-            <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-4 text-right`}>מגמות הכנסות והוצאות</h3>
+            <h3 className={`text-xl font-bold text-white mb-4 text-right`}>מגמות הכנסות והוצאות</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -89,7 +88,7 @@ export function ChartModal({ open, onClose, darkMode = false }: ChartModalProps)
 
           {/* Bar Chart */}
           <div>
-            <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'} mb-4 text-right`}>השוואת הכנסות והוצאות</h3>
+            <h3 className={`text-xl font-bold text-white mb-4 text-right`}>השוואת הכנסות והוצאות</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />

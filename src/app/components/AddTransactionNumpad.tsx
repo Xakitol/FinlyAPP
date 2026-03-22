@@ -4,7 +4,6 @@ import { StarField } from './effects/StarField';
 
 interface Props {
   type: 'income' | 'expense';
-  darkMode: boolean;
   onBack: () => void;
   onContinue: (amount: number, recurring: boolean) => void;
 }
@@ -13,14 +12,14 @@ const NUMPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫
 
 function tactilePress(e: React.PointerEvent<HTMLButtonElement>) {
   e.currentTarget.style.transform = 'translateY(3px)';
-  e.currentTarget.style.boxShadow = '0 1px 0 rgba(0,0,0,0.3)';
+  e.currentTarget.style.boxShadow = '0 1px 0 rgba(0,0,0,0.5)';
 }
 function tactileRelease(e: React.PointerEvent<HTMLButtonElement>) {
   e.currentTarget.style.transform = '';
   e.currentTarget.style.boxShadow = '';
 }
 
-export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Props) {
+export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
   const [amount, setAmount] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
 
@@ -33,13 +32,6 @@ export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Pro
   const ctaShadow = isIncome
     ? '0 6px 0 rgba(6,182,212,0.50), 0 12px 28px rgba(14,165,233,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)'
     : '0 6px 0 rgba(124,58,237,0.50), 0 12px 28px rgba(124,58,237,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)';
-
-  const backgroundGradient = darkMode
-    ? 'linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #2a1f4a 100%)'
-    : 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
-  const textColor = darkMode ? 'rgba(255,255,255,0.90)' : '#111';
-  const mutedColor = darkMode ? 'rgba(255,255,255,0.50)' : '#6b7280';
 
   function handleNumKey(key: string) {
     if (key === '⌫') {
@@ -68,9 +60,9 @@ export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Pro
     <div
       dir="rtl"
       className="fixed inset-0 z-50 flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}
     >
-      <StarField darkMode={darkMode} />
+      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
@@ -87,21 +79,18 @@ export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Pro
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'rgba(255,255,255,0.35)',
-          border: '1px solid rgba(255,255,255,0.50)',
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.20)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+        <ChevronRight size={20} className="text-white/70" strokeWidth={2} />
       </button>
 
       <div className="relative z-10 flex flex-col flex-1 px-5 pt-16 pb-6 gap-4">
 
         {/* Title */}
-        <h1
-          className="text-2xl font-bold text-center"
-          style={{ color: textColor }}
-        >
+        <h1 className="text-2xl font-bold text-center text-white">
           {isIncome ? ':סכום ההכנסה' : ':סכום ההוצאה'}
         </h1>
 
@@ -109,15 +98,15 @@ export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Pro
         <div
           className="flex items-center justify-center rounded-3xl py-6"
           style={{
-            background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.55)',
-            border: darkMode ? '1px solid rgba(255,255,255,0.10)' : '1.5px solid rgba(255,255,255,0.70)',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.10)',
             backdropFilter: 'blur(12px)',
           }}
         >
-          <span className="text-[20px] font-light" style={{ color: mutedColor }}>₪</span>
+          <span className="text-[20px] font-light text-white/50">₪</span>
           <span
-            className="text-[52px] font-bold leading-none tracking-tight mx-2"
-            style={{ color: textColor, minWidth: 80, textAlign: 'center' }}
+            className="text-[52px] font-bold leading-none tracking-tight mx-2 text-white"
+            style={{ minWidth: 80, textAlign: 'center' }}
           >
             {displayAmount}
           </span>
@@ -125,19 +114,14 @@ export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Pro
 
         {/* Recurring choice buttons */}
         <div className="flex gap-2.5">
-          {/* חד פעמי — right in RTL = first in JSX */}
           <button
             type="button"
             onClick={() => setIsRecurring(false)}
             className="flex-1 rounded-2xl py-3 font-semibold text-[14px]"
             style={{
-              background: !isRecurring
-                ? gradient
-                : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.55)',
-              border: !isRecurring
-                ? 'none'
-                : darkMode ? '1px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(255,255,255,0.70)',
-              color: !isRecurring ? 'white' : mutedColor,
+              background: !isRecurring ? gradient : 'rgba(255,255,255,0.08)',
+              border: !isRecurring ? 'none' : '1px solid rgba(255,255,255,0.12)',
+              color: !isRecurring ? 'white' : 'rgba(255,255,255,0.50)',
               opacity: !isRecurring ? 1 : 0.5,
               backdropFilter: 'blur(12px)',
               boxShadow: !isRecurring
@@ -151,19 +135,14 @@ export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Pro
             חד פעמי
           </button>
 
-          {/* קבוע בכל חודש — left in RTL = second in JSX */}
           <button
             type="button"
             onClick={() => setIsRecurring(true)}
             className="flex-1 rounded-2xl py-3 font-semibold text-[14px]"
             style={{
-              background: isRecurring
-                ? gradient
-                : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.55)',
-              border: isRecurring
-                ? 'none'
-                : darkMode ? '1px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(255,255,255,0.70)',
-              color: isRecurring ? 'white' : mutedColor,
+              background: isRecurring ? gradient : 'rgba(255,255,255,0.08)',
+              border: isRecurring ? 'none' : '1px solid rgba(255,255,255,0.12)',
+              color: isRecurring ? 'white' : 'rgba(255,255,255,0.50)',
               opacity: isRecurring ? 1 : 0.5,
               backdropFilter: 'blur(12px)',
               boxShadow: isRecurring
@@ -178,7 +157,7 @@ export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Pro
           </button>
         </div>
 
-        {/* Numpad — ltr keeps 1-2-3 left-to-right */}
+        {/* Numpad */}
         <div className="grid grid-cols-3 gap-2.5" dir="ltr">
           {NUMPAD_KEYS.map((key) => (
             <button
@@ -188,14 +167,10 @@ export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Pro
               className="h-14 rounded-2xl flex items-center justify-center font-semibold"
               style={{
                 fontSize: key === '⌫' ? 18 : 22,
-                color: key === '⌫' ? mutedColor : textColor,
-                background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.72)',
-                border: darkMode
-                  ? '1px solid rgba(255,255,255,0.10)'
-                  : '1px solid rgba(200,190,255,0.40)',
-                boxShadow: darkMode
-                  ? '0 4px 0 rgba(0,0,0,0.40)'
-                  : '0 4px 0 rgba(180,170,220,0.30)',
+                color: key === '⌫' ? 'rgba(255,255,255,0.50)' : 'rgba(255,255,255,0.90)',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                boxShadow: '0 4px 0 rgba(0,0,0,0.40)',
                 backdropFilter: 'blur(8px)',
                 transition: 'transform 0.08s ease, box-shadow 0.08s ease',
               }}

@@ -54,7 +54,6 @@ export default function App() {
   const [upcomingOpen, setUpcomingOpen] = useState(false);
   const [incomeOpen, setIncomeOpen] = useState(false);
   const [expensesOpen, setExpensesOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
 
   // ── Add transaction flow ─────────────────────────────────────────────────────
@@ -373,7 +372,6 @@ export default function App() {
     screenContent = (
       <AddTransactionNumpad
         type={addStep === 'numpad-income' ? 'income' : 'expense'}
-        darkMode={darkMode}
         onBack={() => { setDirection(-1); setAddStep(null); }}
         onContinue={handleNumpadContinue}
       />
@@ -384,24 +382,19 @@ export default function App() {
         type={pendingType}
         amount={pendingAmount}
         recurring={pendingRecurring}
-        darkMode={darkMode}
         onBack={() => { setDirection(-1); setAddStep(pendingType === 'income' ? 'numpad-income' : 'numpad-expense'); }}
         onSave={handleDetailsSave}
       />
     );
   } else {
     // ── Home screen ────────────────────────────────────────────────────────────
-    const backgroundGradient = darkMode
-      ? 'linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #2a1f4a 100%)'
-      : 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
     screenContent = (
       <div
         dir="rtl"
         className="h-screen overflow-hidden w-full relative finly-safe"
-        style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+        style={{ fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}
       >
-        <StarField darkMode={darkMode} />
+        <StarField darkMode={true} />
 
         {import.meta.env.DEV && (
           <button
@@ -422,14 +415,11 @@ export default function App() {
           style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
         >
           <HomeHeader
-            darkMode={darkMode}
-            onToggleDarkMode={() => setDarkMode(!darkMode)}
             availableMonths={HEBREW_MONTH_NAMES}
             selectedMonthIndex={selectedMonthIndex}
             onMonthChange={handleMonthChange}
           />
           <FloatingCirclesHome
-            darkMode={darkMode}
             snapshot={snapshot}
             onAddIncome={handleAddIncome}
             onAddExpense={handleAddExpense}
@@ -446,13 +436,11 @@ export default function App() {
           open={insightsOpen}
           onClose={() => setInsightsOpen(false)}
           onOpenChart={() => setChartOpen(true)}
-          darkMode={darkMode}
         />
-        <ChartModal open={chartOpen} onClose={() => setChartOpen(false)} darkMode={darkMode} />
+        <ChartModal open={chartOpen} onClose={() => setChartOpen(false)} />
         <TransactionTableModal
           open={tableOpen}
           onClose={() => setTableOpen(false)}
-          darkMode={darkMode}
           entries={homeData.entries}
           onEdit={() => {}}
           onDelete={handleDeleteEntry}
@@ -464,7 +452,6 @@ export default function App() {
         <UpcomingExpensesModal
           open={upcomingOpen}
           onClose={() => setUpcomingOpen(false)}
-          darkMode={darkMode}
           entries={homeData.entries.filter((e) => e.status === 'upcoming' && e.type === 'expense').sort((a, b) => a.date.localeCompare(b.date))}
           onMarkAsPaid={handleMarkAsPaid}
           onDeleteRule={handleDeleteRule}
@@ -472,27 +459,23 @@ export default function App() {
         <ExpenseBreakdownModal
           open={expensesOpen}
           onClose={() => setExpensesOpen(false)}
-          darkMode={darkMode}
           entries={homeData.entries.filter((e) => e.type === 'expense').sort((a, b) => a.date.localeCompare(b.date))}
           onMarkAsPaid={handleMarkAsPaid}
         />
         <IncomeBreakdownModal
           open={incomeOpen}
           onClose={() => setIncomeOpen(false)}
-          darkMode={darkMode}
           entries={homeData.entries.filter((e) => e.type === 'income').sort((a, b) => a.date.localeCompare(b.date))}
           onMarkAsPaid={handleMarkAsPaid}
         />
         <ImportModal
           open={importOpen}
           onClose={() => setImportOpen(false)}
-          darkMode={darkMode}
           onImport={handleImport}
         />
         <SavingsGoalModal
           open={savingsGoalOpen}
           onClose={() => setSavingsGoalOpen(false)}
-          darkMode={darkMode}
           currentGoal={savingsGoalsMap[selectedMonthIndex]?.targetAmount ?? 0}
           onSave={handleSaveSavingsGoal}
         />

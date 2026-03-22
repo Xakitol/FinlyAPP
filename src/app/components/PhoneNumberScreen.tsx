@@ -7,6 +7,8 @@ interface PhoneNumberScreenProps {
   onContinue: (phone: string) => void;
 }
 
+const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
+
 const KEYFRAMES = `
   @keyframes phoneFadeUp {
     0%  { opacity: 0; transform: translateY(20px); }
@@ -16,9 +18,6 @@ const KEYFRAMES = `
 
 export function PhoneNumberScreen({ onBack, onContinue }: PhoneNumberScreenProps) {
   const [phone, setPhone] = useState('');
-
-  const backgroundGradient =
-    'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
 
   const canContinue = phone.replace(/\D/g, '').length >= 9;
 
@@ -31,10 +30,10 @@ export function PhoneNumberScreen({ onBack, onContinue }: PhoneNumberScreenProps
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
     >
       <style>{KEYFRAMES}</style>
-      <StarField darkMode={false} />
+      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
@@ -51,12 +50,12 @@ export function PhoneNumberScreen({ onBack, onContinue }: PhoneNumberScreenProps
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'rgba(255,255,255,0.35)',
-          border: '1px solid rgba(255,255,255,0.50)',
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.20)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+        <ChevronRight size={20} className="text-white/70" strokeWidth={2} />
       </button>
 
       {/* Main content */}
@@ -67,10 +66,10 @@ export function PhoneNumberScreen({ onBack, onContinue }: PhoneNumberScreenProps
           className="w-full text-right mb-10"
           style={{ animation: 'phoneFadeUp 0.45s 0.05s cubic-bezier(0.22,1,0.36,1) both' }}
         >
-          <h2 className="text-[24px] font-bold text-violet-900 leading-tight tracking-tight">
+          <h2 className="text-[24px] font-bold text-white leading-tight tracking-tight">
             מה מספר הטלפון שלך?
           </h2>
-          <p className="mt-2 text-[14px] text-violet-500 leading-relaxed">
+          <p className="mt-2 text-[14px] text-white/55 leading-relaxed">
             נשלח קוד אימות כדי לאבטח את הגישה לחשבון שלך
           </p>
         </div>
@@ -88,12 +87,12 @@ export function PhoneNumberScreen({ onBack, onContinue }: PhoneNumberScreenProps
             onChange={(e) => setPhone(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             autoFocus
-            className="w-full rounded-2xl px-5 py-4 text-right text-[18px] font-semibold text-violet-900 placeholder:text-violet-300 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
+            className="w-full rounded-2xl px-5 py-4 text-right text-[18px] font-semibold text-white placeholder:text-white/35 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
             style={{
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(242,236,255,0.65) 100%)',
-              border: '1.5px solid rgba(255,255,255,0.90)',
-              backdropFilter: 'blur(14px)',
-              boxShadow: '0 4px 16px rgba(139,92,246,0.10), inset 0 1.5px 0 rgba(255,255,255,0.95)',
+              background: 'rgba(255,255,255,0.10)',
+              border: '1px solid rgba(255,255,255,0.18)',
+              backdropFilter: 'blur(12px)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
               letterSpacing: '0.06em',
             }}
           />
@@ -108,13 +107,13 @@ export function PhoneNumberScreen({ onBack, onContinue }: PhoneNumberScreenProps
             animation: 'phoneFadeUp 0.45s 0.22s cubic-bezier(0.22,1,0.36,1) both',
             background: canContinue
               ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)'
-              : 'rgba(196,181,253,0.55)',
+              : 'rgba(255,255,255,0.08)',
             boxShadow: canContinue
               ? '0 8px 0 rgba(109,40,217,0.40), 0 14px 28px rgba(99,102,241,0.28), inset 0 1.5px 0 rgba(255,255,255,0.22)'
               : 'none',
-            border: canContinue ? '1px solid rgba(255,255,255,0.18)' : 'none',
+            border: canContinue ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(255,255,255,0.10)',
             cursor: canContinue ? 'pointer' : 'default',
-            color: canContinue ? 'white' : 'rgba(109,40,217,0.45)',
+            color: canContinue ? 'white' : 'rgba(255,255,255,0.30)',
           }}
         >
           המשך
@@ -122,7 +121,7 @@ export function PhoneNumberScreen({ onBack, onContinue }: PhoneNumberScreenProps
 
         {/* Footer note */}
         <p
-          className="mt-6 text-violet-400 text-xs text-center"
+          className="mt-6 text-white/35 text-xs text-center"
           style={{ animation: 'phoneFadeUp 0.45s 0.32s cubic-bezier(0.22,1,0.36,1) both' }}
         >
           המספר שלך לא ישותף עם אף גורם חיצוני

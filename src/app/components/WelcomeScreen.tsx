@@ -7,6 +7,8 @@ interface WelcomeScreenProps {
   onSignup: () => void;
 }
 
+const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
+
 const KEYFRAMES = `
   @keyframes welcomeFadeUp {
     0%  { opacity: 0; transform: translateY(24px); }
@@ -24,13 +26,12 @@ function glassBtn(primary: boolean): CSSProperties {
       background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)',
       border: '1px solid rgba(255,255,255,0.22)',
       boxShadow: '0 8px 28px rgba(124,58,237,0.42), inset 0 1px 0 rgba(255,255,255,0.22)',
-      backdropFilter: 'blur(8px)',
     };
   }
   return {
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(200,180,255,0.10) 100%)',
-    border: '1.5px solid rgba(255,255,255,0.32)',
-    boxShadow: '0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.28)',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.16)',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.12)',
     backdropFilter: 'blur(12px)',
   };
 }
@@ -43,17 +44,14 @@ export function WelcomeScreen({ onLogin, onSignup }: WelcomeScreenProps) {
     return () => clearTimeout(t);
   }, []);
 
-  const backgroundGradient =
-    'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
   return (
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col items-center justify-center finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
     >
       <style>{KEYFRAMES}</style>
-      <StarField darkMode={false} />
+      <StarField darkMode={true} />
 
       {/* Main content */}
       <div
@@ -83,15 +81,22 @@ export function WelcomeScreen({ onLogin, onSignup }: WelcomeScreenProps) {
 
           {/* Wordmark */}
           <h1
-            className="font-bold text-violet-800 tracking-tight"
-            style={{ fontSize: 42, lineHeight: 1, letterSpacing: '-0.02em' }}
+            className="font-bold tracking-tight"
+            style={{
+              fontSize: 42,
+              lineHeight: 1,
+              letterSpacing: '-0.02em',
+              background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #c084fc 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
           >
             Finly
           </h1>
 
           {/* Promise line */}
           <p
-            className="mt-3 text-center text-violet-600 font-medium"
+            className="mt-3 text-center font-medium text-white/60"
             style={{
               fontSize: 16,
               lineHeight: 1.5,
@@ -119,7 +124,7 @@ export function WelcomeScreen({ onLogin, onSignup }: WelcomeScreenProps) {
           {/* Secondary: existing user */}
           <button
             onClick={onLogin}
-            className="w-full rounded-2xl py-4 text-violet-700 font-medium text-base active:scale-[0.97] transition-transform"
+            className="w-full rounded-2xl py-4 text-white/80 font-medium text-base active:scale-[0.97] transition-transform"
             style={glassBtn(false)}
           >
             אני כבר חבר ב-Finly
@@ -128,7 +133,7 @@ export function WelcomeScreen({ onLogin, onSignup }: WelcomeScreenProps) {
 
         {/* Subtle footer note */}
         <p
-          className="mt-8 text-violet-400 text-xs text-center"
+          className="mt-8 text-white/35 text-xs text-center"
           style={{ animation: 'welcomeFadeUp 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) both' }}
         >
           הנתונים שלך נשמרים רק במכשיר שלך

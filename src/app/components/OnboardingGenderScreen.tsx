@@ -6,6 +6,8 @@ interface Props {
   onBack: () => void;
 }
 
+const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
+
 export function OnboardingGenderScreen({ onContinue, onBack }: Props) {
   const name = localStorage.getItem('finly_user_name') ?? '';
 
@@ -14,28 +16,20 @@ export function OnboardingGenderScreen({ onContinue, onBack }: Props) {
     onContinue();
   }
 
-  const backgroundGradient = 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)';
-
   const cardStyle: React.CSSProperties = {
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.48) 0%, rgba(200,180,255,0.22) 100%)',
-    border: '1.5px solid rgba(255,255,255,0.65)',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.14)',
     backdropFilter: 'blur(12px)',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.55)',
-  };
-
-  const backBtnStyle: React.CSSProperties = {
-    background: 'rgba(255,255,255,0.35)',
-    border: '1px solid rgba(255,255,255,0.50)',
-    backdropFilter: 'blur(8px)',
+    boxShadow: '0 4px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)',
   };
 
   return (
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col items-center justify-center finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
     >
-      <StarField darkMode={false} />
+      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
@@ -52,33 +46,35 @@ export function OnboardingGenderScreen({ onContinue, onBack }: Props) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          ...backBtnStyle,
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.20)',
+          backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+        <ChevronRight size={20} className="text-white/70" strokeWidth={2} />
       </button>
 
       <div className="relative z-10 w-full max-w-xs px-6 flex flex-col gap-8">
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-3xl font-bold text-violet-900">באיזה לשון לפנות אליך?</h1>
-          <p className="text-base font-medium text-violet-500">איך נוח לך שנפנה אליך?</p>
+          <h1 className="text-3xl font-bold text-white">באיזה לשון לפנות אליך?</h1>
+          <p className="text-base font-medium text-white/55">{name ? `${name}, ` : ''}איך נוח לך שנפנה אליך?</p>
         </div>
 
         <div className="flex gap-3">
           <button
             onClick={() => handleSelect('male')}
-            className="flex-1 rounded-3xl py-10 flex flex-col items-center justify-center gap-3 font-semibold text-lg text-violet-800 active:scale-[0.97] transition-transform"
+            className="flex-1 rounded-3xl py-10 flex flex-col items-center justify-center gap-3 font-semibold text-lg text-white active:scale-[0.97] transition-transform"
             style={cardStyle}
           >
-            <Mars size={28} style={{ color: '#7c3aed' }} strokeWidth={1.8} />
+            <Mars size={28} style={{ color: '#a78bfa' }} strokeWidth={1.8} />
             בלשון זכר
           </button>
           <button
             onClick={() => handleSelect('female')}
-            className="flex-1 rounded-3xl py-10 flex flex-col items-center justify-center gap-3 font-semibold text-lg text-violet-800 active:scale-[0.97] transition-transform"
+            className="flex-1 rounded-3xl py-10 flex flex-col items-center justify-center gap-3 font-semibold text-lg text-white active:scale-[0.97] transition-transform"
             style={cardStyle}
           >
-            <Venus size={28} style={{ color: '#ec4899' }} strokeWidth={1.8} />
+            <Venus size={28} style={{ color: '#f472b6' }} strokeWidth={1.8} />
             בלשון נקבה
           </button>
         </div>

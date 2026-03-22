@@ -10,6 +10,8 @@ interface EmailSignupScreenProps {
   mode?: 'signup' | 'login';
 }
 
+const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
+
 const KEYFRAMES = `
   @keyframes emailFadeUp {
     0%  { opacity: 0; transform: translateY(20px); }
@@ -20,10 +22,10 @@ const KEYFRAMES = `
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const inputStyle = {
-  background: 'linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(242,236,255,0.65) 100%)',
-  border: '1.5px solid rgba(255,255,255,0.90)',
-  backdropFilter: 'blur(14px)',
-  boxShadow: '0 4px 16px rgba(139,92,246,0.10), inset 0 1.5px 0 rgba(255,255,255,0.95)',
+  background: 'rgba(255,255,255,0.10)',
+  border: '1px solid rgba(255,255,255,0.18)',
+  backdropFilter: 'blur(12px)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
 };
 
 export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: EmailSignupScreenProps) {
@@ -72,10 +74,10 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)' }}
+      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
     >
       <style>{KEYFRAMES}</style>
-      <StarField darkMode={false} />
+      <StarField darkMode={true} />
 
       {/* Back button */}
       <button
@@ -92,12 +94,12 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'rgba(255,255,255,0.35)',
-          border: '1px solid rgba(255,255,255,0.50)',
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.20)',
           backdropFilter: 'blur(8px)',
         }}
       >
-        <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
+        <ChevronRight size={20} className="text-white/70" strokeWidth={2} />
       </button>
 
       {/* Main content */}
@@ -108,10 +110,10 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
           className="w-full text-right mb-8"
           style={{ animation: 'emailFadeUp 0.45s 0.05s cubic-bezier(0.22,1,0.36,1) both' }}
         >
-          <h2 className="text-[24px] font-bold text-violet-900 leading-tight tracking-tight">
+          <h2 className="text-[24px] font-bold text-white leading-tight tracking-tight">
             {isLogin ? 'כניסה עם אימייל' : 'הרשמה עם אימייל'}
           </h2>
-          <p className="mt-2 text-[14px] text-violet-500 leading-relaxed">
+          <p className="mt-2 text-[14px] text-white/55 leading-relaxed">
             {isLogin ? 'הכנס את פרטי החשבון שלך' : 'מלא את הפרטים כדי ליצור את החשבון שלך'}
           </p>
         </div>
@@ -128,7 +130,7 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
               placeholder="שם מלא"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-violet-900 placeholder:text-violet-300 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
+              className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-white placeholder:text-white/35 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
               style={inputStyle}
               autoComplete="name"
             />
@@ -141,7 +143,7 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
             placeholder="כתובת אימייל"
             value={email}
             onChange={(e) => { setEmail(e.target.value); setError(''); }}
-            className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-violet-900 placeholder:text-violet-300 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
+            className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-white placeholder:text-white/35 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
             style={inputStyle}
             autoComplete="email"
           />
@@ -154,14 +156,14 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(''); }}
               onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-              className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-violet-900 placeholder:text-violet-300 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
+              className="w-full rounded-2xl px-5 py-4 text-right text-[16px] text-white placeholder:text-white/35 outline-none focus:ring-2 focus:ring-violet-400/50 transition-shadow"
               style={inputStyle}
               autoComplete={isLogin ? 'current-password' : 'new-password'}
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-violet-400 active:opacity-60 transition-opacity"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 active:opacity-60 transition-opacity"
               tabIndex={-1}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -170,7 +172,7 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
 
           {/* Inline error */}
           {error && (
-            <p className="text-[13px] text-rose-500 text-right font-medium px-1">{error}</p>
+            <p className="text-[13px] text-rose-400 text-right font-medium px-1">{error}</p>
           )}
         </div>
 
@@ -183,13 +185,13 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
             animation: 'emailFadeUp 0.45s 0.22s cubic-bezier(0.22,1,0.36,1) both',
             background: canContinue
               ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)'
-              : 'rgba(196,181,253,0.55)',
+              : 'rgba(255,255,255,0.08)',
             boxShadow: canContinue
               ? '0 8px 0 rgba(109,40,217,0.40), 0 14px 28px rgba(99,102,241,0.28), inset 0 1.5px 0 rgba(255,255,255,0.22)'
               : 'none',
-            border: canContinue ? '1px solid rgba(255,255,255,0.18)' : 'none',
+            border: canContinue ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(255,255,255,0.10)',
             cursor: canContinue ? 'pointer' : 'default',
-            color: canContinue ? 'white' : 'rgba(109,40,217,0.45)',
+            color: canContinue ? 'white' : 'rgba(255,255,255,0.30)',
           }}
         >
           {loading ? '...' : 'המשך'}
@@ -197,7 +199,7 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
 
         {/* Footer */}
         <p
-          className="mt-6 text-violet-400 text-xs text-center"
+          className="mt-6 text-white/35 text-xs text-center"
           style={{ animation: 'emailFadeUp 0.45s 0.32s cubic-bezier(0.22,1,0.36,1) both' }}
         >
           פרטיך לא ישותפו עם אף גורם חיצוני

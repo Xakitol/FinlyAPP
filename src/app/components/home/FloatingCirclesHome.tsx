@@ -18,7 +18,6 @@ interface HomeSnapshot {
 }
 
 interface FloatingCirclesHomeProps {
-  darkMode: boolean;
   snapshot: HomeSnapshot;
   onAddIncome: () => void;
   onAddExpense: () => void;
@@ -38,61 +37,32 @@ const KEYFRAMES = `
   @keyframes insightFadeIn    { 0%{opacity:0}                              100%{opacity:1} }
 `;
 
-function glassStyle(darkMode: boolean): CSSProperties {
-  return darkMode
-    ? {
-        background:
-          'linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(180,160,255,0.07) 60%, rgba(80,60,130,0.12) 100%)',
-        border: '1px solid rgba(255,255,255,0.14)',
-        backdropFilter: 'blur(12px)',
-      }
-    : {
-        background:
-          'linear-gradient(145deg, rgba(255,255,255,0.72) 0%, rgba(242,236,255,0.50) 50%, rgba(220,210,255,0.40) 100%)',
-        border: '1.5px solid rgba(255,255,255,0.88)',
-        backdropFilter: 'blur(14px)',
-      };
-}
+const GLASS: CSSProperties = {
+  background: 'rgba(255,255,255,0.08)',
+  border: '1px solid rgba(255,255,255,0.12)',
+  backdropFilter: 'blur(12px)',
+  boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
+};
 
-function glassBox(darkMode: boolean): string {
-  return darkMode
-    ? '0 10px 28px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.2), inset 0 1.5px 0 rgba(255,255,255,0.2), inset 0 -1.5px 0 rgba(0,0,0,0.22)'
-    : '0 10px 30px rgba(139,92,246,0.18), 0 2px 6px rgba(0,0,0,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95), inset 0 -1.5px 0 rgba(150,130,200,0.14)';
-}
-
-function tactileBox(darkMode: boolean): string {
-  return darkMode
-    ? '0 6px 0 rgba(0,0,0,0.5), 0 10px 24px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255,255,255,0.2)'
-    : '0 6px 0 rgba(109,40,217,0.22), 0 10px 24px rgba(139,92,246,0.12), inset 0 1.5px 0 rgba(255,255,255,0.95)';
-}
-
-function tactileBoxPressed(darkMode: boolean): string {
-  return darkMode
-    ? '0 2px 0 rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.2), inset 0 1.5px 0 rgba(255,255,255,0.2)'
-    : '0 2px 0 rgba(109,40,217,0.18), 0 4px 8px rgba(139,92,246,0.06), inset 0 1.5px 0 rgba(255,255,255,0.95)';
-}
+const TACTILE_SHADOW = '0 6px 0 rgba(0,0,0,0.4), 0 10px 24px rgba(0,0,0,0.25), inset 0 1.5px 0 rgba(255,255,255,0.15)';
+const TACTILE_SHADOW_PRESSED = '0 2px 0 rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.2), inset 0 1.5px 0 rgba(255,255,255,0.15)';
 
 const PRESS_DOWN = {
-  onPointerDown(e: React.PointerEvent<HTMLButtonElement>, dm: boolean) {
+  onPointerDown(e: React.PointerEvent<HTMLButtonElement>) {
     e.currentTarget.style.transform = 'translateY(4px)';
-    e.currentTarget.style.boxShadow = tactileBoxPressed(dm);
+    e.currentTarget.style.boxShadow = TACTILE_SHADOW_PRESSED;
   },
-  onPointerUp(e: React.PointerEvent<HTMLButtonElement>, dm: boolean) {
+  onPointerUp(e: React.PointerEvent<HTMLButtonElement>) {
     e.currentTarget.style.transform = '';
-    e.currentTarget.style.boxShadow = tactileBox(dm);
+    e.currentTarget.style.boxShadow = TACTILE_SHADOW;
   },
-  onPointerLeave(e: React.PointerEvent<HTMLButtonElement>, dm: boolean) {
+  onPointerLeave(e: React.PointerEvent<HTMLButtonElement>) {
     e.currentTarget.style.transform = '';
-    e.currentTarget.style.boxShadow = tactileBox(dm);
+    e.currentTarget.style.boxShadow = TACTILE_SHADOW;
   },
 };
 
-export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpense, onOpenTransactions, onOpenSavingsGoal, onOpenUpcoming, onOpenIncome, onOpenExpenses, onOpenImport }: FloatingCirclesHomeProps) {
-  const text = darkMode ? 'text-white' : 'text-gray-800';
-  const muted = darkMode ? 'text-white/55' : 'text-gray-500';
-  const accent = darkMode ? 'text-sky-300' : 'text-violet-600';
-  const glass = glassStyle(darkMode);
-
+export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpenTransactions, onOpenSavingsGoal, onOpenIncome, onOpenExpenses }: FloatingCirclesHomeProps) {
   const [cardIdx, setCardIdx] = useState(0);
   const [swipeAnim, setSwipeAnim] = useState<'fromRight' | 'fromLeft' | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -125,7 +95,6 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
     const delta = e.changedTouches[0].clientX - touchStartX.current;
     touchStartX.current = null;
     if (Math.abs(delta) < 40) return;
-    // Swipe right (delta > 0) = next card; swipe left (delta < 0) = prev card
     if (delta > 0 && cardIdx < 2) goToCard(cardIdx + 1);
     else if (delta < 0 && cardIdx > 0) goToCard(cardIdx - 1);
   }
@@ -142,22 +111,20 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
 
       <div className="flex w-full flex-col items-center gap-5 pb-10">
 
-        {/* ── Main balance card — wide rounded hero ─────────────── */}
+        {/* ── Main balance card ─────────────── */}
         <div
           className="w-full rounded-3xl px-5 pt-4 pb-5 flex flex-col items-center"
           style={{
-            ...glass,
-            boxShadow: glassBox(darkMode),
+            ...GLASS,
             animation: 'coinFloat1 6s ease-in-out infinite',
           }}
         >
-          {/* Three-column balance row — no status copy, no helper text */}
           <div className="flex w-full items-center pt-1">
             {/* Income — right side in RTL */}
             <div className="flex-1 text-right min-w-0">
-              <p className={`text-[9px] font-medium mb-0.5 ${muted}`}>הכנסות</p>
+              <p className="text-[9px] font-medium mb-0.5 text-white/55">הכנסות</p>
               <p
-                className={`font-bold leading-none ${darkMode ? 'text-sky-300' : 'text-sky-700'}`}
+                className="font-bold leading-none text-cyan-300"
                 style={{ fontSize: formatCurrency(snapshot.income).length > 8 ? 13 : 15 }}
               >
                 +{formatCurrency(snapshot.income)}
@@ -165,15 +132,9 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
             </div>
             {/* Main remaining — center */}
             <div className="flex flex-col items-center px-2 shrink-0">
-              <p className={`text-[9px] font-medium mb-1 ${muted}`}>נותר</p>
+              <p className="text-[9px] font-medium mb-1 text-white/55">נותר</p>
               <p
-                className={`font-bold leading-none tracking-tight ${
-                  snapshot.remaining > 50
-                    ? darkMode ? 'text-sky-300' : 'text-sky-700'
-                    : snapshot.remaining < -50
-                    ? darkMode ? 'text-violet-300' : 'text-violet-700'
-                    : text
-                }`}
+                className="font-bold leading-none tracking-tight text-white"
                 style={{
                   fontSize: formatCurrency(snapshot.remaining).length > 10
                     ? 26
@@ -187,9 +148,9 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
             </div>
             {/* Expenses — left side in RTL */}
             <div className="flex-1 text-left min-w-0">
-              <p className={`text-[9px] font-medium mb-0.5 ${muted}`}>הוצאות</p>
+              <p className="text-[9px] font-medium mb-0.5 text-white/55">הוצאות</p>
               <p
-                className={`font-bold leading-none ${darkMode ? 'text-violet-300' : 'text-violet-600'}`}
+                className="font-bold leading-none text-pink-400"
                 style={{ fontSize: formatCurrency(snapshot.expenses).length > 8 ? 13 : 15 }}
               >
                 -{formatCurrency(snapshot.expenses)}
@@ -198,17 +159,17 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
           </div>
         </div>
 
-        {/* ── Finly insight card — swipeable 3-card ──────────────── */}
+        {/* ── Finly insight card ──────────────── */}
         <div
           className="w-full rounded-2xl px-4 pt-3.5 pb-3 overflow-hidden"
-          style={{ ...glass, boxShadow: glassBox(darkMode) }}
+          style={GLASS}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           <div className="flex items-start gap-3">
             <div className="flex-1 text-right min-w-0" style={insightAnimStyle}>
-              <p className={`text-[10px] font-semibold ${accent}`}>Finly אומר</p>
-              <p className={`mt-0.5 text-[13px] leading-relaxed ${text}`}>{insights[cardIdx]}</p>
+              <p className="text-[10px] font-semibold text-cyan-300">Finly אומר</p>
+              <p className="mt-0.5 text-[13px] leading-relaxed text-white">{insights[cardIdx]}</p>
             </div>
             <div
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl mt-0.5"
@@ -231,7 +192,7 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
                   borderRadius: 99,
                   background: i === cardIdx
                     ? 'linear-gradient(90deg, #0ea5e9, #6366f1)'
-                    : darkMode ? 'rgba(255,255,255,0.25)' : 'rgba(99,102,241,0.25)',
+                    : 'rgba(255,255,255,0.25)',
                   transition: 'width 0.25s ease, background 0.25s ease',
                   border: 'none',
                   padding: 0,
@@ -251,17 +212,15 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
             onClick={onOpenIncome}
             className="flex flex-col rounded-2xl p-4 text-right"
             style={{
-              ...glass,
-              boxShadow: tactileBox(darkMode),
+              ...GLASS,
+              boxShadow: TACTILE_SHADOW,
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
-            onPointerDown={(e) => PRESS_DOWN.onPointerDown(e, darkMode)}
-            onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
-            onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
+            {...PRESS_DOWN}
           >
-            <p className={`text-[10px] leading-tight ${muted}`}>Finly צופה שייכנס החודש</p>
-            <p className={`mt-1 text-[18px] font-bold ${text}`}>{formatCurrency(snapshot.pendingIncome)}</p>
-            <p className={`mt-0.5 text-[10px] ${muted}`}>לפירוט לחץ כאן</p>
+            <p className="text-[10px] leading-tight text-white/55">Finly צופה שייכנס החודש</p>
+            <p className="mt-1 text-[18px] font-bold text-white">{formatCurrency(snapshot.pendingIncome)}</p>
+            <p className="mt-0.5 text-[10px] text-white/55">לפירוט לחץ כאן</p>
           </button>
 
           {/* הוצאות */}
@@ -270,53 +229,49 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
             onClick={onOpenExpenses}
             className="flex flex-col rounded-2xl p-4 text-right"
             style={{
-              ...glass,
-              boxShadow: tactileBox(darkMode),
+              ...GLASS,
+              boxShadow: TACTILE_SHADOW,
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
-            onPointerDown={(e) => PRESS_DOWN.onPointerDown(e, darkMode)}
-            onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
-            onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
+            {...PRESS_DOWN}
           >
-            <p className={`text-[10px] leading-tight ${muted}`}>Finly צופה שייצא החודש</p>
-            <p className={`mt-1 text-[18px] font-bold ${text}`}>{formatCurrency(snapshot.upcoming)}</p>
-            <p className={`mt-0.5 text-[10px] ${muted}`}>לפירוט לחץ כאן</p>
+            <p className="text-[10px] leading-tight text-white/55">Finly צופה שייצא החודש</p>
+            <p className="mt-1 text-[18px] font-bold text-white">{formatCurrency(snapshot.upcoming)}</p>
+            <p className="mt-0.5 text-[10px] text-white/55">לפירוט לחץ כאן</p>
           </button>
 
-          {/* יעד חיסכון — full-width 3D tactile button */}
+          {/* יעד חיסכון */}
           <button
             type="button"
             onClick={onOpenSavingsGoal}
             className="col-span-2 rounded-2xl p-3 text-right"
             style={{
-              ...glass,
-              boxShadow: tactileBox(darkMode),
+              ...GLASS,
+              boxShadow: TACTILE_SHADOW,
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
-            onPointerDown={(e) => PRESS_DOWN.onPointerDown(e, darkMode)}
-            onPointerUp={(e) => PRESS_DOWN.onPointerUp(e, darkMode)}
-            onPointerLeave={(e) => PRESS_DOWN.onPointerLeave(e, darkMode)}
+            {...PRESS_DOWN}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
-                <PiggyBank className={`h-4 w-4 ${accent}`} />
+                <PiggyBank className="h-4 w-4 text-cyan-300" />
                 {snapshot.savingsTarget > 0 && (
-                  <p className={`text-[16px] font-bold ${accent}`}>{Math.round(snapshot.savingsProgress)}%</p>
+                  <p className="text-[16px] font-bold text-cyan-300">{Math.round(snapshot.savingsProgress)}%</p>
                 )}
               </div>
               <div className="text-right">
-                <p className={`text-[11px] ${muted}`}>יעד חיסכון</p>
+                <p className="text-[11px] text-white/55">יעד חיסכון</p>
                 {snapshot.savingsTarget > 0 && (
-                  <p className={`text-[10px] ${muted}`}>מתוך {formatCurrency(snapshot.savingsTarget)}</p>
+                  <p className="text-[10px] text-white/55">מתוך {formatCurrency(snapshot.savingsTarget)}</p>
                 )}
               </div>
             </div>
 
             {snapshot.savingsTarget === 0 ? (
-              <p className={`text-[12px] font-medium ${muted}`}>לא הוגדר יעד — לחץ להגדרה</p>
+              <p className="text-[12px] font-medium text-white/55">לא הוגדר יעד — לחץ להגדרה</p>
             ) : (
               <>
-                <div className={`h-1.5 w-full rounded-full overflow-hidden ${darkMode ? 'bg-white/10' : 'bg-gray-200/60'}`}>
+                <div className="h-1.5 w-full rounded-full overflow-hidden bg-white/10">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -325,34 +280,30 @@ export function FloatingCirclesHome({ darkMode, snapshot, onAddIncome, onAddExpe
                     }}
                   />
                 </div>
-                <p className={`mt-1 text-[9px] ${muted}`}>{snapshot.daysLeftInMonth} ימים לסוף החודש</p>
+                <p className="mt-1 text-[9px] text-white/55">{snapshot.daysLeftInMonth} ימים לסוף החודש</p>
               </>
             )}
           </button>
 
         </div>
 
-        {/* ── Transactions history button — 3D tactile ──────────── */}
+        {/* ── Transactions history button ──────────── */}
         <button
           type="button"
           onClick={onOpenTransactions}
-          className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-[13px] font-semibold ${
-            darkMode ? 'text-white/90' : 'text-gray-700'
-          }`}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-[13px] font-semibold text-white/90"
           style={{
-            ...glass,
-            boxShadow: tactileBox(darkMode),
+            ...GLASS,
+            boxShadow: TACTILE_SHADOW,
             transition: 'transform 0.1s ease, box-shadow 0.1s ease',
           }}
-          onPointerDown={(e) => PRESS_DOWN.onPointerDown(e, darkMode)}
-          onPointerUp={PRESS_DOWN.onPointerUp}
-          onPointerLeave={PRESS_DOWN.onPointerLeave}
+          {...PRESS_DOWN}
         >
-          <List className={`h-4 w-4 ${accent}`} />
+          <List className="h-4 w-4 text-cyan-300" />
           התנועות החודשיות שלך עם Finly
         </button>
 
-        {/* ── Add transaction buttons — income + expense ─────────── */}
+        {/* ── Add transaction buttons ─────────── */}
         <div className="flex w-full gap-3">
           <button
             type="button"
