@@ -1,0 +1,21 @@
+{
+  "name": "FinlyAPP",
+  "short_name": "Finly",
+  "description": "ניהול כספים פשוט, רגוע וחכם",
+  "start_url": "/FinlyAPP/",
+  "scope": "/FinlyAPP/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0030",
+  "theme_color": "#7c3aed",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/FinlyAPP/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
