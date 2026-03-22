@@ -61,7 +61,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative flex flex-col items-center justify-center"
+      className="h-screen w-full relative flex flex-col items-center justify-center finly-safe"
       style={{
         fontFamily: 'Rubik, sans-serif',
         background: backgroundGradient,

@@ -61,7 +61,7 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative finly-screen"
+      className="h-screen w-full relative overflow-hidden finly-screen finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={false} />
@@ -79,7 +79,7 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
         <ChevronRight size={20} className="text-violet-700" strokeWidth={2} />
       </button>
 
-      <div className="relative z-10 w-full max-w-xs mx-auto px-6 py-10 flex flex-col gap-6">
+      <div className="relative z-10 w-full max-w-xs mx-auto px-6 py-10 flex flex-col gap-6 overflow-y-auto">
         <div className="flex flex-col gap-2 text-center">
           <h1 className="text-2xl font-bold text-violet-900">איזה מטרות תרצה להשיג איתי?</h1>
           <p className="text-sm font-medium text-violet-500">בחר את המטרות שמדויקות לך</p>

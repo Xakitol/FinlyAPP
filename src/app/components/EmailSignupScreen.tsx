@@ -71,7 +71,7 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative flex flex-col finly-screen"
+      className="h-screen w-full relative flex flex-col finly-screen finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif', background: 'linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 50%, #fae8ff 100%)' }}
     >
       <style>{KEYFRAMES}</style>
@@ -91,7 +91,7 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
       </button>
 
       {/* Main content */}
-      <div className="relative z-10 flex flex-col w-full max-w-xs mx-auto px-6 pt-8 pb-10 flex-1">
+      <div className="relative z-10 flex flex-col w-full max-w-xs mx-auto px-6 pt-8 pb-10 flex-1 overflow-y-auto">
 
         {/* Title */}
         <div

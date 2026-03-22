@@ -40,7 +40,7 @@ export function OnboardingWelcomeScreen({ onContinue, onBack }: Props) {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative finly-screen"
+      className="h-screen w-full relative overflow-hidden finly-screen finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient, textAlign: 'right', direction: 'rtl' }}
     >
       <StarField darkMode={false} />
@@ -59,7 +59,7 @@ export function OnboardingWelcomeScreen({ onContinue, onBack }: Props) {
       </button>
 
       {/* Scrollable content with bottom padding for sticky CTA */}
-      <div className="relative z-10 w-full max-w-xs mx-auto px-6 pt-10 pb-28 flex flex-col gap-5">
+      <div className="relative z-10 w-full max-w-xs mx-auto px-6 pt-10 pb-28 flex flex-col gap-5 overflow-y-auto">
 
         <h1
           className="text-2xl font-bold text-violet-900"

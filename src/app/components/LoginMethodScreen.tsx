@@ -86,7 +86,7 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative flex flex-col finly-screen"
+      className="h-screen w-full relative flex flex-col finly-screen finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <style>{KEYFRAMES}</style>
@@ -106,7 +106,7 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
       </button>
 
       {/* Main content */}
-      <div className="relative z-10 flex flex-col w-full max-w-xs mx-auto px-6 pt-8 pb-10 flex-1">
+      <div className="relative z-10 flex flex-col w-full max-w-xs mx-auto px-6 pt-8 pb-10 flex-1 overflow-y-auto">
 
         {/* Title */}
         <div

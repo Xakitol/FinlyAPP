@@ -32,7 +32,7 @@ export function OnboardingGenderScreen({ onContinue, onBack }: Props) {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative flex flex-col items-center justify-center finly-screen"
+      className="h-screen w-full relative flex flex-col items-center justify-center finly-screen finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={false} />

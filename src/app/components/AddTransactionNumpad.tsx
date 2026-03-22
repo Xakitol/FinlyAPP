@@ -67,7 +67,7 @@ export function AddTransactionNumpad({ type, darkMode, onBack, onContinue }: Pro
   return (
     <div
       dir="rtl"
-      className="fixed inset-0 z-50 flex flex-col finly-screen"
+      className="fixed inset-0 z-50 flex flex-col finly-screen finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={darkMode} />

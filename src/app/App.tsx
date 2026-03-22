@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { SignupMethodScreen } from './components/SignupMethodScreen';
 import { LoginMethodScreen } from './components/LoginMethodScreen';
@@ -420,7 +420,7 @@ export default function App() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen w-full relative finly-screen"
+      className="h-screen overflow-hidden w-full relative finly-screen finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={darkMode} />
@@ -439,7 +439,10 @@ export default function App() {
         </button>
       )}
 
-      <div className="relative z-10 mx-auto w-full max-w-md px-4 pt-4 pb-8 sm:px-5">
+      <div
+        className="relative z-10 mx-auto w-full max-w-md px-4 pt-4 sm:px-5 overflow-y-auto pb-safe"
+        style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+      >
         <HomeHeader
           darkMode={darkMode}
           onToggleDarkMode={() => setDarkMode(!darkMode)}

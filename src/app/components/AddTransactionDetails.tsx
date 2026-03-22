@@ -1,4 +1,4 @@
-import { useState, useRef, type LucideIcon, useCallback } from 'react';
+import { useState, useRef, type LucideIcon } from 'react';
 import {
   ChevronRight, Plus, Settings, Trash2,
   UtensilsCrossed, Home, Car, Music, Shield, Tv, Zap, Heart, MoreHorizontal,
@@ -71,9 +71,6 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
   // Manage panel
   const [showManage, setShowManage] = useState(false);
 
-  // Exit animation
-  const [fading, setFading] = useState(false);
-
   const gradient = isIncome
     ? 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)'
     : 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)';
@@ -137,28 +134,24 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
     });
   }
 
-  const handleSave = useCallback(() => {
-    if (fading) return;
-    setFading(true);
-    setTimeout(() => {
-      const today = new Date().toISOString().slice(0, 10);
-      const status: 'recorded' | 'upcoming' = date > today ? 'upcoming' : 'recorded';
-      const finalCategory = category || 'אחר';
-      const title = description.trim() || finalCategory;
-      onSave({
-        type,
-        amount,
-        category: finalCategory,
-        title,
-        date,
-        paymentMethod: 'bank',
-        recurring,
-        status,
-        source: 'manual',
-        countsTowardRemaining: true,
-      });
-    }, 250);
-  }, [fading, date, category, description, type, amount, recurring, onSave]);
+  function handleSave() {
+    const today = new Date().toISOString().slice(0, 10);
+    const status: 'recorded' | 'upcoming' = date > today ? 'upcoming' : 'recorded';
+    const finalCategory = category || 'אחר';
+    const title = description.trim() || finalCategory;
+    onSave({
+      type,
+      amount,
+      category: finalCategory,
+      title,
+      date,
+      paymentMethod: 'bank',
+      recurring,
+      status,
+      source: 'manual',
+      countsTowardRemaining: true,
+    });
+  }
 
   const amountDisplay = amount.toLocaleString('he-IL', { maximumFractionDigits: 2 });
   const summaryText = isIncome
@@ -168,7 +161,7 @@ export function AddTransactionDetails({ type, amount, recurring, darkMode, onBac
   return (
     <div
       dir="rtl"
-      className={`fixed inset-0 z-50 flex flex-col ${fading ? 'finly-screen-out' : 'finly-screen'}`}
+      className="fixed inset-0 z-50 flex flex-col finly-screen finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif', background: backgroundGradient }}
     >
       <StarField darkMode={darkMode} />
