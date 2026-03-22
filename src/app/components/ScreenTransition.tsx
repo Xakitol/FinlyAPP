@@ -1,26 +1,38 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import type { ReactNode } from 'react';
 
 const variants = {
-  enter:  { x: '100%', opacity: 0 },
-  center: { x: 0,      opacity: 1 },
-  exit:   { x: '-100%', opacity: 0 },
+  enter: (direction: number) => ({
+    x: direction > 0 ? '100%' : '-100%',
+    opacity: 1,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? '-100%' : '100%',
+    opacity: 1,
+  }),
 };
 
 const transition = {
-  duration: 0.28,
+  duration: 0.3,
   ease: [0.32, 0.72, 0, 1],
 };
 
 interface Props {
   screenKey: string;
-  children: React.ReactNode;
+  direction?: number;
+  children: ReactNode;
 }
 
-export function ScreenTransition({ screenKey, children }: Props) {
+export function ScreenTransition({ screenKey, direction = 1, children }: Props) {
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="sync" custom={direction}>
       <motion.div
         key={screenKey}
+        custom={direction}
         variants={variants}
         initial="enter"
         animate="center"
@@ -32,7 +44,7 @@ export function ScreenTransition({ screenKey, children }: Props) {
           width: '100%',
           height: '100%',
           overflowY: 'auto',
-          WebkitOverflowScrolling: 'touch',
+          WebkitOverflowScrolling: 'touch' as const,
         }}
       >
         {children}

@@ -62,6 +62,7 @@ export default function App() {
   const [pendingType, setPendingType] = useState<'income' | 'expense'>('expense');
   const [pendingAmount, setPendingAmount] = useState(0);
   const [pendingRecurring, setPendingRecurring] = useState(false);
+  const [direction, setDirection] = useState(1);
 
   // ── Month selection ─────────────────────────────────────────────────────────
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(DEFAULT_MONTH_INDEX);
@@ -100,11 +101,17 @@ export default function App() {
 
   const snapshot = useMemo(() => getHomeSnapshot(homeData), [homeData]);
 
+  // ── Routing helpers ───────────────────────────────────────────────────────────
+  function navigate(screen: typeof appScreen, dir: number = 1) {
+    setDirection(dir);
+    setAppScreen(screen);
+  }
+
   // ── Routing handlers ─────────────────────────────────────────────────────────
   function enterHome() {
     localStorage.setItem('finly_onboarded', '1');
     localStorage.setItem('finly_last_active', String(Date.now()));
-    setAppScreen('home');
+    navigate('home', 1);
   }
 
   // Used by Google signup — name already saved, skip to gender screen
@@ -112,9 +119,9 @@ export default function App() {
     localStorage.setItem('finly_onboarded', '1');
     localStorage.setItem('finly_last_active', String(Date.now()));
     if (!localStorage.getItem('finly_onboarded_complete')) {
-      setAppScreen('onboarding-gender');
+      navigate('onboarding-gender', 1);
     } else {
-      setAppScreen('home');
+      navigate('home', 1);
     }
   }
 
@@ -131,9 +138,9 @@ export default function App() {
     localStorage.setItem('finly_onboarded', '1');
     localStorage.setItem('finly_last_active', String(Date.now()));
     if (!localStorage.getItem('finly_onboarded_complete')) {
-      setAppScreen('onboarding-name');
+      navigate('onboarding-name', 1);
     } else {
-      setAppScreen('home');
+      navigate('home', 1);
     }
   }
 
@@ -141,7 +148,7 @@ export default function App() {
   function handleDevReset() {
     localStorage.removeItem('finly_onboarded');
     localStorage.removeItem('finly_last_active');
-    setAppScreen('welcome');
+    navigate('welcome', -1);
   }
 
   // ── Handlers ────────────────────────────────────────────────────────────────
@@ -217,22 +224,26 @@ export default function App() {
 
   function handleAddIncome() {
     setPendingType('income');
+    setDirection(1);
     setAddStep('numpad-income');
   }
 
   function handleAddExpense() {
     setPendingType('expense');
+    setDirection(1);
     setAddStep('numpad-expense');
   }
 
   function handleNumpadContinue(amount: number, recurring: boolean) {
     setPendingAmount(amount);
     setPendingRecurring(recurring);
+    setDirection(1);
     setAddStep('details');
   }
 
   function handleDetailsSave(data: Omit<FinanceEntry, 'id'>) {
     handleSaveEntry(data);
+    setDirection(1);
     setAddStep(null);
   }
 
@@ -292,69 +303,69 @@ export default function App() {
   if (appScreen === 'welcome') {
     screenContent = (
       <WelcomeScreen
-        onLogin={() => setAppScreen('login-method')}
-        onSignup={() => setAppScreen('signup-method')}
+        onLogin={() => navigate('login-method', 1)}
+        onSignup={() => navigate('signup-method', 1)}
       />
     );
   } else if (appScreen === 'signup-method') {
     screenContent = (
       <SignupMethodScreen
-        onBack={() => setAppScreen('welcome')}
+        onBack={() => navigate('welcome', -1)}
         onGoogle={handleGoogleSignup}
-        onPhone={() => setAppScreen('phone-number')}
+        onPhone={() => navigate('phone-number', 1)}
         onApple={enterHomeAfterSignup}
-        onEmail={() => setAppScreen('email-signup')}
+        onEmail={() => navigate('email-signup', 1)}
       />
     );
   } else if (appScreen === 'phone-number') {
     screenContent = (
       <PhoneNumberScreen
-        onBack={() => setAppScreen('signup-method')}
+        onBack={() => navigate('signup-method', -1)}
         onContinue={enterHomeAfterSignup}
       />
     );
   } else if (appScreen === 'email-signup') {
     screenContent = (
       <EmailSignupScreen
-        onBack={() => setAppScreen('signup-method')}
+        onBack={() => navigate('signup-method', -1)}
         onContinue={enterHomeAfterSignup}
       />
     );
   } else if (appScreen === 'onboarding-name') {
-    screenContent = <OnboardingNameScreen onContinue={() => setAppScreen('onboarding-gender')} onBack={() => setAppScreen('signup-method')} />;
+    screenContent = <OnboardingNameScreen onContinue={() => navigate('onboarding-gender', 1)} onBack={() => navigate('signup-method', -1)} />;
   } else if (appScreen === 'onboarding-gender') {
-    screenContent = <OnboardingGenderScreen onContinue={() => setAppScreen('onboarding-household')} onBack={() => setAppScreen('onboarding-name')} />;
+    screenContent = <OnboardingGenderScreen onContinue={() => navigate('onboarding-household', 1)} onBack={() => navigate('onboarding-name', -1)} />;
   } else if (appScreen === 'onboarding-household') {
-    screenContent = <OnboardingHouseholdScreen onContinue={() => setAppScreen('onboarding-goals')} onBack={() => setAppScreen('onboarding-gender')} />;
+    screenContent = <OnboardingHouseholdScreen onContinue={() => navigate('onboarding-goals', 1)} onBack={() => navigate('onboarding-gender', -1)} />;
   } else if (appScreen === 'onboarding-goals') {
-    screenContent = <OnboardingGoalsScreen onContinue={() => setAppScreen('onboarding-welcome')} onBack={() => setAppScreen('onboarding-household')} />;
+    screenContent = <OnboardingGoalsScreen onContinue={() => navigate('onboarding-welcome', 1)} onBack={() => navigate('onboarding-household', -1)} />;
   } else if (appScreen === 'onboarding-welcome') {
-    screenContent = <OnboardingWelcomeScreen onContinue={() => setAppScreen('onboarding-success')} onBack={() => setAppScreen('onboarding-goals')} />;
+    screenContent = <OnboardingWelcomeScreen onContinue={() => navigate('onboarding-success', 1)} onBack={() => navigate('onboarding-goals', -1)} />;
   } else if (appScreen === 'onboarding-success') {
-    screenContent = <OnboardingSuccessScreen onContinue={() => setAppScreen('home')} />;
+    screenContent = <OnboardingSuccessScreen onContinue={() => navigate('home', 1)} />;
   } else if (appScreen === 'login-method') {
     screenContent = (
       <LoginMethodScreen
-        onBack={() => setAppScreen('welcome')}
-        onPhone={() => setAppScreen('login-phone')}
+        onBack={() => navigate('welcome', -1)}
+        onPhone={() => navigate('login-phone', 1)}
         onBiometric={enterHome}
         onGoogle={enterHome}
         onApple={enterHome}
-        onEmail={() => setAppScreen('login-email')}
+        onEmail={() => navigate('login-email', 1)}
       />
     );
   } else if (appScreen === 'login-email') {
     screenContent = (
       <EmailSignupScreen
         mode="login"
-        onBack={() => setAppScreen('login-method')}
+        onBack={() => navigate('login-method', -1)}
         onContinue={enterHome}
       />
     );
   } else if (appScreen === 'login-phone') {
     screenContent = (
       <PhoneNumberScreen
-        onBack={() => setAppScreen('login-method')}
+        onBack={() => navigate('login-method', -1)}
         onContinue={enterHome}
       />
     );
@@ -363,7 +374,7 @@ export default function App() {
       <AddTransactionNumpad
         type={addStep === 'numpad-income' ? 'income' : 'expense'}
         darkMode={darkMode}
-        onBack={() => setAddStep(null)}
+        onBack={() => { setDirection(-1); setAddStep(null); }}
         onContinue={handleNumpadContinue}
       />
     );
@@ -374,7 +385,7 @@ export default function App() {
         amount={pendingAmount}
         recurring={pendingRecurring}
         darkMode={darkMode}
-        onBack={() => setAddStep(pendingType === 'income' ? 'numpad-income' : 'numpad-expense')}
+        onBack={() => { setDirection(-1); setAddStep(pendingType === 'income' ? 'numpad-income' : 'numpad-expense'); }}
         onSave={handleDetailsSave}
       />
     );
@@ -490,7 +501,7 @@ export default function App() {
   }
 
   return (
-    <ScreenTransition screenKey={screenKey}>
+    <ScreenTransition screenKey={screenKey} direction={direction}>
       {screenContent}
     </ScreenTransition>
   );
