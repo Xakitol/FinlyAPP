@@ -58,7 +58,8 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
       : numericAmount.toLocaleString('he-IL', { maximumFractionDigits: 2 });
 
   const canContinue = numericAmount > 0;
-  const amountFontSize = displayAmount.length > 9 ? 36 : displayAmount.length > 6 ? 48 : 64;
+  const amountColor = isIncome ? '#06b6d4' : '#ec4899';
+  const amountFontSize = displayAmount.length > 9 ? 36 : displayAmount.length > 6 ? 48 : 80;
 
   return (
     <div
@@ -103,12 +104,14 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
           pattern="[0-9]*"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          autoFocus
           style={{
             position: 'absolute',
             inset: 0,
             opacity: 0,
             zIndex: 10,
             fontSize: 16,
+            caretColor: 'transparent',
             background: 'transparent',
             border: 'none',
             outline: 'none',
@@ -116,12 +119,12 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
         />
         <p className="text-[12px] font-medium text-white/40 text-right mb-1" style={{ position: 'relative', zIndex: 20 }}>כמה?</p>
         <div className="flex justify-center pb-4" style={{ position: 'relative', zIndex: 20 }}>
-          <span className="font-bold leading-none tracking-tight text-white" style={{ fontSize: amountFontSize }}>
-            <span style={{ fontSize: 20, opacity: 0.6, fontWeight: 300 }}>₪</span>
+          <span className="font-bold leading-none tracking-tight" style={{ fontSize: amountFontSize, color: amountColor }}>
+            <span style={{ fontSize: 20, opacity: 0.6, fontWeight: 300, color: amountColor }}>₪</span>
             {displayAmount}
           </span>
         </div>
-        <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.12)', marginLeft: -20, marginRight: -20, position: 'relative', zIndex: 20 }} />
+        <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.12)', marginLeft: 16, marginRight: 16, position: 'relative', zIndex: 20 }} />
       </div>
 
       {/* Recurring selector */}
