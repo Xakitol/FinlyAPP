@@ -33,8 +33,9 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const t = setTimeout(() => { inputRef.current?.focus(); }, 100);
-    return () => clearTimeout(t);
+    const t1 = setTimeout(() => { inputRef.current?.focus(); }, 400);
+    const t2 = setTimeout(() => { inputRef.current?.focus(); }, 600);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
   const isIncome = type === 'income';
@@ -57,13 +58,14 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
       : numericAmount.toLocaleString('he-IL', { maximumFractionDigits: 2 });
 
   const canContinue = numericAmount > 0;
-  const amountFontSize = displayAmount.length > 7 ? 36 : displayAmount.length > 5 ? 44 : 52;
+  const amountFontSize = displayAmount.length > 9 ? 36 : displayAmount.length > 6 ? 48 : 64;
 
   return (
     <div
       dir="rtl"
       className="h-screen w-full flex flex-col finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif' }}
+      onTouchStart={() => inputRef.current?.focus()}
     >
       {/* Header — X button on the right, centered label */}
       <div className="relative flex items-center justify-end px-4 pt-2 pb-3">
@@ -90,7 +92,7 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
       {/* Amount card */}
       <div
         className="mx-4 rounded-3xl px-5 pt-3 pb-0"
-        style={{ ...GLASS, position: 'relative' }}
+        style={{ ...GLASS, position: 'relative', minHeight: 160 }}
         onClick={() => inputRef.current?.focus()}
       >
         {/* Transparent overlay input — real dimensions so iOS opens keyboard */}
@@ -114,14 +116,9 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
         />
         <p className="text-[12px] font-medium text-white/40 text-right mb-1" style={{ position: 'relative', zIndex: 20 }}>כמה?</p>
         <div className="flex justify-center pb-4" style={{ position: 'relative', zIndex: 20 }}>
-          <span style={{ display: 'inline-flex', alignItems: 'baseline', direction: 'ltr' }}>
-            <span
-              className="font-bold leading-none tracking-tight text-white"
-              style={{ fontSize: amountFontSize }}
-            >
-              {displayAmount}
-            </span>
-            <span className="text-white/45 font-light" style={{ fontSize: 18, marginLeft: 5 }}>₪</span>
+          <span className="font-bold leading-none tracking-tight text-white" style={{ fontSize: amountFontSize }}>
+            <span style={{ fontSize: 20, opacity: 0.6, fontWeight: 300 }}>₪</span>
+            {displayAmount}
           </span>
         </div>
         <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.12)', marginLeft: -20, marginRight: -20, position: 'relative', zIndex: 20 }} />
