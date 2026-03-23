@@ -54,3 +54,8 @@ html, body, #root {
   scrollbar-width: thin;
   scrollbar-color: #8b5cf6 rgba(255, 255, 255, 0.05);
 }
+
+@keyframes finlyFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

@@ -48,27 +48,30 @@ export function ScreenTransition({ screenKey, direction = 1, transitionType = 's
   if (transitionType === 'fade') {
     return (
       <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: animating ? 0 : 1,
-          transition: animating ? 'none' : 'opacity 200ms ease-in-out',
-          pointerEvents: animating ? 'none' : 'auto',
-          overflowY: 'auto',
-          WebkitOverflowScrolling: 'touch',
-        }}>
-          {current.children}
-        </div>
-        {next && (
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            opacity: nextReady ? 1 : 0,
-            transition: nextReady ? 'opacity 200ms ease-in-out' : 'none',
-            overflowY: 'auto',
-            WebkitOverflowScrolling: 'touch',
-          }}>
+        {next ? (
+          <div
+            key={next.key}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              animation: 'finlyFadeIn 220ms ease-out forwards',
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
             {next.children}
+          </div>
+        ) : (
+          <div
+            key={current.key}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
+            {current.children}
           </div>
         )}
       </div>
