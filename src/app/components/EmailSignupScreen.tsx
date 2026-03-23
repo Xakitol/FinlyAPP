@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ChevronRight, Eye, EyeOff } from 'lucide-react';
-import { StarField } from './effects/StarField';
 import { signUpWithEmail } from '../utils/authEmail';
 import { signInWithEmail } from '../utils/authEmail';
 
@@ -9,8 +8,6 @@ interface EmailSignupScreenProps {
   onContinue: () => void;
   mode?: 'signup' | 'login';
 }
-
-const BG = 'linear-gradient(135deg, #0f0a1e 0%, #1a0f3a 50%, #0f1a2e 100%)';
 
 const KEYFRAMES = `
   @keyframes emailFadeUp {
@@ -74,10 +71,9 @@ export function EmailSignupScreen({ onBack, onContinue, mode = 'signup' }: Email
     <div
       dir="rtl"
       className="h-screen w-full relative flex flex-col finly-safe"
-      style={{ fontFamily: 'Rubik, sans-serif', background: BG }}
+      style={{ fontFamily: 'Rubik, sans-serif' }}
     >
       <style>{KEYFRAMES}</style>
-      <StarField darkMode={true} />
 
       {/* Back button */}
       <button

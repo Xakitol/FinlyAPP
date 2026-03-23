@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(find c:UsersMatan.LAPTOP-LGU2CUVUDevsrc -name *.tsx -type f -exec grep -n ['' '`][!?] {} +)"
     ]
   }
 }
