@@ -61,7 +61,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
     >
       <style>{KEYFRAMES}</style>
 
-      <div className="relative z-10 flex flex-col items-center gap-5 text-center px-6">
+      <div className="relative z-10 text-center px-6" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, minHeight: 200 }}>
 
         {/* Spinner / Logo */}
         <div style={{ width: 80, height: 80, position: 'relative', flexShrink: 0 }}>
@@ -107,7 +107,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
         {showTitle && (
           <h1
             className="text-3xl font-bold text-white"
-            style={{ animation: 'finlyTextIn 0.6s ease-out forwards' }}
+            style={{ opacity: 0, animation: 'finlyTextIn 0.6s ease-out forwards' }}
           >
             !הכל מוכן, {name}
           </h1>
@@ -117,7 +117,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
         {showSubtitle && (
           <p
             className="text-base font-medium text-white/60"
-            style={{ animation: 'finlyTextIn 0.6s ease-out forwards' }}
+            style={{ opacity: 0, animation: 'finlyTextIn 0.6s ease-out forwards' }}
           >
             Finly מוכן לצעוד איתך לחברות פיננסית
           </p>
@@ -128,6 +128,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
           <p
             className="text-4xl font-bold"
             style={{
+              opacity: 0,
               animation: 'finlyTextIn 0.6s ease-out forwards',
               background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
               WebkitBackgroundClip: 'text',

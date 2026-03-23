@@ -295,7 +295,16 @@ export default function App() {
   }
 
   // ── Screen routing ────────────────────────────────────────────────────────────
-  const screenKey = addStep ?? appScreen;
+  const authAndOnboardingScreens = [
+    'welcome', 'signup-method', 'login-method', 'phone-number',
+    'login-phone', 'email-signup', 'login-email',
+    'onboarding-name', 'onboarding-gender', 'onboarding-household',
+    'onboarding-goals', 'onboarding-welcome', 'onboarding-success',
+  ];
+
+  const currentScreenKey = addStep ?? appScreen;
+  const transitionType = authAndOnboardingScreens.includes(appScreen) ? 'fade' : 'slide';
+  const screenKey = currentScreenKey;
   let screenContent: React.ReactNode;
 
   if (appScreen === 'welcome') {
@@ -482,7 +491,7 @@ export default function App() {
   }
 
   return (
-    <ScreenTransition screenKey={screenKey} direction={direction}>
+    <ScreenTransition screenKey={screenKey} direction={direction} transitionType={transitionType}>
       {screenContent}
     </ScreenTransition>
   );
