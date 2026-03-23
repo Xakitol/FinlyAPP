@@ -1,13 +1,11 @@
-import { useState } from 'react';
-import { X, ChevronLeft, Delete } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X } from 'lucide-react';
 
 interface Props {
   type: 'income' | 'expense';
   onBack: () => void;
   onContinue: (amount: number, recurring: boolean) => void;
 }
-
-const NUMPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'];
 
 const GLASS: React.CSSProperties = {
   background: 'rgba(255,255,255,0.08)',
@@ -32,6 +30,11 @@ const CIRCLE_BTN: React.CSSProperties = {
 export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
   const [amount, setAmount] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const isIncome = type === 'income';
   const userName = localStorage.getItem('finly_user_name') ?? '';
@@ -44,19 +47,6 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
     ? '0 6px 0 rgba(6,182,212,0.50), 0 12px 28px rgba(14,165,233,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)'
     : '0 6px 0 rgba(124,58,237,0.50), 0 12px 28px rgba(124,58,237,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)';
 
-  function handleNumKey(key: string) {
-    if (key === '⌫') {
-      setAmount((p) => p.slice(0, -1));
-      return;
-    }
-    if (key === '.') {
-      if (!amount.includes('.')) setAmount((p) => (p === '' ? '0.' : p + '.'));
-      return;
-    }
-    if (amount.replace('.', '').length >= 8) return;
-    setAmount((p) => (p === '' || p === '0') ? key : p + key);
-  }
-
   const numericAmount = parseFloat(amount) || 0;
   const displayAmount =
     amount === ''
@@ -66,7 +56,6 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
       : numericAmount.toLocaleString('he-IL', { maximumFractionDigits: 2 });
 
   const canContinue = numericAmount > 0;
-
   const amountFontSize = displayAmount.length > 7 ? 36 : displayAmount.length > 5 ? 44 : 52;
 
   return (
@@ -75,28 +64,36 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
       className="h-screen w-full flex flex-col finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif' }}
     >
+      {/* Hidden native keyboard trigger */}
+      <input
+        ref={inputRef}
+        type="number"
+        inputMode="decimal"
+        pattern="[0-9]*"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        style={{
+          position: 'absolute',
+          opacity: 0,
+          width: 1,
+          height: 1,
+          pointerEvents: 'none',
+        }}
+        tabIndex={-1}
+      />
 
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-2 pb-3">
-        <button
-          type="button"
-          onClick={() => canContinue && onContinue(numericAmount, isRecurring)}
-          disabled={!canContinue}
-          style={{ ...CIRCLE_BTN, opacity: canContinue ? 1 : 0.3 }}
-          className="transition-opacity"
-        >
-          <ChevronLeft size={20} className="text-white/70" strokeWidth={2} />
-        </button>
-
-        <div className="flex flex-col items-center">
-          <p className="text-[11px] text-white/45 font-medium leading-tight">
-            {isIncome ? 'הכנסה' : 'הוצאה'}
-          </p>
-          {userName ? (
-            <p className="text-[13px] text-white/70 font-semibold leading-tight">{userName}</p>
-          ) : null}
+      {/* Header — X button on the right, centered label */}
+      <div className="relative flex items-center justify-end px-4 pt-2 pb-3">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="flex flex-col items-center">
+            <p className="text-[11px] text-white/45 font-medium leading-tight">
+              {isIncome ? 'הכנסה' : 'הוצאה'}
+            </p>
+            {userName ? (
+              <p className="text-[13px] text-white/70 font-semibold leading-tight">{userName}</p>
+            ) : null}
+          </div>
         </div>
-
         <button
           type="button"
           onClick={onBack}
@@ -180,35 +177,6 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
         >
           המשך
         </button>
-      </div>
-
-      {/* iOS-style numpad — no container, keys fill remaining space */}
-      <div
-        className="grid grid-cols-3 mt-3 flex-1"
-        style={{
-          gridTemplateRows: 'repeat(4, 1fr)',
-          gap: '0.5px',
-          background: 'rgba(255,255,255,0.08)',
-          borderTop: '0.5px solid rgba(255,255,255,0.08)',
-        }}
-        dir="ltr"
-      >
-        {NUMPAD_KEYS.map((key) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => handleNumKey(key)}
-            className="flex items-center justify-center active:bg-white/[0.15] transition-colors"
-            style={{
-              background: 'rgba(15,10,30,0.92)',
-              fontSize: 26,
-              fontWeight: 300,
-              color: 'rgba(255,255,255,0.90)',
-            }}
-          >
-            {key === '⌫' ? <Delete size={22} className="text-white/60" /> : key}
-          </button>
-        ))}
       </div>
 
     </div>

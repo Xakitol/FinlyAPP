@@ -124,10 +124,8 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
             <div className="flex-1 text-right min-w-0">
               <p className="text-[9px] font-medium mb-0.5 text-white/55">הכנסות</p>
               <p className="font-bold leading-none text-cyan-300" style={{ fontSize: 17 }}>
-                <span style={{ display: 'inline-flex', alignItems: 'baseline', direction: 'ltr' }}>
-                  {formatCurrency(snapshot.income).replace('₪', '')}
-                  <span style={{ fontSize: 11, opacity: 0.7 }}>₪</span>
-                </span>
+                <span style={{ fontSize: 11, opacity: 0.7 }}>₪</span>
+                {formatCurrency(snapshot.income).replace('₪', '')}
               </p>
             </div>
             {/* Main remaining — center */}
@@ -143,20 +141,16 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
                     : 40,
                 }}
               >
-                <span style={{ display: 'inline-flex', alignItems: 'baseline', direction: 'ltr' }}>
-                  {formatCurrency(snapshot.remaining).replace('₪', '')}
-                  <span style={{ fontSize: 11, opacity: 0.7 }}>₪</span>
-                </span>
+                <span style={{ fontSize: 11, opacity: 0.7 }}>₪</span>
+                {formatCurrency(snapshot.remaining).replace('₪', '')}
               </p>
             </div>
             {/* Expenses — left side in RTL */}
             <div className="flex-1 text-left min-w-0">
               <p className="text-[9px] font-medium mb-0.5 text-white/55">הוצאות</p>
               <p className="font-bold leading-none text-pink-400" style={{ fontSize: 17 }}>
-                <span style={{ display: 'inline-flex', alignItems: 'baseline', direction: 'ltr' }}>
-                  {formatCurrency(snapshot.expenses).replace('₪', '')}
-                  <span style={{ fontSize: 11, opacity: 0.7 }}>₪</span>
-                </span>
+                <span style={{ fontSize: 11, opacity: 0.7 }}>₪</span>
+                {formatCurrency(snapshot.expenses).replace('₪', '')}
               </p>
             </div>
           </div>
