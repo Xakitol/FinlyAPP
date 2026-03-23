@@ -33,7 +33,8 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    const t = setTimeout(() => { inputRef.current?.focus(); }, 100);
+    return () => clearTimeout(t);
   }, []);
 
   const isIncome = type === 'income';
@@ -64,24 +65,6 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
       className="h-screen w-full flex flex-col finly-safe"
       style={{ fontFamily: 'Rubik, sans-serif' }}
     >
-      {/* Hidden native keyboard trigger */}
-      <input
-        ref={inputRef}
-        type="number"
-        inputMode="decimal"
-        pattern="[0-9]*"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        style={{
-          position: 'absolute',
-          opacity: 0,
-          width: 1,
-          height: 1,
-          pointerEvents: 'none',
-        }}
-        tabIndex={-1}
-      />
-
       {/* Header — X button on the right, centered label */}
       <div className="relative flex items-center justify-end px-4 pt-2 pb-3">
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -105,9 +88,32 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
       </div>
 
       {/* Amount card */}
-      <div className="mx-4 rounded-3xl px-5 pt-3 pb-0" style={GLASS}>
-        <p className="text-[12px] font-medium text-white/40 text-right mb-1">כמה?</p>
-        <div className="flex justify-center pb-4">
+      <div
+        className="mx-4 rounded-3xl px-5 pt-3 pb-0"
+        style={{ ...GLASS, position: 'relative' }}
+        onClick={() => inputRef.current?.focus()}
+      >
+        {/* Transparent overlay input — real dimensions so iOS opens keyboard */}
+        <input
+          ref={inputRef}
+          type="number"
+          inputMode="decimal"
+          pattern="[0-9]*"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            opacity: 0,
+            zIndex: 10,
+            fontSize: 16,
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+          }}
+        />
+        <p className="text-[12px] font-medium text-white/40 text-right mb-1" style={{ position: 'relative', zIndex: 20 }}>כמה?</p>
+        <div className="flex justify-center pb-4" style={{ position: 'relative', zIndex: 20 }}>
           <span style={{ display: 'inline-flex', alignItems: 'baseline', direction: 'ltr' }}>
             <span
               className="font-bold leading-none tracking-tight text-white"
@@ -118,7 +124,7 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
             <span className="text-white/45 font-light" style={{ fontSize: 18, marginLeft: 5 }}>₪</span>
           </span>
         </div>
-        <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.12)', marginLeft: -20, marginRight: -20 }} />
+        <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.12)', marginLeft: -20, marginRight: -20, position: 'relative', zIndex: 20 }} />
       </div>
 
       {/* Recurring selector */}
