@@ -16,16 +16,9 @@ const KEYFRAMES = `
     from { opacity: 0; transform: scale(0.65); }
     to   { opacity: 1; transform: scale(1); }
   }
-  @keyframes successFadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes successBounce {
-    0%   { opacity: 0; transform: scale(0.3); }
-    55%  { opacity: 1; transform: scale(1.15); }
-    75%  { transform: scale(0.92); }
-    90%  { transform: scale(1.04); }
-    100% { opacity: 1; transform: scale(1); }
+  @keyframes finlyTextIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
   @keyframes successFadeOut {
     from { opacity: 1; }
@@ -114,7 +107,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
         {showTitle && (
           <h1
             className="text-3xl font-bold text-white"
-            style={{ animation: 'successFadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both' }}
+            style={{ animation: 'finlyTextIn 0.6s ease-out forwards' }}
           >
             !הכל מוכן, {name}
           </h1>
@@ -124,7 +117,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
         {showSubtitle && (
           <p
             className="text-base font-medium text-white/60"
-            style={{ animation: 'successFadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both' }}
+            style={{ animation: 'finlyTextIn 0.6s ease-out forwards' }}
           >
             Finly מוכן לצעוד איתך לחברות פיננסית
           </p>
@@ -135,7 +128,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
           <p
             className="text-4xl font-bold"
             style={{
-              animation: 'successBounce 0.9s cubic-bezier(0.22,1,0.36,1) both',
+              animation: 'finlyTextIn 0.6s ease-out forwards',
               background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
