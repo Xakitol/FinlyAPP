@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface Props {
   type: 'income' | 'expense';
   onBack: () => void;
   onContinue: (amount: number, recurring: boolean) => void;
-  numpadInputRef: React.RefObject<HTMLInputElement>;
 }
 
 const GLASS: React.CSSProperties = {
@@ -28,9 +27,15 @@ const CIRCLE_BTN: React.CSSProperties = {
   flexShrink: 0,
 };
 
-export function AddTransactionNumpad({ type, onBack, onContinue, numpadInputRef: inputRef }: Props) {
+export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
   const [amount, setAmount] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => { inputRef.current?.focus(); }, 500);
+    return () => { clearTimeout(t); };
+  }, []);
 
   const isIncome = type === 'income';
   const userName = localStorage.getItem('finly_user_name') ?? '';
