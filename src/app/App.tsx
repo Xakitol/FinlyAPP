@@ -422,7 +422,10 @@ export default function App() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '12px 16px 6px',
+          paddingTop: 'max(12px, env(safe-area-inset-top))',
+          paddingBottom: 6,
+          paddingLeft: 16,
+          paddingRight: 16,
           flexShrink: 0,
         }}>
           {/* Month carousel — left side (in RTL: visually right of logo) */}
@@ -460,7 +463,6 @@ export default function App() {
               snapshot={snapshot}
               onAddIncome={handleAddIncome}
               onAddExpense={handleAddExpense}
-              entries={homeData.entries}
             />,
             <UpcomingScreen entries={homeData.entries} />,
             <TransactionsScreen entries={homeData.entries} />,

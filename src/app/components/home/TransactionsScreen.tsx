@@ -1,5 +1,5 @@
 import { useState, type CSSProperties } from 'react';
-import type { FinanceEntry } from '../../../../types/finance';
+import type { FinanceEntry } from '../../../types/finance';
 import { formatCurrency, formatShortDate } from '../../../utils/formatters';
 
 interface Props {
@@ -37,6 +37,8 @@ const FILTER_LABELS: { key: Filter; label: string }[] = [
 
 export function TransactionsScreen({ entries }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
+
+  if (!entries) return <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif' }}>טוען...</p>;
 
   const filtered = entries
     .filter((e) => filter === 'all' || e.type === filter)

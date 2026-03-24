@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { FinanceEntry } from '../../../../types/finance';
+import type { FinanceEntry } from '../../../types/finance';
 import { formatCurrency, formatShortDate } from '../../../utils/formatters';
 
 interface Props {
@@ -35,6 +35,8 @@ export function UpcomingScreen({ entries }: Props) {
   const totalOutgoing = upcoming
     .filter((e) => e.type === 'expense')
     .reduce((sum, e) => sum + e.amount, 0);
+
+  if (!entries) return <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif' }}>טוען...</p>;
 
   return (
     <div

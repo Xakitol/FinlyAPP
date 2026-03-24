@@ -1,8 +1,7 @@
 import { useState, useRef, type CSSProperties } from 'react';
 import { Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
-import { formatCurrency, formatShortDate } from '../../../utils/formatters';
+import { formatCurrency } from '../../../utils/formatters';
 import { getInsightCards } from '../../../utils/finlyInsights';
-import type { FinanceEntry } from '../../../types/finance';
 
 interface HomeSnapshot {
   statusLabel: string;
@@ -22,7 +21,6 @@ interface FloatingCirclesHomeProps {
   snapshot: HomeSnapshot;
   onAddIncome: () => void;
   onAddExpense: () => void;
-  entries: FinanceEntry[];
 }
 
 const KEYFRAMES = `
@@ -54,22 +52,7 @@ const PRESS_DOWN = {
   },
 };
 
-function CategoryBadge({ category, type }: { category: string; type: FinanceEntry['type'] }) {
-  const bg = type === 'income' ? 'rgba(6,182,212,0.18)' : 'rgba(236,72,153,0.18)';
-  const color = type === 'income' ? '#06b6d4' : '#ec4899';
-  return (
-    <div style={{
-      width: 32, height: 32, borderRadius: '50%',
-      background: bg, color, flexShrink: 0,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: 13, fontWeight: 700,
-    }}>
-      {category ? category[0] : '?'}
-    </div>
-  );
-}
-
-export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, entries }: FloatingCirclesHomeProps) {
+export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense }: FloatingCirclesHomeProps) {
   const [cardIdx, setCardIdx] = useState(0);
   const [swipeAnim, setSwipeAnim] = useState<'fromRight' | 'fromLeft' | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -111,11 +94,6 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, entri
     : swipeAnim === 'fromLeft'
     ? { animation: 'insightFromLeft 0.28s ease' }
     : {};
-
-  const recentEntries = entries
-    .filter((e) => e.status === 'recorded' && e.source === 'manual')
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 3);
 
   return (
     <>
@@ -219,47 +197,8 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, entri
           </div>
         </div>
 
-        {/* ── Recent transactions ──────────────── */}
-        <div
-          className="w-full rounded-2xl"
-          style={{ ...GLASS, padding: '14px 14px 10px', flex: 1, display: 'flex', flexDirection: 'column' }}
-        >
-          <p style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.4)', margin: '0 0 10px', textAlign: 'right' }}>
-            תנועות אחרונות
-          </p>
-          {recentEntries.length === 0 ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', margin: 0, textAlign: 'center' }}>
-                עדיין אין תנועות — הוסיפו את הראשונה
-              </p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {recentEntries.map((entry) => (
-                <div key={entry.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <CategoryBadge category={entry.category} type={entry.type} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {entry.title}
-                    </p>
-                    <p style={{ margin: '1px 0 0', fontSize: 10, color: 'rgba(255,255,255,0.38)' }}>
-                      {formatShortDate(entry.date)}
-                    </p>
-                  </div>
-                  <p style={{
-                    margin: 0, fontSize: 14, fontWeight: 700, flexShrink: 0,
-                    color: entry.type === 'income' ? '#06b6d4' : '#f472b6',
-                  }}>
-                    {entry.type === 'expense' ? '−' : '+'}{formatCurrency(entry.amount)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* ── Add buttons ─────────────── */}
-        <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 12, flexShrink: 0, marginTop: 'auto' }}>
           <button
             type="button"
             onClick={onAddIncome}

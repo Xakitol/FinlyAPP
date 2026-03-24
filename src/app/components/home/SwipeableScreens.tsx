@@ -23,8 +23,9 @@ export function SwipeableScreens({ screens, activeIndex, onIndexChange }: Props)
     touchStartY.current = null;
     // Ignore if primarily vertical or too short
     if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
-    if (dx < 0 && activeIndex < screens.length - 1) onIndexChange(activeIndex + 1);
-    else if (dx > 0 && activeIndex > 0) onIndexChange(activeIndex - 1);
+    // RTL: swipe right = forward, swipe left = back
+    if (dx > 0 && activeIndex < screens.length - 1) onIndexChange(activeIndex + 1);
+    else if (dx < 0 && activeIndex > 0) onIndexChange(activeIndex - 1);
   }
 
   const pct = 100 / screens.length;
