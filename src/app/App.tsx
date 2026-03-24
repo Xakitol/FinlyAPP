@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import { ScreenTransition } from './components/ScreenTransition';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { SignupMethodScreen } from './components/SignupMethodScreen';
@@ -21,8 +22,13 @@ import { UpcomingExpensesModal } from './components/modals/UpcomingExpensesModal
 import { IncomeBreakdownModal } from './components/modals/IncomeBreakdownModal';
 import { ExpenseBreakdownModal } from './components/modals/ExpenseBreakdownModal';
 import { ImportModal } from './components/modals/ImportModal';
-import { HomeHeader } from './components/home/HomeHeader';
 import { FloatingCirclesHome } from './components/home/FloatingCirclesHome';
+import { MonthCarousel } from './components/home/MonthCarousel';
+import { SwipeableScreens } from './components/home/SwipeableScreens';
+import { ScreenDots } from './components/home/ScreenDots';
+import { FAB } from './components/home/FAB';
+import { UpcomingScreen } from './components/home/UpcomingScreen';
+import { TransactionsScreen } from './components/home/TransactionsScreen';
 import { HEBREW_MONTH_NAMES, YEAR, DEFAULT_MONTH_INDEX } from '../data/mockHome';
 import { getHomeSnapshot, projectRecurringRules } from '../utils/homeCalculations';
 import { signInWithGoogle } from '../utils/authGoogle';
@@ -54,6 +60,9 @@ export default function App() {
   const [incomeOpen, setIncomeOpen] = useState(false);
   const [expensesOpen, setExpensesOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+
+  // ── Home swipe screen index ──────────────────────────────────────────────────
+  const [homeScreenIdx, setHomeScreenIdx] = useState(0);
 
   // ── Add transaction flow ─────────────────────────────────────────────────────
   const [addStep, setAddStep] = useState<'numpad-income' | 'numpad-expense' | 'details' | null>(null);
@@ -399,46 +408,91 @@ export default function App() {
     screenContent = (
       <div
         dir="rtl"
-        className="h-screen overflow-hidden w-full relative finly-safe"
-        style={{ fontFamily: 'Rubik, sans-serif' }}
+        style={{
+          fontFamily: 'Rubik, sans-serif',
+          height: '100dvh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          width: '100%',
+        }}
       >
+        {/* ── Fixed header: logo + month carousel ── */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 16px 6px',
+          flexShrink: 0,
+        }}>
+          {/* Month carousel — left side (in RTL: visually right of logo) */}
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <MonthCarousel
+              availableMonths={HEBREW_MONTH_NAMES}
+              selectedMonthIndex={selectedMonthIndex}
+              onMonthChange={handleMonthChange}
+            />
+          </div>
+          {/* Logo — right side in RTL */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingRight: 4, flexShrink: 0 }}>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{
+                fontSize: 20, fontWeight: 700, margin: 0, lineHeight: 1,
+                background: 'linear-gradient(90deg, #67e8f9, #a78bfa, #c084fc)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              }}>Finly</p>
+              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', margin: '2px 0 0' }}>כסף, בשקט</p>
+            </div>
+            <div style={{
+              width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Sparkles size={15} color="#67e8f9" />
+            </div>
+          </div>
+        </div>
 
+        {/* ── Swipeable screens ── */}
+        <SwipeableScreens
+          screens={[
+            <FloatingCirclesHome
+              snapshot={snapshot}
+              onAddIncome={handleAddIncome}
+              onAddExpense={handleAddExpense}
+              entries={homeData.entries}
+            />,
+            <UpcomingScreen entries={homeData.entries} />,
+            <TransactionsScreen entries={homeData.entries} />,
+          ]}
+          activeIndex={homeScreenIdx}
+          onIndexChange={setHomeScreenIdx}
+        />
+
+        {/* ── Screen dots ── */}
+        <ScreenDots count={3} activeIndex={homeScreenIdx} />
+
+        {/* ── FAB (screens 1 and 2 only) ── */}
+        {homeScreenIdx > 0 && (
+          <FAB onAddIncome={handleAddIncome} onAddExpense={handleAddExpense} />
+        )}
+
+        {/* ── DEV reset ── */}
         {import.meta.env.DEV && (
           <button
             onClick={handleDevReset}
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full text-xs font-medium active:scale-95 transition-transform"
             style={{
-              background: 'rgba(124,58,237,0.12)',
-              border: '1px solid rgba(124,58,237,0.30)',
-              color: 'rgba(109,40,217,0.70)',
+              position: 'fixed', bottom: 70, left: '50%', transform: 'translateX(-50%)',
+              zIndex: 50, padding: '6px 16px', borderRadius: 99, fontSize: 11,
+              background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.30)',
+              color: 'rgba(109,40,217,0.70)', cursor: 'pointer',
             }}
           >
             ← חזרה למסך פתיחה (dev)
           </button>
         )}
 
-        <div
-          className="relative z-10 mx-auto w-full max-w-md px-4 pt-4 sm:px-5 overflow-y-auto pb-safe"
-          style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
-        >
-          <HomeHeader
-            availableMonths={HEBREW_MONTH_NAMES}
-            selectedMonthIndex={selectedMonthIndex}
-            onMonthChange={handleMonthChange}
-          />
-          <FloatingCirclesHome
-            snapshot={snapshot}
-            onAddIncome={handleAddIncome}
-            onAddExpense={handleAddExpense}
-            onOpenTransactions={() => setTableOpen(true)}
-            onOpenSavingsGoal={() => setSavingsGoalOpen(true)}
-            onOpenUpcoming={() => setUpcomingOpen(true)}
-            onOpenIncome={() => setIncomeOpen(true)}
-            onOpenExpenses={() => setExpensesOpen(true)}
-            onOpenImport={() => setImportOpen(true)}
-          />
-        </div>
-
+        {/* ── Modals (unchanged) ── */}
         <InsightsModal
           open={insightsOpen}
           onClose={() => setInsightsOpen(false)}
