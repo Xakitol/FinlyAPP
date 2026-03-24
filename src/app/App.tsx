@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { ScreenTransition } from './components/ScreenTransition';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { SignupMethodScreen } from './components/SignupMethodScreen';
@@ -56,6 +56,7 @@ export default function App() {
   const [importOpen, setImportOpen] = useState(false);
 
   // ── Add transaction flow ─────────────────────────────────────────────────────
+  const numpadInputRef = useRef<HTMLInputElement>(null);
   const [addStep, setAddStep] = useState<'numpad-income' | 'numpad-expense' | 'details' | null>(null);
   const [pendingType, setPendingType] = useState<'income' | 'expense'>('expense');
   const [pendingAmount, setPendingAmount] = useState(0);
@@ -224,12 +225,14 @@ export default function App() {
     setPendingType('income');
     setDirection(1);
     setAddStep('numpad-income');
+    numpadInputRef.current?.focus();
   }
 
   function handleAddExpense() {
     setPendingType('expense');
     setDirection(1);
     setAddStep('numpad-expense');
+    numpadInputRef.current?.focus();
   }
 
   function handleNumpadContinue(amount: number, recurring: boolean) {
@@ -382,6 +385,7 @@ export default function App() {
         type={addStep === 'numpad-income' ? 'income' : 'expense'}
         onBack={() => { setDirection(-1); setAddStep(null); }}
         onContinue={handleNumpadContinue}
+        numpadInputRef={numpadInputRef}
       />
     );
   } else if (addStep === 'details') {
