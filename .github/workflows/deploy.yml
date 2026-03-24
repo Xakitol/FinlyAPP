@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - mobile-first-refactor
+      - home-redesign
   workflow_dispatch:
 
 permissions:
