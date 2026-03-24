@@ -28,6 +28,10 @@ function CategoryBadge({ category, type }: { category: string; type: FinanceEntr
 }
 
 export function UpcomingScreen({ entries }: Props) {
+  console.log('[UpcomingScreen] mounted, entries:', entries?.length);
+
+  if (!entries) return <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}>טוען...</p>;
+
   const upcoming = entries
     .filter((e) => e.status === 'upcoming' || e.source === 'system')
     .sort((a, b) => (a.dueDate ?? a.date).localeCompare(b.dueDate ?? b.date));
@@ -35,8 +39,6 @@ export function UpcomingScreen({ entries }: Props) {
   const totalOutgoing = upcoming
     .filter((e) => e.type === 'expense')
     .reduce((sum, e) => sum + e.amount, 0);
-
-  if (!entries) return <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif' }}>טוען...</p>;
 
   return (
     <div
@@ -49,6 +51,7 @@ export function UpcomingScreen({ entries }: Props) {
         padding: '16px 16px 24px',
         gap: 14,
         boxSizing: 'border-box',
+        background: '#0f0a1e',
       }}
     >
       {/* Header */}

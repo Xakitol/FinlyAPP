@@ -38,7 +38,9 @@ const FILTER_LABELS: { key: Filter; label: string }[] = [
 export function TransactionsScreen({ entries }: Props) {
   const [filter, setFilter] = useState<Filter>('all');
 
-  if (!entries) return <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif' }}>טוען...</p>;
+  console.log('[TransactionsScreen] mounted, entries:', entries?.length);
+
+  if (!entries) return <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}>טוען...</p>;
 
   const filtered = entries
     .filter((e) => filter === 'all' || e.type === filter)
@@ -61,6 +63,7 @@ export function TransactionsScreen({ entries }: Props) {
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
+        background: '#0f0a1e',
       }}
     >
       {/* Filter bar */}

@@ -39,9 +39,11 @@ export function SwipeableScreens({ screens, activeIndex, onIndexChange }: Props)
       <div
         style={{
           display: 'flex',
+          flexDirection: 'row-reverse',
           width: `${screens.length * 100}%`,
           height: '100%',
-          transform: `translateX(${-activeIndex * pct}%) translateZ(0)`,
+          // RTL: strip reversed so screen[0] is rightmost; shift right to reveal it
+          transform: `translateX(${-(screens.length - 1 - activeIndex) * pct}%) translateZ(0)`,
           transition: 'transform 280ms ease-in-out',
           willChange: 'transform',
         }}
