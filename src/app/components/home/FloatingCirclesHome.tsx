@@ -1,5 +1,5 @@
 import { useState, useRef, type CSSProperties } from 'react';
-import { List, PiggyBank, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
+import { List, PiggyBank, Sparkles, TrendingUp, TrendingDown, ChevronLeft } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 import { getInsightCards } from '../../../utils/finlyInsights';
 
@@ -109,21 +109,28 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
     <>
       <style>{KEYFRAMES}</style>
 
-      <div className="flex w-full flex-col items-center gap-5 pb-10">
+      {/* Change 1 — fill screen height, space-between distribution */}
+      <div
+        className="flex w-full flex-col items-center"
+        style={{ height: '100%', justifyContent: 'space-between' }}
+      >
 
         {/* ── Main balance card ─────────────── */}
+        {/* Change 2 — taller card, larger fonts */}
         <div
-          className="w-full rounded-3xl px-5 pt-4 pb-5 flex flex-col items-center"
+          className="w-full rounded-3xl px-5 flex flex-col items-center"
           style={{
             ...GLASS,
+            paddingTop: 28,
+            paddingBottom: 28,
             animation: 'coinFloat1 6s ease-in-out infinite',
           }}
         >
           <div className="flex w-full items-center pt-1">
             {/* Income — right side in RTL */}
             <div className="flex-1 text-right min-w-0">
-              <p className="text-[9px] font-medium mb-0.5 text-white/55">הכנסות</p>
-              <p className="font-bold leading-none text-cyan-300" style={{ fontSize: 17 }}>
+              <p className="text-[11px] font-medium mb-0.5 text-white/55">הכנסות</p>
+              <p className="font-bold leading-none text-cyan-300" style={{ fontSize: 19 }}>
                 <span style={{ fontSize: 11, opacity: 0.7 }}>₪</span>
                 {formatCurrency(snapshot.income).replace('₪', '')}
               </p>
@@ -135,10 +142,10 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
                 className="font-bold leading-none tracking-tight text-white"
                 style={{
                   fontSize: formatCurrency(snapshot.remaining).length > 10
-                    ? 26
-                    : formatCurrency(snapshot.remaining).length > 8
                     ? 32
-                    : 40,
+                    : formatCurrency(snapshot.remaining).length > 8
+                    ? 40
+                    : 52,
                 }}
               >
                 <span style={{ fontSize: 11, opacity: 0.7 }}>₪</span>
@@ -147,8 +154,8 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
             </div>
             {/* Expenses — left side in RTL */}
             <div className="flex-1 text-left min-w-0">
-              <p className="text-[9px] font-medium mb-0.5 text-white/55">הוצאות</p>
-              <p className="font-bold leading-none text-pink-400" style={{ fontSize: 17 }}>
+              <p className="text-[11px] font-medium mb-0.5 text-white/55">הוצאות</p>
+              <p className="font-bold leading-none text-pink-400" style={{ fontSize: 19 }}>
                 <span style={{ fontSize: 11, opacity: 0.7 }}>₪</span>
                 {formatCurrency(snapshot.expenses).replace('₪', '')}
               </p>
@@ -157,16 +164,17 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
         </div>
 
         {/* ── Finly insight card ──────────────── */}
+        {/* Change 3 — larger padding and text */}
         <div
-          className="w-full rounded-2xl px-4 pt-3.5 pb-3 overflow-hidden"
-          style={GLASS}
+          className="w-full rounded-2xl px-4 overflow-hidden"
+          style={{ ...GLASS, paddingTop: 20, paddingBottom: 16 }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           <div className="flex items-start gap-3">
             <div className="flex-1 text-right min-w-0" style={insightAnimStyle}>
               <p className="text-[10px] font-semibold text-cyan-300">Finly אומר</p>
-              <p className="mt-0.5 text-[13px] leading-relaxed text-white">{insights[cardIdx]}</p>
+              <p className="mt-0.5 text-[15px] leading-relaxed text-white">{insights[cardIdx]}</p>
             </div>
             <div
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl mt-0.5"
@@ -204,46 +212,57 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
         <div className="grid w-full grid-cols-2 gap-3">
 
           {/* הכנסות */}
+          {/* Change 4 — taller cards, larger amount, ChevronLeft instead of text hint */}
           <button
             type="button"
             onClick={onOpenIncome}
-            className="flex flex-col rounded-2xl p-4 text-right"
+            className="flex flex-col rounded-2xl text-right"
             style={{
               ...GLASS,
+              paddingTop: 20,
+              paddingBottom: 20,
+              paddingLeft: 16,
+              paddingRight: 16,
               boxShadow: TACTILE_SHADOW,
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
             {...PRESS_DOWN}
           >
             <p className="text-[10px] leading-tight text-white/55">Finly צופה שייכנס החודש</p>
-            <p className="mt-1 text-[18px] font-bold text-white">{formatCurrency(snapshot.pendingIncome)}</p>
-            <p className="mt-0.5 text-[10px] text-white/55">לפירוט לחץ כאן</p>
+            <p className="mt-1 font-bold text-white" style={{ fontSize: 22 }}>{formatCurrency(snapshot.pendingIncome)}</p>
+            <ChevronLeft size={14} className="text-white/40 mt-auto" />
           </button>
 
           {/* הוצאות */}
           <button
             type="button"
             onClick={onOpenExpenses}
-            className="flex flex-col rounded-2xl p-4 text-right"
+            className="flex flex-col rounded-2xl text-right"
             style={{
               ...GLASS,
+              paddingTop: 20,
+              paddingBottom: 20,
+              paddingLeft: 16,
+              paddingRight: 16,
               boxShadow: TACTILE_SHADOW,
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
             {...PRESS_DOWN}
           >
             <p className="text-[10px] leading-tight text-white/55">Finly צופה שייצא החודש</p>
-            <p className="mt-1 text-[18px] font-bold text-white">{formatCurrency(snapshot.upcoming)}</p>
-            <p className="mt-0.5 text-[10px] text-white/55">לפירוט לחץ כאן</p>
+            <p className="mt-1 font-bold text-white" style={{ fontSize: 22 }}>{formatCurrency(snapshot.upcoming)}</p>
+            <ChevronLeft size={14} className="text-white/40 mt-auto" />
           </button>
 
           {/* יעד חיסכון */}
+          {/* Change 5 — larger padding, percentage, progress bar */}
           <button
             type="button"
             onClick={onOpenSavingsGoal}
-            className="col-span-2 rounded-2xl p-3 text-right"
+            className="col-span-2 rounded-2xl text-right"
             style={{
               ...GLASS,
+              padding: 16,
               boxShadow: TACTILE_SHADOW,
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
             }}
@@ -253,7 +272,7 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
               <div className="flex items-center gap-1.5">
                 <PiggyBank className="h-4 w-4 text-cyan-300" />
                 {snapshot.savingsTarget > 0 && (
-                  <p className="text-[16px] font-bold text-cyan-300">{Math.round(snapshot.savingsProgress)}%</p>
+                  <p className="font-bold text-cyan-300" style={{ fontSize: 20 }}>{Math.round(snapshot.savingsProgress)}%</p>
                 )}
               </div>
               <div className="text-right">
@@ -268,7 +287,7 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
               <p className="text-[12px] font-medium text-white/55">לא הוגדר יעד — לחץ להגדרה</p>
             ) : (
               <>
-                <div className="h-1.5 w-full rounded-full overflow-hidden bg-white/10">
+                <div className="h-2 w-full rounded-full overflow-hidden bg-white/10">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -285,12 +304,16 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
         </div>
 
         {/* ── Transactions history button ──────────── */}
+        {/* Change 6 — taller button, larger text */}
         <button
           type="button"
           onClick={onOpenTransactions}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-[13px] font-semibold text-white/90"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl font-semibold text-white/90"
           style={{
             ...GLASS,
+            paddingTop: 16,
+            paddingBottom: 16,
+            fontSize: 15,
             boxShadow: TACTILE_SHADOW,
             transition: 'transform 0.1s ease, box-shadow 0.1s ease',
           }}
@@ -301,12 +324,16 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
         </button>
 
         {/* ── Add transaction buttons ─────────── */}
+        {/* Change 7 — taller buttons, larger text */}
         <div className="flex w-full gap-3">
           <button
             type="button"
             onClick={onAddIncome}
-            className="flex-1 rounded-2xl py-4 text-white font-bold text-[15px] flex items-center justify-center gap-2"
+            className="flex-1 rounded-2xl text-white font-bold flex items-center justify-center gap-2"
             style={{
+              paddingTop: 20,
+              paddingBottom: 20,
+              fontSize: 17,
               background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
               boxShadow: '0 6px 0 rgba(6,182,212,0.45), 0 10px 24px rgba(14,165,233,0.30), inset 0 1.5px 0 rgba(255,255,255,0.30)',
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
@@ -330,8 +357,11 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense, onOpe
           <button
             type="button"
             onClick={onAddExpense}
-            className="flex-1 rounded-2xl py-4 text-white font-bold text-[15px] flex items-center justify-center gap-2"
+            className="flex-1 rounded-2xl text-white font-bold flex items-center justify-center gap-2"
             style={{
+              paddingTop: 20,
+              paddingBottom: 20,
+              fontSize: 17,
               background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
               boxShadow: '0 6px 0 rgba(124,58,237,0.45), 0 10px 24px rgba(124,58,237,0.30), inset 0 1.5px 0 rgba(255,255,255,0.25)',
               transition: 'transform 0.1s ease, box-shadow 0.1s ease',
