@@ -53,6 +53,7 @@ const PRESS_DOWN = {
 };
 
 export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense }: FloatingCirclesHomeProps) {
+  console.log('[Screen1] rendering FloatingCirclesHome');
   const [cardIdx, setCardIdx] = useState(0);
   const [swipeAnim, setSwipeAnim] = useState<'fromRight' | 'fromLeft' | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -109,6 +110,7 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense }: Flo
           padding: '12px 16px 16px',
           boxSizing: 'border-box',
           gap: 12,
+          background: '#0f0a1e',
         }}
       >
 
