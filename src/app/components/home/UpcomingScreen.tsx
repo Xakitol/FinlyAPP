@@ -28,7 +28,7 @@ function CategoryBadge({ category, type }: { category: string; type: FinanceEntr
 }
 
 export function UpcomingScreen({ entries }: Props) {
-  console.log('[UpcomingScreen] mounted, entries:', entries?.length);
+  console.log('[UpcomingScreen] rendering', entries?.length);
 
   if (!entries) return <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}>טוען...</p>;
 
