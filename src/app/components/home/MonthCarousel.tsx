@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 interface Props {
   availableMonths: string[];
   selectedMonthIndex: number;
@@ -11,8 +13,25 @@ export function MonthCarousel({ availableMonths, selectedMonthIndex, onMonthChan
 
   const slots: (number | null)[] = [prevIdx, selectedMonthIndex, nextIdx];
 
+  const touchStartX = useRef<number | null>(null);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 30) return;
+    if (dx < 0 && nextIdx !== null) onMonthChange(nextIdx);
+    else if (dx > 0 && prevIdx !== null) onMonthChange(prevIdx);
+  }
+
   return (
     <div
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       style={{
         display: 'flex',
         alignItems: 'center',

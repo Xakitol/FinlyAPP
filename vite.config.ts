@@ -10,6 +10,9 @@ const __dirname = dirname(__filename)
 export default defineConfig({
   base: '/FinlyAPP/',
   plugins: [react(), tailwindcss()],
+  server: {
+    port: 5174,
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

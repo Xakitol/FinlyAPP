@@ -39,10 +39,10 @@ export function SwipeableScreens({ screens, activeIndex, onIndexChange }: Props)
       <div
         style={{
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: 'row-reverse',
           width: `${screens.length * 100}%`,
           height: '100%',
-          transform: `translateX(${-activeIndex * pct}%) translateZ(0)`,
+          transform: `translateX(${(screens.length - 1 - activeIndex) * pct}%) translateZ(0)`,
           transition: 'transform 280ms ease-in-out',
           willChange: 'transform',
         }}
