@@ -32,7 +32,7 @@ export function SwipeableScreens({ screens, activeIndex, onIndexChange }: Props)
 
   return (
     <div
-      style={{ overflow: 'hidden', flex: 1, position: 'relative', minHeight: 0 }}
+      style={{ overflow: 'hidden', flex: 1, position: 'relative', minHeight: 0, width: '100%' }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
