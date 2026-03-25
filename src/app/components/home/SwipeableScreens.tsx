@@ -21,28 +21,36 @@ export function SwipeableScreens({ screens, activeIndex, onIndexChange }: Props)
     const dy = e.changedTouches[0].clientY - touchStartY.current;
     touchStartX.current = null;
     touchStartY.current = null;
-    // Ignore if primarily vertical or too short
     if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
-    // RTL: swipe right = forward, swipe left = back
+    // RTL: swipe right (dx > 0) = next screen, swipe left (dx < 0) = prev screen
     if (dx > 0 && activeIndex < screens.length - 1) onIndexChange(activeIndex + 1);
     else if (dx < 0 && activeIndex > 0) onIndexChange(activeIndex - 1);
   }
 
-  const pct = 100 / screens.length;
+  const n = screens.length;
+  const pct = 100 / n;
+
+  const offset = activeIndex * pct;
 
   return (
     <div
-      style={{ overflow: 'hidden', flex: 1, position: 'relative', height: '100%', width: '100%' }}
+      style={{
+        overflow: 'hidden',
+        flex: 1,
+        position: 'relative',
+        height: '100%',
+        width: '100%',
+      }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       <div
         style={{
           display: 'flex',
-          flexDirection: 'row-reverse',
-          width: `${screens.length * 100}%`,
+          flexDirection: 'row',
+          width: `${n * 100}%`,
           height: '100%',
-          transform: `translateX(${(screens.length - 1 - activeIndex) * pct}%) translateZ(0)`,
+          transform: `translateX(${offset}%) translateZ(0)`,
           transition: 'transform 280ms ease-in-out',
           willChange: 'transform',
         }}
@@ -53,9 +61,9 @@ export function SwipeableScreens({ screens, activeIndex, onIndexChange }: Props)
             style={{
               width: `${pct}%`,
               height: '100%',
+              flexShrink: 0,
               overflowX: 'hidden',
               overflowY: 'auto',
-              flexShrink: 0,
             }}
           >
             {screen}
