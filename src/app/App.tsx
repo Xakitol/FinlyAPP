@@ -410,10 +410,9 @@ export default function App() {
         dir="rtl"
         style={{
           fontFamily: 'Rubik, sans-serif',
-          height: '100dvh',
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden',
           width: '100%',
         }}
       >

@@ -24,26 +24,25 @@ export function SwipeableScreens({ screens, activeIndex, onIndexChange }: Props)
     // Ignore if primarily vertical or too short
     if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
     // RTL: swipe right = forward, swipe left = back
-    if (dx > 0 && activeIndex < screens.length - 1) onIndexChange(activeIndex + 1);
-    else if (dx < 0 && activeIndex > 0) onIndexChange(activeIndex - 1);
+    if (dx < 0 && activeIndex < screens.length - 1) onIndexChange(activeIndex + 1);
+    else if (dx > 0 && activeIndex > 0) onIndexChange(activeIndex - 1);
   }
 
   const pct = 100 / screens.length;
 
   return (
     <div
-      style={{ overflow: 'hidden', flex: 1, position: 'relative', minHeight: 0, width: '100%' }}
+      style={{ overflow: 'hidden', flex: 1, position: 'relative', height: '100%', width: '100%' }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       <div
         style={{
           display: 'flex',
-          flexDirection: 'row-reverse',
+          flexDirection: 'row',
           width: `${screens.length * 100}%`,
           height: '100%',
-          // RTL: strip reversed so screen[0] is rightmost; shift right to reveal it
-          transform: `translateX(${-(screens.length - 1 - activeIndex) * pct}%) translateZ(0)`,
+          transform: `translateX(${-activeIndex * pct}%) translateZ(0)`,
           transition: 'transform 280ms ease-in-out',
           willChange: 'transform',
         }}

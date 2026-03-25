@@ -88,6 +88,9 @@ export function ScreenTransition({ screenKey, direction = 1, transitionType = 's
       <div style={{
         position: 'absolute',
         inset: 0,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
         opacity: animating ? 0 : 1,
         transition: 'none',
         pointerEvents: animating ? 'none' : 'auto',
@@ -102,6 +105,9 @@ export function ScreenTransition({ screenKey, direction = 1, transitionType = 's
         <div style={{
           position: 'absolute',
           inset: 0,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
           transform: nextReady ? onScreen : offScreen,
           transition: nextReady ? 'transform 250ms ease-in-out' : 'none',
           willChange: 'transform',
