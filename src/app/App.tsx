@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Sparkles } from 'lucide-react';
 import { ScreenTransition } from './components/ScreenTransition';
 import { WelcomeScreen } from './components/WelcomeScreen';
@@ -35,6 +35,7 @@ import { signInWithGoogle } from '../utils/authGoogle';
 import { loadDescMemory, saveDescMemory, recordTransaction } from '../utils/descMemory';
 import type { ParsedRow } from '../utils/importParser';
 import type { FinanceEntry, RecurringRule, SavingsGoal } from '../types/finance';
+import { getOverduePendingEntries } from '../utils/recurringPrompt';
 
 export default function App() {
   // ── App screen routing ───────────────────────────────────────────────────────
@@ -91,6 +92,21 @@ export default function App() {
   useEffect(() => { localStorage.setItem('finly_goals', JSON.stringify(savingsGoalsMap)); }, [savingsGoalsMap]);
   useEffect(() => { localStorage.setItem('finly_rules', JSON.stringify(recurringRules)); }, [recurringRules]);
 
+  // Show one-per-day prompt when transitioning to home screen
+  useEffect(() => {
+    if (appScreen !== 'home') return;
+    const timer = setTimeout(() => {
+      const overdue = getOverduePendingEntries(homeDataRef.current.entries);
+      if (overdue.length === 0) return;
+      const today = new Date().toISOString().slice(0, 10);
+      if (localStorage.getItem('finly_prompt_shown_date') === today) return;
+      setHomeSheetEntries(overdue);
+      setHomeSheetOpen(true);
+      requestAnimationFrame(() => setHomeSheetVisible(true));
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [appScreen]);
+
   // ── Derived home data ───────────────────────────────────────────────────────
   const homeData = useMemo(() => {
     const baseEntries = monthEntriesMap[selectedMonthIndex] ?? [];
@@ -107,6 +123,15 @@ export default function App() {
   }, [selectedMonthIndex, monthEntriesMap, savingsGoalsMap, recurringRules]);
 
   const snapshot = useMemo(() => getHomeSnapshot(homeData), [homeData]);
+
+  // Keep ref up-to-date for the home-prompt effect (avoids stale closure)
+  const homeDataRef = useRef(homeData);
+  homeDataRef.current = homeData;
+
+  // One-per-day home prompt sheet
+  const [homeSheetEntries, setHomeSheetEntries] = useState<FinanceEntry[]>([]);
+  const [homeSheetOpen, setHomeSheetOpen] = useState(false);
+  const [homeSheetVisible, setHomeSheetVisible] = useState(false);
 
   // ── Routing helpers ───────────────────────────────────────────────────────────
   function navigate(screen: typeof appScreen, dir: number = 1) {
@@ -167,13 +192,22 @@ export default function App() {
   function handleSaveEntry(data: Omit<FinanceEntry, 'id'>, existingId?: string) {
     const entryId = existingId ?? `entry-${Date.now()}`;
     const savedEntry: FinanceEntry = { ...data, id: entryId };
+    const entryMonth = new Date(data.date).getMonth();
 
     setMonthEntriesMap((prev) => {
-      const current = prev[selectedMonthIndex] ?? [];
       if (existingId) {
-        return { ...prev, [selectedMonthIndex]: current.map((e) => (e.id === existingId ? savedEntry : e)) };
+        // Update in whichever month the entry currently lives
+        const updated = { ...prev };
+        for (const [mi, arr] of Object.entries(updated)) {
+          if (arr.some((e) => e.id === existingId)) {
+            updated[Number(mi)] = arr.map((e) => (e.id === existingId ? savedEntry : e));
+            return updated;
+          }
+        }
+        // Fallback: put in entry's month
+        return { ...prev, [entryMonth]: [...(prev[entryMonth] ?? []), savedEntry] };
       }
-      return { ...prev, [selectedMonthIndex]: [...current, savedEntry] };
+      return { ...prev, [entryMonth]: [...(prev[entryMonth] ?? []), savedEntry] };
     });
 
     // Sync recurring rule: add/update if recurring, remove if not
@@ -198,10 +232,16 @@ export default function App() {
   }
 
   function handleDeleteEntry(id: string) {
-    setMonthEntriesMap((prev) => ({
-      ...prev,
-      [selectedMonthIndex]: (prev[selectedMonthIndex] ?? []).filter((e) => e.id !== id),
-    }));
+    setMonthEntriesMap((prev) => {
+      const updated = { ...prev };
+      for (const [mi, arr] of Object.entries(updated)) {
+        if (arr.some((e) => e.id === id)) {
+          updated[Number(mi)] = arr.filter((e) => e.id !== id);
+          return updated;
+        }
+      }
+      return prev;
+    });
     setRecurringRules((prev) => prev.filter((r) => r.id !== `rule-${id}`));
   }
 
@@ -256,6 +296,30 @@ export default function App() {
 
   function handleDeleteRule(entry: FinanceEntry) {
     setRecurringRules((prev) => prev.filter((r) => !(r.type === entry.type && r.title === entry.title)));
+  }
+
+  function handleRescheduleEntry(entry: FinanceEntry, newDate: string) {
+    const targetMonth = new Date(newDate).getMonth();
+    if (entry.source === 'system') {
+      const rescheduled: FinanceEntry = {
+        ...entry,
+        id: `entry-${Date.now()}`,
+        date: newDate,
+        status: 'upcoming',
+        source: 'manual',
+      };
+      setMonthEntriesMap((prev) => ({
+        ...prev,
+        [targetMonth]: [...(prev[targetMonth] ?? []), rescheduled],
+      }));
+    } else {
+      setMonthEntriesMap((prev) => ({
+        ...prev,
+        [selectedMonthIndex]: (prev[selectedMonthIndex] ?? []).map((e) =>
+          e.id === entry.id ? { ...e, date: newDate } : e,
+        ),
+      }));
+    }
   }
 
   function handleImport(rows: ParsedRow[], targetMonth: number) {
@@ -463,8 +527,18 @@ export default function App() {
               onAddIncome={handleAddIncome}
               onAddExpense={handleAddExpense}
             />,
-            <UpcomingScreen entries={homeData.entries} />,
-            <TransactionsScreen entries={homeData.entries} />,
+            <UpcomingScreen
+              entries={homeData.entries}
+              onMarkAsPaid={handleMarkAsPaid}
+              onDeleteRule={handleDeleteRule}
+              onRescheduleEntry={handleRescheduleEntry}
+            />,
+            <TransactionsScreen
+              entries={homeData.entries}
+              onEdit={(entry) => console.log('edit', entry)}
+              onDelete={(entry) => handleDeleteEntry(entry.id)}
+              onMarkAsPaid={handleMarkAsPaid}
+            />,
           ]}
           activeIndex={homeScreenIdx}
           onIndexChange={setHomeScreenIdx}
