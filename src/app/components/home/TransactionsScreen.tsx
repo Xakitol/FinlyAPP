@@ -202,7 +202,7 @@ export function TransactionsScreen({ entries, onEdit, onDelete, onMarkAsPaid }: 
 
   if (!entries)
     return (
-      <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}>
+      <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif', background: 'transparent' }}>
         טוען...
       </p>
     );
@@ -227,32 +227,38 @@ export function TransactionsScreen({ entries, onEdit, onDelete, onMarkAsPaid }: 
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
-        background: '#0f0a1e',
+        background: 'transparent',
       }}
     >
       {/* Filter bar */}
       <div style={{ display: 'flex', gap: 8, padding: '16px 16px 8px', flexShrink: 0 }}>
-        {FILTER_LABELS.map(({ key, label }) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setFilter(key)}
-            style={{
-              padding: '6px 16px',
-              borderRadius: 99,
-              border: 'none',
-              fontFamily: 'Rubik, sans-serif',
-              fontSize: 13,
-              fontWeight: filter === key ? 600 : 400,
-              background: filter === key ? 'linear-gradient(135deg, #06b6d4, #a78bfa)' : 'rgba(255,255,255,0.08)',
-              color: filter === key ? 'white' : 'rgba(255,255,255,0.45)',
-              cursor: 'pointer',
-              transition: 'background 0.18s ease, color 0.18s ease',
-            }}
-          >
-            {label}
-          </button>
-        ))}
+        {FILTER_LABELS.map(({ key, label }) => {
+          const activeGradient =
+            key === 'income'  ? 'linear-gradient(135deg, #06b6d4, #0ea5e9)' :
+            key === 'expense' ? 'linear-gradient(135deg, #7c3aed, #ec4899)' :
+                                'rgba(255,255,255,0.18)';
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setFilter(key)}
+              style={{
+                padding: '6px 16px',
+                borderRadius: 99,
+                border: 'none',
+                fontFamily: 'Rubik, sans-serif',
+                fontSize: 13,
+                fontWeight: filter === key ? 600 : 400,
+                background: filter === key ? activeGradient : 'rgba(255,255,255,0.08)',
+                color: filter === key ? 'white' : 'rgba(255,255,255,0.45)',
+                cursor: 'pointer',
+                transition: 'background 0.18s ease, color 0.18s ease',
+              }}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Transaction list */}

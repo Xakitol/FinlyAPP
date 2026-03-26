@@ -81,10 +81,10 @@ export function OnboardingNameScreen({ onContinue, onBack }: Props) {
           className="w-full rounded-2xl py-4 text-white font-semibold text-base transition-transform active:scale-[0.97]"
           style={{
             background: isValid
-              ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)'
+              ? 'linear-gradient(135deg, #06b6d4, #a78bfa)'
               : 'rgba(255,255,255,0.08)',
             border: '1px solid rgba(255,255,255,0.18)',
-            boxShadow: isValid ? '0 8px 28px rgba(124,58,237,0.42), inset 0 1px 0 rgba(255,255,255,0.22)' : 'none',
+            boxShadow: isValid ? '0 8px 28px rgba(167,139,250,0.45), inset 0 1px 0 rgba(255,255,255,0.22)' : 'none',
             opacity: isValid ? 1 : 0.5,
             cursor: isValid ? 'pointer' : 'not-allowed',
           }}

@@ -80,7 +80,7 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule }: Props) {
 
   if (!entries)
     return (
-      <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}>
+      <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif', background: 'transparent' }}>
         טוען...
       </p>
     );
@@ -102,7 +102,7 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule }: Props) {
         padding: '16px 16px 24px',
         gap: 14,
         boxSizing: 'border-box',
-        background: '#0f0a1e',
+        background: 'transparent',
         overflow: 'hidden',   // outer screen must not scroll
       }}
     >

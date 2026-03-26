@@ -489,6 +489,9 @@ export default function App() {
           paddingLeft: 16,
           paddingRight: 16,
           flexShrink: 0,
+          background: 'rgba(13,27,42,0.6)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
         }}>
           {/* Month carousel — left side (in RTL: visually right of logo) */}
           <div style={{ flex: 1, overflow: 'hidden' }}>

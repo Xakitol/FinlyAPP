@@ -21,9 +21,9 @@ const KEYFRAMES = `
 function glassBtn(primary: boolean): CSSProperties {
   if (primary) {
     return {
-      background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)',
+      background: 'linear-gradient(135deg, #06b6d4, #a78bfa)',
       border: '1px solid rgba(255,255,255,0.22)',
-      boxShadow: '0 8px 28px rgba(124,58,237,0.42), inset 0 1px 0 rgba(255,255,255,0.22)',
+      boxShadow: '0 8px 28px rgba(167,139,250,0.45), inset 0 1px 0 rgba(255,255,255,0.22)',
     };
   }
   return {
@@ -69,8 +69,8 @@ export function WelcomeScreen({ onLogin, onSignup }: WelcomeScreenProps) {
             style={{
               width: 72,
               height: 72,
-              background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-              boxShadow: '0 12px 32px rgba(124,58,237,0.38), inset 0 1px 0 rgba(255,255,255,0.24)',
+              background: 'linear-gradient(135deg, #06b6d4, #a78bfa)',
+              boxShadow: '0 12px 32px rgba(167,139,250,0.45), inset 0 1px 0 rgba(255,255,255,0.24)',
             }}
           >
             <Sparkles size={34} color="white" strokeWidth={1.6} />

@@ -14,7 +14,7 @@ html, body, #root {
   right: 0;
   bottom: 0;
   overscroll-behavior: none;
-  background: linear-gradient(160deg, #1a1035 0%, #0f0a1e 40%, #0a1628 100%);
+  background: linear-gradient(160deg, #0a1628 0%, #0d1f3c 35%, #1a1040 70%, #0f172a 100%);
   -webkit-tap-highlight-color: transparent;
 }
 

@@ -136,7 +136,7 @@ export function SignupMethodScreen({ onBack, onGoogle, onPhone, onApple, onEmail
             className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform disabled:opacity-70"
             style={{ ...glassOption(), animation: 'signupFadeUp 0.45s 0.22s cubic-bezier(0.22,1,0.36,1) both' }}
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.22)' }}>
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.22)' }}>
               <Phone className="h-5 w-5 text-violet-400" strokeWidth={2} />
             </div>
             <span className="flex-1 text-[15px] font-semibold text-white">טלפון</span>

@@ -137,9 +137,9 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
             onClick={onPhone}
             className="w-full flex items-center gap-4 rounded-2xl px-5 py-4 text-right active:scale-[0.97] transition-transform"
             style={{
-              background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)',
+              background: 'linear-gradient(135deg, #06b6d4, #a78bfa)',
               border: '1px solid rgba(255,255,255,0.18)',
-              boxShadow: '0 8px 0 rgba(109,40,217,0.40), 0 14px 28px rgba(99,102,241,0.28), inset 0 1.5px 0 rgba(255,255,255,0.22)',
+              boxShadow: '0 8px 0 rgba(167,139,250,0.45), 0 14px 28px rgba(167,139,250,0.30), inset 0 1.5px 0 rgba(255,255,255,0.22)',
             }}
           >
             <div
@@ -162,7 +162,7 @@ export function LoginMethodScreen({ onBack, onPhone, onBiometric, onGoogle, onAp
           >
             <div
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-violet-400"
-              style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.22)' }}
+              style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.22)' }}
             >
               <BiometricIcon />
             </div>

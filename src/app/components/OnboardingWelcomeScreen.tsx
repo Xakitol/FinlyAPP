@@ -96,9 +96,9 @@ export function OnboardingWelcomeScreen({ onContinue, onBack }: Props) {
           onClick={onContinue}
           className="w-full max-w-xs rounded-2xl py-4 text-white font-semibold text-[15px] transition-transform active:scale-[0.97]"
           style={{
-            background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)',
+            background: 'linear-gradient(135deg, #06b6d4, #a78bfa)',
             border: '1px solid rgba(255,255,255,0.22)',
-            boxShadow: '0 8px 0 rgba(109,40,217,0.40), 0 14px 28px rgba(99,102,241,0.28), inset 0 1.5px 0 rgba(255,255,255,0.22)',
+            boxShadow: '0 8px 0 rgba(167,139,250,0.45), 0 14px 28px rgba(167,139,250,0.30), inset 0 1.5px 0 rgba(255,255,255,0.22)',
           }}
         >
           פיינלי, דיברנו מספיק – בוא נתחיל כבר!

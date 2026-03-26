@@ -103,10 +103,10 @@ export function PhoneNumberScreen({ onBack, onContinue }: PhoneNumberScreenProps
           style={{
             animation: 'phoneFadeUp 0.45s 0.22s cubic-bezier(0.22,1,0.36,1) both',
             background: canContinue
-              ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)'
+              ? 'linear-gradient(135deg, #06b6d4, #a78bfa)'
               : 'rgba(255,255,255,0.08)',
             boxShadow: canContinue
-              ? '0 8px 0 rgba(109,40,217,0.40), 0 14px 28px rgba(99,102,241,0.28), inset 0 1.5px 0 rgba(255,255,255,0.22)'
+              ? '0 8px 0 rgba(167,139,250,0.45), 0 14px 28px rgba(167,139,250,0.30), inset 0 1.5px 0 rgba(255,255,255,0.22)'
               : 'none',
             border: canContinue ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(255,255,255,0.10)',
             cursor: canContinue ? 'pointer' : 'default',

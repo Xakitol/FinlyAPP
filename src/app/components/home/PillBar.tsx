@@ -26,7 +26,7 @@ export function PillBar({ onAddIncome, onAddExpense, onGoHome }: Props) {
         display: 'flex',
         justifyContent: 'center',
         paddingBottom: 'env(safe-area-inset-bottom)',
-        background: 'linear-gradient(to top, #0f0a1e 60%, transparent)',
+        background: 'linear-gradient(to top, #0f172a 60%, transparent)',
         pointerEvents: 'none', // let taps through the gradient area
       }}
     >

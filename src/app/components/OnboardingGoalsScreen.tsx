@@ -48,10 +48,10 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
   };
 
   const selectedCardStyle: React.CSSProperties = {
-    background: 'linear-gradient(rgba(124,58,237,0.20), rgba(236,72,153,0.15)) padding-box, linear-gradient(135deg, #7c3aed, #ec4899) border-box',
+    background: 'linear-gradient(rgba(167,139,250,0.20), rgba(236,72,153,0.15)) padding-box, linear-gradient(135deg, #06b6d4, #a78bfa) border-box',
     border: '2px solid transparent',
     backdropFilter: 'blur(12px)',
-    boxShadow: '0 4px 0 rgba(124,58,237,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
+    boxShadow: '0 4px 0 rgba(167,139,250,0.45), inset 0 1px 0 rgba(255,255,255,0.15)',
   };
 
   return (
@@ -106,8 +106,8 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
                   style={{
                     width: 40,
                     height: 40,
-                    background: 'rgba(124,58,237,0.20)',
-                    border: '1px solid rgba(124,58,237,0.25)',
+                    background: 'rgba(167,139,250,0.20)',
+                    border: '1px solid rgba(167,139,250,0.40)',
                   }}
                 >
                   <Icon
@@ -142,9 +142,9 @@ export function OnboardingGoalsScreen({ onContinue, onBack }: Props) {
           onClick={handleContinue}
           className="w-full rounded-2xl py-4 text-white font-semibold text-base transition-transform active:scale-[0.97]"
           style={{
-            background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)',
+            background: 'linear-gradient(135deg, #06b6d4, #a78bfa)',
             border: '1px solid rgba(255,255,255,0.22)',
-            boxShadow: '0 8px 28px rgba(124,58,237,0.42), inset 0 1px 0 rgba(255,255,255,0.22)',
+            boxShadow: '0 8px 28px rgba(167,139,250,0.45), inset 0 1px 0 rgba(255,255,255,0.22)',
           }}
         >
           המשך, עוד קצת...

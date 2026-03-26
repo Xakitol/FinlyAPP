@@ -91,7 +91,7 @@ export function OnboardingSuccessScreen({ onContinue }: Props) {
                 height: 80,
                 borderRadius: 22,
                 background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-                boxShadow: '0 12px 32px rgba(124,58,237,0.40), inset 0 1px 0 rgba(255,255,255,0.24)',
+                boxShadow: '0 12px 32px rgba(167,139,250,0.45), inset 0 1px 0 rgba(255,255,255,0.24)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

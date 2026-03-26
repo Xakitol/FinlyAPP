@@ -43,8 +43,8 @@ export function OnboardingHouseholdScreen({ onContinue, onBack }: Props) {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'rgba(124,58,237,0.20)',
-    border: '1px solid rgba(124,58,237,0.25)',
+    background: 'rgba(167,139,250,0.20)',
+    border: '1px solid rgba(167,139,250,0.40)',
   };
 
   return (

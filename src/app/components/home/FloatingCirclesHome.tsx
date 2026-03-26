@@ -91,7 +91,7 @@ export function FloatingCirclesHome({ snapshot }: FloatingCirclesHomeProps) {
           padding: '12px 16px 140px',
           boxSizing: 'border-box',
           gap: 12,
-          background: '#0f0a1e',
+          background: 'transparent',
         }}
       >
 
