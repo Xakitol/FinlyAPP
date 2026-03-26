@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface Props {
@@ -31,6 +31,11 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
   const [amount, setAmount] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => { inputRef.current?.focus(); }, 500);
+    return () => { clearTimeout(t); };
+  }, []);
 
   const isIncome = type === 'income';
   const userName = localStorage.getItem('finly_user_name') ?? '';
@@ -94,9 +99,8 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
         <input
           ref={inputRef}
           type="number"
-          inputMode="numeric"
+          inputMode="decimal"
           pattern="[0-9]*"
-          autoFocus
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           style={{

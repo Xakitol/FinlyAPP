@@ -88,7 +88,7 @@ export function FloatingCirclesHome({ snapshot }: FloatingCirclesHomeProps) {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          padding: '12px 16px 100px',
+          padding: '12px 16px 120px',
           boxSizing: 'border-box',
           gap: 12,
           background: '#0f0a1e',
@@ -141,6 +141,7 @@ export function FloatingCirclesHome({ snapshot }: FloatingCirclesHomeProps) {
         {/* ── Insight card ──────────────── */}
         <div
           className="w-full rounded-2xl"
+          data-no-swipe="true"
           style={{ ...GLASS, padding: '16px 16px 12px', overflow: 'hidden' }}
           onTouchStart={handleInsightTouchStart}
           onTouchEnd={handleInsightTouchEnd}

@@ -21,6 +21,12 @@ export function SwipeableScreens({ screens, activeIndex, onIndexChange }: Props)
     const dy = e.changedTouches[0].clientY - touchStartY.current;
     touchStartX.current = null;
     touchStartY.current = null;
+    // Ignore swipes that started inside a data-no-swipe element
+    let el = e.target as HTMLElement | null;
+    while (el) {
+      if (el.dataset?.noSwipe) return;
+      el = el.parentElement;
+    }
     if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
     // RTL: swipe right (dx > 0) = next screen, swipe left (dx < 0) = prev screen
     if (dx > 0 && activeIndex < screens.length - 1) onIndexChange(activeIndex + 1);
