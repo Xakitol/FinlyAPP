@@ -36,14 +36,14 @@ export function PillBar({ onAddIncome, onAddExpense, onGoHome }: Props) {
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 0,
-          padding: 8,
+          gap: 8,
+          padding: '8px 8px',
           marginBottom: 12,
           background: 'rgba(15,10,30,0.85)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           border: '1px solid rgba(255,255,255,0.12)',
-          borderRadius: 999,
+          borderRadius: 36,
           pointerEvents: 'auto',
         }}
       >
@@ -55,15 +55,15 @@ export function PillBar({ onAddIncome, onAddExpense, onGoHome }: Props) {
           onPointerUp={pressUp}
           onPointerLeave={pressUp}
           style={{
-            height: 52,
-            padding: '0 24px',
+            height: 56,
+            padding: '0 28px',
             borderRadius: 999,
             border: 'none',
             background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)',
             color: 'white',
             fontFamily: 'Rubik, sans-serif',
             fontSize: 16,
-            fontWeight: 600,
+            fontWeight: 700,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -83,8 +83,8 @@ export function PillBar({ onAddIncome, onAddExpense, onGoHome }: Props) {
           onPointerUp={pressUp}
           onPointerLeave={pressUp}
           style={{
-            width: 64,
-            height: 64,
+            width: 68,
+            height: 68,
             borderRadius: '50%',
             border: 'none',
             background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
@@ -96,8 +96,8 @@ export function PillBar({ onAddIncome, onAddExpense, onGoHome }: Props) {
             justifyContent: 'center',
             transition: 'transform 0.1s ease',
             flexShrink: 0,
-            marginTop: -8,
-            marginBottom: -8,
+            marginTop: -14,
+            marginBottom: -14,
           }}
         >
           <Sparkles size={22} color="white" />
@@ -111,15 +111,15 @@ export function PillBar({ onAddIncome, onAddExpense, onGoHome }: Props) {
           onPointerUp={pressUp}
           onPointerLeave={pressUp}
           style={{
-            height: 52,
-            padding: '0 24px',
+            height: 56,
+            padding: '0 28px',
             borderRadius: 999,
             border: 'none',
             background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
             color: 'white',
             fontFamily: 'Rubik, sans-serif',
             fontSize: 16,
-            fontWeight: 600,
+            fontWeight: 700,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
