@@ -38,8 +38,15 @@ function shortDayMonth(isoDate: string): string {
 }
 
 // Invisible date input overlaid on the visible button.
-// onBlur fires after the picker is dismissed, avoiding iOS early-trigger issues.
-function RescheduleDateOverlay({ onDatePicked }: { onDatePicked: (date: string) => void }) {
+// defaultValue pre-fills the picker with the last chosen date.
+// onChange only fires when the user actually selects a value (not on dismiss), with a guard against no-change.
+function RescheduleDateOverlay({
+  currentDate,
+  onDatePicked,
+}: {
+  currentDate: string;
+  onDatePicked: (date: string) => void;
+}) {
   return (
     <div style={{ position: 'relative', flex: 1 }}>
       <button type="button" style={{ ...actionBtnStyle('rgba(255,255,255,0.15)'), width: '100%' }}>
@@ -47,10 +54,11 @@ function RescheduleDateOverlay({ onDatePicked }: { onDatePicked: (date: string) 
       </button>
       <input
         type="date"
-        onBlur={(e) => {
-          if (e.target.value) {
-            onDatePicked(e.target.value);
-            e.target.value = '';
+        defaultValue={currentDate}
+        onChange={(e) => {
+          const val = e.target.value;
+          if (val && val !== currentDate) {
+            onDatePicked(val);
           }
         }}
         style={{
@@ -143,12 +151,12 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule }: Props) {
             </p>
           </div>
 
-          {/* Scrollable entry list */}
+          {/* Scrollable entry list — maxHeight shows ~3 rows (≈100px each) */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              maxHeight: 'calc(100vh - 280px)',
+              maxHeight: 300,
               overflowY: 'auto',
             }}
           >
@@ -197,6 +205,7 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule }: Props) {
                       בוצע
                     </button>
                     <RescheduleDateOverlay
+                      currentDate={datePicks[entry.id] ?? entry.date}
                       onDatePicked={(date) =>
                         setDatePicks((prev) => ({ ...prev, [entry.id]: date }))
                       }
@@ -213,6 +222,25 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule }: Props) {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Empty state — no overdue and no upcoming entries at all */}
+      {overdue.length === 0 && totalExpenses === 0 && totalIncome === 0 && (
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 10,
+        }}>
+          <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'white', textAlign: 'center', maxWidth: 260 }}>
+            הכל שקט כאן
+          </p>
+          <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', maxWidth: 260, lineHeight: 1.6 }}>
+            כשתוסיפו תנועה קבועה — ארנק, ביטוח, מנוי — היא תופיע פה לפני שהיא יורדת.
+          </p>
         </div>
       )}
 
