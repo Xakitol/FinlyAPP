@@ -25,7 +25,6 @@ import { ImportModal } from './components/modals/ImportModal';
 import { FloatingCirclesHome } from './components/home/FloatingCirclesHome';
 import { MonthCarousel } from './components/home/MonthCarousel';
 import { SwipeableScreens } from './components/home/SwipeableScreens';
-import { ScreenDots } from './components/home/ScreenDots';
 import { PillBar } from './components/home/PillBar';
 import { UpcomingScreen } from './components/home/UpcomingScreen';
 import { TransactionsScreen } from './components/home/TransactionsScreen';
@@ -539,9 +538,6 @@ export default function App() {
           activeIndex={homeScreenIdx}
           onIndexChange={setHomeScreenIdx}
         />
-
-        {/* ── Screen dots ── */}
-        <ScreenDots count={3} activeIndex={homeScreenIdx} />
 
         {/* ── Pill bar — all home screens ── */}
         <PillBar
