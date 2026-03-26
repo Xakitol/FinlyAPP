@@ -28,7 +28,7 @@ export function RecurringSuggestionBanner({
         background:
           'linear-gradient(145deg, rgba(237,233,254,0.85) 0%, rgba(221,214,254,0.65) 100%)',
         border: '1.5px solid rgba(167,139,250,0.5)',
-        boxShadow: '0 6px 18px rgba(124,58,237,0.12)',
+        boxShadow: '0 6px 18px rgba(167,139,250,0.45)',
         backdropFilter: 'blur(10px)',
       };
 

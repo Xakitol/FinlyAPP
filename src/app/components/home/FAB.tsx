@@ -76,7 +76,7 @@ export function FAB({ onAddIncome, onAddExpense }: Props) {
               borderRadius: '50%',
               border: 'none',
               background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-              boxShadow: '0 4px 16px rgba(124,58,237,0.5)',
+              boxShadow: '0 4px 16px rgba(167,139,250,0.45)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -104,7 +104,7 @@ export function FAB({ onAddIncome, onAddExpense }: Props) {
               : 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)',
             boxShadow: expanded
               ? '0 4px 12px rgba(0,0,0,0.3)'
-              : '0 6px 20px rgba(124,58,237,0.55)',
+              : '0 6px 20px rgba(167,139,250,0.45)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

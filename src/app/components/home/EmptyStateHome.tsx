@@ -57,7 +57,7 @@ export function EmptyStateHome({ darkMode, onAddClick, onOpenImport }: EmptyStat
               width: 80,
               height: 80,
               background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-              boxShadow: '0 12px 32px rgba(124,58,237,0.35), inset 0 1.5px 0 rgba(255,255,255,0.24)',
+              boxShadow: '0 12px 32px rgba(167,139,250,0.45), inset 0 1.5px 0 rgba(255,255,255,0.24)',
               animation: 'emptyFadeUp 0.5s 0.05s cubic-bezier(0.22,1,0.36,1) both',
             }}
           >

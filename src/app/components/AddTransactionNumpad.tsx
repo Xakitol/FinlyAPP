@@ -46,7 +46,7 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
 
   const ctaShadow = isIncome
     ? '0 6px 0 rgba(6,182,212,0.50), 0 12px 28px rgba(14,165,233,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)'
-    : '0 6px 0 rgba(124,58,237,0.50), 0 12px 28px rgba(124,58,237,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)';
+    : '0 6px 0 rgba(167,139,250,0.45), 0 12px 28px rgba(167,139,250,0.45), inset 0 1.5px 0 rgba(255,255,255,0.25)';
 
   const numericAmount = parseFloat(amount) || 0;
   const displayAmount =
@@ -143,7 +143,7 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
             boxShadow: !isRecurring
               ? (isIncome
                   ? '0 4px 0 rgba(6,182,212,0.40), inset 0 1px 0 rgba(255,255,255,0.25)'
-                  : '0 4px 0 rgba(124,58,237,0.40), inset 0 1px 0 rgba(255,255,255,0.25)')
+                  : '0 4px 0 rgba(167,139,250,0.45), inset 0 1px 0 rgba(255,255,255,0.25)')
               : 'none',
             transition: 'all 0.18s ease',
           }}
@@ -162,7 +162,7 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
             boxShadow: isRecurring
               ? (isIncome
                   ? '0 4px 0 rgba(6,182,212,0.40), inset 0 1px 0 rgba(255,255,255,0.25)'
-                  : '0 4px 0 rgba(124,58,237,0.40), inset 0 1px 0 rgba(255,255,255,0.25)')
+                  : '0 4px 0 rgba(167,139,250,0.45), inset 0 1px 0 rgba(255,255,255,0.25)')
               : 'none',
             transition: 'all 0.18s ease',
           }}

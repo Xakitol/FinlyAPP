@@ -72,7 +72,7 @@ export function AddTransactionDetails({ type, amount, recurring, onBack, onSave 
 
   const ctaShadow = isIncome
     ? '0 6px 0 rgba(6,182,212,0.50), 0 12px 28px rgba(14,165,233,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)'
-    : '0 6px 0 rgba(124,58,237,0.50), 0 12px 28px rgba(124,58,237,0.35), inset 0 1.5px 0 rgba(255,255,255,0.25)';
+    : '0 6px 0 rgba(167,139,250,0.45), 0 12px 28px rgba(167,139,250,0.45), inset 0 1.5px 0 rgba(255,255,255,0.25)';
 
   const glassCard: React.CSSProperties = {
     background: 'rgba(255,255,255,0.06)',
@@ -219,7 +219,7 @@ export function AddTransactionDetails({ type, amount, recurring, onBack, onSave 
                       ? (isIncome ? '1.5px solid rgba(14,165,233,0.50)' : '1.5px solid rgba(124,58,237,0.50)')
                       : '1px solid rgba(255,255,255,0.08)',
                     boxShadow: active
-                      ? (isIncome ? '0 4px 0 rgba(14,165,233,0.20)' : '0 4px 0 rgba(124,58,237,0.20)')
+                      ? (isIncome ? '0 4px 0 rgba(14,165,233,0.20)' : '0 4px 0 rgba(167,139,250,0.45)')
                       : '0 4px 0 rgba(0,0,0,0.30)',
                     transition: 'all 0.15s ease',
                   }}
@@ -228,7 +228,7 @@ export function AddTransactionDetails({ type, amount, recurring, onBack, onSave 
                     size={22}
                     style={{
                       color: active
-                        ? (isIncome ? '#0ea5e9' : '#7c3aed')
+                        ? (isIncome ? '#0ea5e9' : '#a78bfa')
                         : 'rgba(255,255,255,0.55)',
                     }}
                     strokeWidth={1.8}
@@ -237,7 +237,7 @@ export function AddTransactionDetails({ type, amount, recurring, onBack, onSave 
                     className="text-[11px] font-semibold leading-tight"
                     style={{
                       color: active
-                        ? (isIncome ? '#0ea5e9' : '#7c3aed')
+                        ? (isIncome ? '#0ea5e9' : '#a78bfa')
                         : 'rgba(255,255,255,0.80)',
                     }}
                   >

@@ -244,7 +244,7 @@ export function TransactionsScreen({ entries, onEdit, onDelete, onMarkAsPaid }: 
               fontFamily: 'Rubik, sans-serif',
               fontSize: 13,
               fontWeight: filter === key ? 600 : 400,
-              background: filter === key ? 'rgba(124,58,237,0.8)' : 'rgba(255,255,255,0.08)',
+              background: filter === key ? 'linear-gradient(135deg, #06b6d4, #a78bfa)' : 'rgba(255,255,255,0.08)',
               color: filter === key ? 'white' : 'rgba(255,255,255,0.45)',
               cursor: 'pointer',
               transition: 'background 0.18s ease, color 0.18s ease',

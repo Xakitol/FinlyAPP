@@ -47,7 +47,7 @@ export default function App() {
     const lastActive = parseInt(localStorage.getItem('finly_last_active') ?? '0', 10);
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
     if (Date.now() - lastActive >= thirtyDaysMs) return 'login-method';
-    if (!localStorage.getItem('finly_onboarded_complete')) return 'onboarding-name';
+    if (!localStorage.getItem('finly_onboarded_complete')) return 'login-method';
     return 'home';
   });
 
