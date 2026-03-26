@@ -1,5 +1,5 @@
 import { useState, useRef, type CSSProperties } from 'react';
-import { Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 import { getInsightCards } from '../../../utils/finlyInsights';
 
@@ -19,8 +19,6 @@ interface HomeSnapshot {
 
 interface FloatingCirclesHomeProps {
   snapshot: HomeSnapshot;
-  onAddIncome: () => void;
-  onAddExpense: () => void;
 }
 
 const KEYFRAMES = `
@@ -34,25 +32,8 @@ const GLASS: CSSProperties = {
   boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
 };
 
-const TACTILE_SHADOW = '0 6px 0 rgba(0,0,0,0.4), 0 10px 24px rgba(0,0,0,0.25), inset 0 1.5px 0 rgba(255,255,255,0.15)';
-const TACTILE_SHADOW_PRESSED = '0 2px 0 rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.2), inset 0 1.5px 0 rgba(255,255,255,0.15)';
 
-const PRESS_DOWN = {
-  onPointerDown(e: React.PointerEvent<HTMLButtonElement>) {
-    e.currentTarget.style.transform = 'translateY(4px)';
-    e.currentTarget.style.boxShadow = TACTILE_SHADOW_PRESSED;
-  },
-  onPointerUp(e: React.PointerEvent<HTMLButtonElement>) {
-    e.currentTarget.style.transform = '';
-    e.currentTarget.style.boxShadow = TACTILE_SHADOW;
-  },
-  onPointerLeave(e: React.PointerEvent<HTMLButtonElement>) {
-    e.currentTarget.style.transform = '';
-    e.currentTarget.style.boxShadow = TACTILE_SHADOW;
-  },
-};
-
-export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense }: FloatingCirclesHomeProps) {
+export function FloatingCirclesHome({ snapshot }: FloatingCirclesHomeProps) {
   console.log('[Screen1] rendering FloatingCirclesHome');
   const [cardIdx, setCardIdx] = useState(0);
   const [swipeAnim, setSwipeAnim] = useState<'fromRight' | 'fromLeft' | null>(null);
@@ -197,85 +178,6 @@ export function FloatingCirclesHome({ snapshot, onAddIncome, onAddExpense }: Flo
               />
             ))}
           </div>
-        </div>
-
-        {/* ── Add buttons ─────────────── */}
-        <div style={{ display: 'flex', gap: 12, flexShrink: 0, marginTop: 'auto' }}>
-          <button
-            type="button"
-            onClick={onAddIncome}
-            className="flex-1 rounded-2xl"
-            style={{
-              flex: 1,
-              paddingTop: 20,
-              paddingBottom: 20,
-              fontSize: 17,
-              fontWeight: 700,
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              border: 'none',
-              cursor: 'pointer',
-              borderRadius: 16,
-              background: 'linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%)',
-              boxShadow: '0 6px 0 rgba(6,182,212,0.45), 0 10px 24px rgba(14,165,233,0.30), inset 0 1.5px 0 rgba(255,255,255,0.30)',
-              transition: 'transform 0.1s ease, box-shadow 0.1s ease',
-            }}
-            onPointerDown={(e) => {
-              e.currentTarget.style.transform = 'translateY(5px)';
-              e.currentTarget.style.boxShadow = '0 1px 0 rgba(6,182,212,0.45), 0 3px 8px rgba(14,165,233,0.20), inset 0 1.5px 0 rgba(255,255,255,0.30)';
-            }}
-            onPointerUp={(e) => {
-              e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '0 6px 0 rgba(6,182,212,0.45), 0 10px 24px rgba(14,165,233,0.30), inset 0 1.5px 0 rgba(255,255,255,0.30)';
-            }}
-            onPointerLeave={(e) => {
-              e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '0 6px 0 rgba(6,182,212,0.45), 0 10px 24px rgba(14,165,233,0.30), inset 0 1.5px 0 rgba(255,255,255,0.30)';
-            }}
-          >
-            <TrendingUp size={18} color="white" />
-            הכנסה
-          </button>
-          <button
-            type="button"
-            onClick={onAddExpense}
-            style={{
-              flex: 1,
-              paddingTop: 20,
-              paddingBottom: 20,
-              fontSize: 17,
-              fontWeight: 700,
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              border: 'none',
-              cursor: 'pointer',
-              borderRadius: 16,
-              background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-              boxShadow: '0 6px 0 rgba(124,58,237,0.45), 0 10px 24px rgba(124,58,237,0.30), inset 0 1.5px 0 rgba(255,255,255,0.25)',
-              transition: 'transform 0.1s ease, box-shadow 0.1s ease',
-            }}
-            onPointerDown={(e) => {
-              e.currentTarget.style.transform = 'translateY(5px)';
-              e.currentTarget.style.boxShadow = '0 1px 0 rgba(124,58,237,0.45), 0 3px 8px rgba(124,58,237,0.20), inset 0 1.5px 0 rgba(255,255,255,0.25)';
-            }}
-            onPointerUp={(e) => {
-              e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '0 6px 0 rgba(124,58,237,0.45), 0 10px 24px rgba(124,58,237,0.30), inset 0 1.5px 0 rgba(255,255,255,0.25)';
-            }}
-            onPointerLeave={(e) => {
-              e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '0 6px 0 rgba(124,58,237,0.45), 0 10px 24px rgba(124,58,237,0.30), inset 0 1.5px 0 rgba(255,255,255,0.25)';
-            }}
-          >
-            <TrendingDown size={18} color="white" />
-            הוצאה
-          </button>
         </div>
 
       </div>

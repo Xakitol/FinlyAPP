@@ -26,7 +26,7 @@ import { FloatingCirclesHome } from './components/home/FloatingCirclesHome';
 import { MonthCarousel } from './components/home/MonthCarousel';
 import { SwipeableScreens } from './components/home/SwipeableScreens';
 import { ScreenDots } from './components/home/ScreenDots';
-import { FAB } from './components/home/FAB';
+import { PillBar } from './components/home/PillBar';
 import { UpcomingScreen } from './components/home/UpcomingScreen';
 import { TransactionsScreen } from './components/home/TransactionsScreen';
 import { HEBREW_MONTH_NAMES, YEAR, DEFAULT_MONTH_INDEX } from '../data/mockHome';
@@ -522,11 +522,7 @@ export default function App() {
         {/* ── Swipeable screens ── */}
         <SwipeableScreens
           screens={[
-            <FloatingCirclesHome
-              snapshot={snapshot}
-              onAddIncome={handleAddIncome}
-              onAddExpense={handleAddExpense}
-            />,
+            <FloatingCirclesHome snapshot={snapshot} />,
             <UpcomingScreen
               entries={homeData.entries}
               onMarkAsPaid={handleMarkAsPaid}
@@ -547,10 +543,12 @@ export default function App() {
         {/* ── Screen dots ── */}
         <ScreenDots count={3} activeIndex={homeScreenIdx} />
 
-        {/* ── FAB (screens 1 and 2 only) ── */}
-        {homeScreenIdx > 0 && (
-          <FAB onAddIncome={handleAddIncome} onAddExpense={handleAddExpense} />
-        )}
+        {/* ── Pill bar — all home screens ── */}
+        <PillBar
+          onAddIncome={handleAddIncome}
+          onAddExpense={handleAddExpense}
+          onGoHome={() => setHomeScreenIdx(0)}
+        />
 
         {/* ── DEV reset ── */}
         {import.meta.env.DEV && (

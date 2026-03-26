@@ -13,6 +13,7 @@ export function ScreenDots({ count, activeIndex }: Props) {
         gap: 6,
         paddingTop: 8,
         paddingBottom: 8,
+        marginBottom: 70,
         flexShrink: 0,
       }}
     >
