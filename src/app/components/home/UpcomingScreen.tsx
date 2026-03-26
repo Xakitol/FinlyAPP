@@ -1,7 +1,7 @@
 import { type CSSProperties } from 'react';
 import { Bell } from 'lucide-react';
 import type { FinanceEntry } from '../../../types/finance';
-import { formatCurrency, formatShortDate } from '../../../utils/formatters';
+import { formatCurrency } from '../../../utils/formatters';
 import { getOverduePendingEntries } from '../../../utils/recurringPrompt';
 
 interface Props {
@@ -32,7 +32,13 @@ function actionBtnStyle(bg: string): CSSProperties {
   };
 }
 
-// Invisible date input overlaid on top of the "תאריך אחר" button — works on iOS Safari
+function shortDayMonth(isoDate: string): string {
+  const [, m, d] = isoDate.split('-');
+  return `${d}.${m}`;
+}
+
+// Invisible date input overlaid on the visible button.
+// Uses onBlur so the value is read only after the user confirms and dismisses the picker (fixes iOS early-fire).
 function RescheduleDateOverlay({
   entry,
   onRescheduleEntry,
@@ -46,12 +52,14 @@ function RescheduleDateOverlay({
       <button type="button" style={{ ...actionBtnStyle('rgba(255,255,255,0.15)'), width: '100%' }}>
         תאריך אחר
       </button>
-      {/* Invisible date input covers the button — iOS Safari opens the picker natively */}
+      {/* Invisible date input covers full button area — iOS Safari opens native picker on tap */}
       <input
         type="date"
-        onChange={(e) => {
-          if (e.target.value) onRescheduleEntry(entry, e.target.value);
-          e.target.value = '';
+        onBlur={(e) => {
+          if (e.target.value) {
+            onRescheduleEntry(entry, e.target.value);
+            e.target.value = '';
+          }
         }}
         style={{
           position: 'absolute',
@@ -66,30 +74,6 @@ function RescheduleDateOverlay({
   );
 }
 
-function CategoryBadge({ category, type }: { category: string; type: FinanceEntry['type'] }) {
-  const bg = type === 'income' ? 'rgba(6,182,212,0.18)' : 'rgba(236,72,153,0.18)';
-  const color = type === 'income' ? '#06b6d4' : '#ec4899';
-  return (
-    <div
-      style={{
-        width: 38,
-        height: 38,
-        borderRadius: '50%',
-        background: bg,
-        color,
-        flexShrink: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 15,
-        fontWeight: 700,
-      }}
-    >
-      {category ? category[0] : '?'}
-    </div>
-  );
-}
-
 export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onRescheduleEntry }: Props) {
   if (!entries)
     return (
@@ -100,12 +84,8 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onReschedu
 
   const overdue = getOverduePendingEntries(entries);
 
-  const upcoming = entries
-    .filter((e) => e.status === 'upcoming' || e.source === 'system')
-    .sort((a, b) => (a.dueDate ?? a.date).localeCompare(b.dueDate ?? b.date));
-
-  const totalOutgoing = upcoming
-    .filter((e) => e.type === 'expense')
+  const totalOutgoing = entries
+    .filter((e) => (e.status === 'upcoming' || e.source === 'system') && e.type === 'expense')
     .reduce((sum, e) => sum + e.amount, 0);
 
   return (
@@ -165,30 +145,40 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onReschedu
             </p>
           </div>
 
-          {/* One row per overdue entry */}
+          {/* One row per overdue entry, separated by thin lines */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 14,
-              maxHeight: overdue.length > 3 ? 260 : 'none',
-              overflowY: overdue.length > 3 ? 'auto' : 'visible',
+              maxHeight: 'calc(100vh - 220px)',
+              overflowY: 'auto',
             }}
           >
-            {overdue.map((entry) => (
+            {overdue.map((entry, i) => (
               <div key={entry.id}>
+                {/* Separator between rows */}
+                {i > 0 && (
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '14px 0' }} />
+                )}
+
                 {/* Title + amount */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
                   <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
                     {entry.title}
                   </p>
                   <p style={{
-                    margin: 0, fontSize: 14, fontWeight: 700, flexShrink: 0, marginRight: 8,
+                    margin: '0 0 0 8px', fontSize: 14, fontWeight: 700, flexShrink: 0,
                     color: entry.type === 'income' ? '#06b6d4' : '#ec4899',
                   }}>
                     {entry.type === 'expense' ? '−' : '+'}{formatCurrency(entry.amount)}
                   </p>
                 </div>
+
+                {/* Subtitle: recurring label + date */}
+                <p style={{ margin: '0 0 10px', fontSize: 11, color: 'rgba(255,255,255,0.38)' }}>
+                  קבוע בכל חודש · {shortDayMonth(entry.date)}
+                </p>
+
                 {/* Action buttons */}
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button
@@ -221,75 +211,6 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onReschedu
             <span style={{ fontSize: 14, opacity: 0.6, fontWeight: 300 }}>₪</span>
             {formatCurrency(totalOutgoing).replace('₪', '')}
           </p>
-        </div>
-      )}
-
-      {/* List */}
-      {upcoming.length === 0 ? (
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-          }}
-        >
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', textAlign: 'center', margin: 0 }}>
-            עדיין לא הוגדרו תנועות קבועות
-          </p>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', textAlign: 'center', margin: 0 }}>
-            הוסיפו תנועה כ"קבוע בכל חודש" ותופיע כאן
-          </p>
-        </div>
-      ) : (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {upcoming.map((entry) => (
-            <div
-              key={entry.id}
-              style={{
-                ...GLASS,
-                borderRadius: 16,
-                padding: '12px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-              }}
-            >
-              <CategoryBadge category={entry.category} type={entry.type} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: 'white',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {entry.title}
-                </p>
-                <p style={{ margin: '2px 0 0', fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
-                  {entry.recurring ? 'קבוע בכל חודש' : 'צפוי'} · {formatShortDate(entry.dueDate ?? entry.date)}
-                </p>
-              </div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: entry.type === 'income' ? '#06b6d4' : '#ec4899',
-                  flexShrink: 0,
-                }}
-              >
-                {entry.type === 'expense' ? '−' : '+'}
-                {formatCurrency(entry.amount)}
-              </p>
-            </div>
-          ))}
         </div>
       )}
     </div>
