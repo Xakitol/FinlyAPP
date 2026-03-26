@@ -256,7 +256,7 @@ export function TransactionsScreen({ entries, onEdit, onDelete, onMarkAsPaid }: 
       </div>
 
       {/* Transaction list */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 80px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 120px' }}>
         {dates.length === 0 ? (
           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', margin: 0 }}>אין תנועות לחודש זה</p>

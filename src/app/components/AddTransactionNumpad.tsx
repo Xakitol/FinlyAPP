@@ -102,7 +102,11 @@ export function AddTransactionNumpad({ type, onBack, onContinue }: Props) {
           inputMode="decimal"
           pattern="[0-9]*"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val.replace(/\D/g, '').length > 7) return;
+            setAmount(val);
+          }}
           style={{
             position: 'absolute',
             inset: 0,
