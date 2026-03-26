@@ -7,12 +7,6 @@ interface Props {
 }
 
 export function MonthCarousel({ availableMonths, selectedMonthIndex, onMonthChange }: Props) {
-  const last = availableMonths.length - 1;
-  const prevIdx = selectedMonthIndex > 0 ? selectedMonthIndex - 1 : null;
-  const nextIdx = selectedMonthIndex < last ? selectedMonthIndex + 1 : null;
-
-  const slots: (number | null)[] = [prevIdx, selectedMonthIndex, nextIdx];
-
   const touchStartX = useRef<number | null>(null);
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -23,40 +17,43 @@ export function MonthCarousel({ availableMonths, selectedMonthIndex, onMonthChan
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     touchStartX.current = null;
-    if (Math.abs(dx) < 30) return;
-    if (dx < 0 && nextIdx !== null) onMonthChange(nextIdx);
-    else if (dx > 0 && prevIdx !== null) onMonthChange(prevIdx);
+    if (dx < -30 && selectedMonthIndex < 11) onMonthChange(selectedMonthIndex + 1);
+    else if (dx > 30 && selectedMonthIndex > 0) onMonthChange(selectedMonthIndex - 1);
   }
+
+  const translateX = 105 - (selectedMonthIndex * 70 + 35);
 
   return (
     <div
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         width: 210,
         overflow: 'hidden',
         marginLeft: 'auto',
-        WebkitMaskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
-        maskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent, black 25%, black 75%, transparent)',
+        maskImage: 'linear-gradient(to right, transparent, black 25%, black 75%, transparent)',
       } as React.CSSProperties}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        {slots.map((idx, slotPos) => {
-          if (idx === null) {
-            return <div key={slotPos} style={{ width: 64, flexShrink: 0 }} />;
-          }
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          transform: `translateX(${translateX}px)`,
+          transition: 'transform 260ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          willChange: 'transform',
+        }}
+      >
+        {availableMonths.map((month, idx) => {
           const isSelected = idx === selectedMonthIndex;
           return (
             <button
-              key={slotPos}
+              key={idx}
               type="button"
               onClick={() => onMonthChange(idx)}
               style={{
-                flexShrink: 0,
                 width: 70,
+                flexShrink: 0,
                 padding: '5px 0',
                 borderRadius: 99,
                 border: 'none',
@@ -67,12 +64,12 @@ export function MonthCarousel({ availableMonths, selectedMonthIndex, onMonthChan
                 color: 'white',
                 opacity: isSelected ? 1 : 0.4,
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
                 textAlign: 'center',
+                whiteSpace: 'nowrap',
+                transition: 'opacity 0.2s, font-size 0.2s',
               }}
             >
-              {availableMonths[idx]}
+              {month}
             </button>
           );
         })}
