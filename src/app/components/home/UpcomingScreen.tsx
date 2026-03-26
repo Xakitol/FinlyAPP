@@ -1,4 +1,4 @@
-import { type CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Bell } from 'lucide-react';
 import type { FinanceEntry } from '../../../types/finance';
 import { formatCurrency } from '../../../utils/formatters';
@@ -38,26 +38,18 @@ function shortDayMonth(isoDate: string): string {
 }
 
 // Invisible date input overlaid on the visible button.
-// Uses onBlur so the value is read only after the user confirms and dismisses the picker (fixes iOS early-fire).
-function RescheduleDateOverlay({
-  entry,
-  onRescheduleEntry,
-}: {
-  entry: FinanceEntry;
-  onRescheduleEntry: (entry: FinanceEntry, newDate: string) => void;
-}) {
+// onBlur fires after the picker is dismissed, avoiding iOS early-trigger issues.
+function RescheduleDateOverlay({ onDatePicked }: { onDatePicked: (date: string) => void }) {
   return (
     <div style={{ position: 'relative', flex: 1 }}>
-      {/* Visible decorative button */}
       <button type="button" style={{ ...actionBtnStyle('rgba(255,255,255,0.15)'), width: '100%' }}>
         תאריך אחר
       </button>
-      {/* Invisible date input covers full button area — iOS Safari opens native picker on tap */}
       <input
         type="date"
         onBlur={(e) => {
           if (e.target.value) {
-            onRescheduleEntry(entry, e.target.value);
+            onDatePicked(e.target.value);
             e.target.value = '';
           }
         }}
@@ -74,7 +66,10 @@ function RescheduleDateOverlay({
   );
 }
 
-export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onRescheduleEntry }: Props) {
+export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule }: Props) {
+  // Local overrides: entryId → chosen date. Cleared when "בוצע" is tapped.
+  const [datePicks, setDatePicks] = useState<Record<string, string>>({});
+
   if (!entries)
     return (
       <p style={{ color: 'rgba(255,255,255,0.4)', padding: 16, fontFamily: 'Rubik, sans-serif', background: '#0f0a1e' }}>
@@ -84,9 +79,9 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onReschedu
 
   const overdue = getOverduePendingEntries(entries);
 
-  const totalOutgoing = entries
-    .filter((e) => (e.status === 'upcoming' || e.source === 'system') && e.type === 'expense')
-    .reduce((sum, e) => sum + e.amount, 0);
+  const upcomingEntries = entries.filter((e) => e.status === 'upcoming' || e.source === 'system');
+  const totalExpenses = upcomingEntries.filter((e) => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
+  const totalIncome  = upcomingEntries.filter((e) => e.type === 'income').reduce((s, e) => s + e.amount, 0);
 
   return (
     <div
@@ -100,7 +95,7 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onReschedu
         gap: 14,
         boxSizing: 'border-box',
         background: '#0f0a1e',
-        overflowY: 'auto',
+        overflow: 'hidden',   // outer screen must not scroll
       }}
     >
       <style>{`
@@ -115,7 +110,7 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onReschedu
       `}</style>
 
       {/* Header */}
-      <div>
+      <div style={{ flexShrink: 0 }}>
         <p style={{ fontSize: 22, fontWeight: 700, color: 'white', margin: 0 }}>מה מחכה לך?</p>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0' }}>
           תנועות צפויות לחודש הזה
@@ -131,6 +126,7 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onReschedu
             padding: '16px 18px',
             border: '1px solid rgba(245,158,11,0.35)',
             background: 'rgba(245,158,11,0.08)',
+            flexShrink: 0,
           }}
         >
           {/* Shared header */}
@@ -141,76 +137,106 @@ export function UpcomingScreen({ entries, onMarkAsPaid, onDeleteRule, onReschedu
               style={{ animation: 'finly-bell 3s ease-in-out infinite', flexShrink: 0 }}
             />
             <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#f59e0b' }}>
-              {overdue.length === 1 ? 'יש תנועה שממתינה לאישורך' : `יש ${overdue.length} תנועות שממתינות לאישורך`}
+              {overdue.length === 1
+                ? 'יש תנועה שממתינה לאישורך'
+                : `יש ${overdue.length} תנועות שממתינות לאישורך`}
             </p>
           </div>
 
-          {/* One row per overdue entry, separated by thin lines */}
+          {/* Scrollable entry list */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              maxHeight: 'calc(100vh - 220px)',
+              maxHeight: 'calc(100vh - 280px)',
               overflowY: 'auto',
             }}
           >
-            {overdue.map((entry, i) => (
-              <div key={entry.id}>
-                {/* Separator between rows */}
-                {i > 0 && (
-                  <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '14px 0' }} />
-                )}
+            {overdue.map((entry, i) => {
+              const displayDate = datePicks[entry.id] ?? entry.date;
+              return (
+                <div key={entry.id}>
+                  {i > 0 && (
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '14px 0' }} />
+                  )}
 
-                {/* Title + amount */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
-                  <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
-                    {entry.title}
+                  {/* Title + amount */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+                    <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+                      {entry.title}
+                    </p>
+                    <p style={{
+                      margin: '0 0 0 8px', fontSize: 14, fontWeight: 700, flexShrink: 0,
+                      color: entry.type === 'income' ? '#06b6d4' : '#ec4899',
+                    }}>
+                      {entry.type === 'expense' ? '−' : '+'}{formatCurrency(entry.amount)}
+                    </p>
+                  </div>
+
+                  {/* Subtitle: label + effective date (updates when user picks a date) */}
+                  <p style={{ margin: '0 0 10px', fontSize: 11, color: 'rgba(255,255,255,0.38)' }}>
+                    קבוע בכל חודש · {shortDayMonth(displayDate)}
                   </p>
-                  <p style={{
-                    margin: '0 0 0 8px', fontSize: 14, fontWeight: 700, flexShrink: 0,
-                    color: entry.type === 'income' ? '#06b6d4' : '#ec4899',
-                  }}>
-                    {entry.type === 'expense' ? '−' : '+'}{formatCurrency(entry.amount)}
-                  </p>
-                </div>
 
-                {/* Subtitle: recurring label + date */}
-                <p style={{ margin: '0 0 10px', fontSize: 11, color: 'rgba(255,255,255,0.38)' }}>
-                  קבוע בכל חודש · {shortDayMonth(entry.date)}
-                </p>
-
-                {/* Action buttons */}
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => onMarkAsPaid(entry)}
-                    style={actionBtnStyle('#06b6d4')}
-                  >
-                    בוצע
-                  </button>
-                  <RescheduleDateOverlay entry={entry} onRescheduleEntry={onRescheduleEntry} />
-                  <button
-                    type="button"
-                    onClick={() => onDeleteRule(entry)}
-                    style={actionBtnStyle('rgba(236,72,153,0.2)')}
-                  >
-                    הסר כלל
-                  </button>
+                  {/* Action buttons */}
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const effectiveDate = datePicks[entry.id];
+                        const entryToMark = effectiveDate ? { ...entry, date: effectiveDate } : entry;
+                        onMarkAsPaid(entryToMark);
+                        setDatePicks((prev) => {
+                          const next = { ...prev };
+                          delete next[entry.id];
+                          return next;
+                        });
+                      }}
+                      style={actionBtnStyle('#06b6d4')}
+                    >
+                      בוצע
+                    </button>
+                    <RescheduleDateOverlay
+                      onDatePicked={(date) =>
+                        setDatePicks((prev) => ({ ...prev, [entry.id]: date }))
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => onDeleteRule(entry)}
+                      style={actionBtnStyle('rgba(236,72,153,0.2)')}
+                    >
+                      הסר כלל
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Summary card */}
-      {totalOutgoing > 0 && (
-        <div style={{ ...GLASS, borderRadius: 20, padding: '16px 20px' }}>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: 0 }}>סה"כ הוצאות צפויות</p>
-          <p style={{ fontSize: 28, fontWeight: 700, color: '#ec4899', margin: '4px 0 0', lineHeight: 1 }}>
-            <span style={{ fontSize: 14, opacity: 0.6, fontWeight: 300 }}>₪</span>
-            {formatCurrency(totalOutgoing).replace('₪', '')}
-          </p>
+      {/* Two summary cards side by side */}
+      {(totalExpenses > 0 || totalIncome > 0) && (
+        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+          {totalExpenses > 0 && (
+            <div style={{ ...GLASS, borderRadius: 20, padding: '16px 20px', flex: 1 }}>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: 0 }}>הוצאות צפויות</p>
+              <p style={{ fontSize: 24, fontWeight: 700, color: '#ec4899', margin: '4px 0 0', lineHeight: 1 }}>
+                <span style={{ fontSize: 13, opacity: 0.6, fontWeight: 300 }}>₪</span>
+                {formatCurrency(totalExpenses).replace('₪', '')}
+              </p>
+            </div>
+          )}
+          {totalIncome > 0 && (
+            <div style={{ ...GLASS, borderRadius: 20, padding: '16px 20px', flex: 1 }}>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: 0 }}>הכנסות צפויות</p>
+              <p style={{ fontSize: 24, fontWeight: 700, color: '#06b6d4', margin: '4px 0 0', lineHeight: 1 }}>
+                <span style={{ fontSize: 13, opacity: 0.6, fontWeight: 300 }}>₪</span>
+                {formatCurrency(totalIncome).replace('₪', '')}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
